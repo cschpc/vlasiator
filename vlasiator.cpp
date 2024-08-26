@@ -152,19 +152,10 @@ int main(int argn,char* args[]) {
 
    // Init parallel logger:
 
-   //if restarting we will append to logfiles
-   if(!P::writeFullBGB) {
       if (logFile.open(MPI_COMM_WORLD,MASTER_RANK,"logfile.txt",P::isRestart) == false) {
          if(myRank == MASTER_RANK) cerr << "(MAIN) ERROR: Logger failed to open logfile!" << endl;
          exit(1);
       }
-   } else {
-      // If we are out to write the full background field and derivatives, we don't want to overwrite the existing run's logfile.
-      if (logFile.open(MPI_COMM_WORLD,MASTER_RANK,"logfile_fullbgbio.txt",false) == false) {
-         if(myRank == MASTER_RANK) cerr << "(MAIN) ERROR: Logger failed to open logfile_fullbgbio!" << endl;
-         exit(1);
-      }
-   }
    if (P::diagnosticInterval != 0) {
       if (diagnostic.open(MPI_COMM_WORLD,MASTER_RANK,"diagnostic.txt",P::isRestart) == false) {
          if(myRank == MASTER_RANK) cerr << "(MAIN) ERROR: Logger failed to open diagnostic file!" << endl;
@@ -183,22 +174,6 @@ int main(int argn,char* args[]) {
       logFile << " OpenMP threads per process" << endl << writeVerbose;      
    }
    
-   // Init project
-   if (project->initialize() == false) {
-      if(myRank == MASTER_RANK) cerr << "(MAIN): Project did not initialize correctly!" << endl;
-      exit(1);
-   }
-   if (project->initialized() == false) {
-      if (myRank == MASTER_RANK) {
-         cerr << "(MAIN): Project base class was not initialized!" << endl;
-         cerr << "\t Call Project::initialize() in your project's initialize()-function." << endl;
-         exit(1);
-      }
-   }
-
-   // Add VAMR refinement criterias:
-   vamr_ref_criteria::addRefinementCriteria();
-
    // Initialize simplified Fieldsolver grids.
    // Needs to be done here already ad the background field will be set right away, before going to initializeGrid even
 
