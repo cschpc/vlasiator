@@ -664,7 +664,6 @@ int main(int argn,char* args[]) {
          dPerBGrid,
          dMomentsGrid,
          technicalGrid,
-         sysBoundaryContainer,
          RK_ORDER1, // Update and compute on non-dt2 grids.
          false // Don't communicate moments, they are not needed here.
       );
