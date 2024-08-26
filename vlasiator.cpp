@@ -55,11 +55,11 @@
 #include "fieldsolver/derivatives.hpp"
 
 #include "phiprof.hpp"
+using namespace std;
 
+// Globals needed to be able to compile
 Logger logFile, diagnostic;
 static dccrg::Dccrg<SpatialCell,dccrg::Cartesian_Geometry> mpiGrid;
-
-using namespace std;
 
 int globalflags::bailingOut = 0;
 bool globalflags::writeRestart = 0;
@@ -73,10 +73,6 @@ ObjectWrapper& getObjectWrapper() {
    return objectWrapper;
 }
 
-/** Get local cell IDs. This function creates a cached copy of the 
- * cell ID lists to significantly improve performance. The cell ID 
- * cache is recalculated every time the mesh partitioning changes.
- * @return Local cell IDs.*/
 const std::vector<CellID>& getLocalCells() {
    return Parameters::localCells;
 }
@@ -88,15 +84,11 @@ void recalculateLocalCellsCache() {
      }
    Parameters::localCells = mpiGrid.get_cells();
 }
+// END Globals
 
 int main(int argn,char* args[]) {
-   int myRank, doBailout=0;
-   const creal DT_EPSILON=1e-12;
-   typedef Parameters P;
-   Real newDt;
-   bool dtIsChanged {false};
+   int myRank;
    
-   // Before MPI_Init we hardwire some settings, if we are in OpenMPI
    int required=MPI_THREAD_FUNNELED;
    int provided;
 
@@ -105,79 +97,22 @@ int main(int argn,char* args[]) {
    MPI_Init_thread(&argn,&args,required,&provided);
    MPI_Comm_rank(MPI_COMM_WORLD,&myRank);
    if (required > provided){
-      if(myRank==MASTER_RANK) {
-         cerr << "(MAIN): MPI_Init_thread failed! Got " << provided << ", need "<<required <<endl;
-      }
       exit(1);
    }
 
    phiprof::initialize();
-   
-   double initialWtime =  MPI_Wtime();
-   SysBoundary& sysBoundaryContainer = getObjectWrapper().sysBoundaryContainer;
-
-   //init parameter file reader
-   Readparameters readparameters(argn,args);
-
-   P::addParameters();
-
-   getObjectWrapper().addParameters();
-
-   readparameters.parse();
-
-   P::getParameters();
-
-   getObjectWrapper().addPopulationParameters();
-   sysBoundaryContainer.addParameters();
-   projects::Project::addParameters();
-
-   Project* project = projects::createProject();
-   getObjectWrapper().project = project;
-   readparameters.parse(true, false); // 2nd parsing for specific population parameters
-   readparameters.helpMessage(); // Call after last parse, exits after printing help if help requested
-   getObjectWrapper().getParameters();
-   sysBoundaryContainer.getParameters();
-   project->getParameters();
-
-   //Get version and config info here
-   std::string version;
-   std::string config;
-   //Only master needs the info
-   if (myRank==MASTER_RANK){
-      version=readparameters.versionInfo();
-      config=readparameters.configInfo();
-   }
-
-
 
    // Init parallel logger:
-
-      if (logFile.open(MPI_COMM_WORLD,MASTER_RANK,"logfile.txt",P::isRestart) == false) {
+      if (logFile.open(MPI_COMM_WORLD,MASTER_RANK,"logfile.txt",false) == false) {
          if(myRank == MASTER_RANK) cerr << "(MAIN) ERROR: Logger failed to open logfile!" << endl;
          exit(1);
       }
-   if (P::diagnosticInterval != 0) {
-      if (diagnostic.open(MPI_COMM_WORLD,MASTER_RANK,"diagnostic.txt",P::isRestart) == false) {
+      if (diagnostic.open(MPI_COMM_WORLD,MASTER_RANK,"diagnostic.txt",false) == false) {
          if(myRank == MASTER_RANK) cerr << "(MAIN) ERROR: Logger failed to open diagnostic file!" << endl;
          exit(1);
       }
-   }
-   {
-      int mpiProcs;
-      MPI_Comm_size(MPI_COMM_WORLD,&mpiProcs);
-      logFile << "(MAIN) Starting simulation with " << mpiProcs << " MPI processes ";
-      #ifdef _OPENMP
-         logFile << "and " << omp_get_max_threads();
-      #else
-         logFile << "and 0";
-      #endif
-      logFile << " OpenMP threads per process" << endl << writeVerbose;      
-   }
    
    // Initialize simplified Fieldsolver grids.
-   // Needs to be done here already ad the background field will be set right away, before going to initializeGrid even
-   //
-   //
    std::array<FsGridTools::FsSize_t, 3> fsGridDimensions = {15, 15, 15};
    std::array<bool,3> periodicity = {1, 1, 1};
    std::array<int,3> manualFsGridDecomposition = {0, 0, 0};
@@ -217,21 +152,17 @@ int main(int argn,char* args[]) {
       = {-10000, -10000, -10000};
 
 
-   
-   // Build communicator for ionosphere solving
-   // If not a restart, perBGrid and dPerBGrid are up to date after propagateFields just above. Otherwise, we should compute them.
-      calculateDerivativesSimple(
-         perBGrid,
-         perBDt2Grid,
-         momentsGrid,
-         momentsDt2Grid,
-         dPerBGrid,
-         dMomentsGrid,
-         technicalGrid,
-         RK_ORDER1, // Update and compute on non-dt2 grids.
-         false // Don't communicate moments, they are not needed here.
-      );
-      dPerBGrid.updateGhostCells();
+// various ways of calling from ldz_main.cpp:
+//     calculateDerivativesSimple(perBGrid, perBDt2Grid, momentsGrid, momentsDt2Grid, dPerBGrid, dMomentsGrid, technicalGrid, RK_ORDER1, true);
+//     calculateDerivativesSimple(perBGrid, perBDt2Grid, momentsGrid, momentsDt2Grid, dPerBGrid, dMomentsGrid, technicalGrid, RK_ORDER2_STEP1, true);
+//     calculateDerivativesSimple(perBGrid, perBDt2Grid, momentsGrid, momentsDt2Grid, dPerBGrid, dMomentsGrid, technicalGrid, RK_ORDER2_STEP2, true);
+//     calculateDerivativesSimple(perBGrid, perBDt2Grid, momentsGrid, momentsDt2Grid, dPerBGrid, dMomentsGrid, technicalGrid, RK_ORDER2_STEP1, (subcycleCount==0));
+//     calculateDerivativesSimple(perBGrid, perBDt2Grid, momentsGrid, momentsDt2Grid, dPerBGrid, dMomentsGrid, technicalGrid, RK_ORDER2_STEP2, (subcycleCount==0));
+
+
+  calculateDerivativesSimple(perBGrid, perBDt2Grid, momentsGrid, momentsDt2Grid, dPerBGrid, dMomentsGrid, technicalGrid, RK_ORDER1, true);
+
+      //dPerBGrid.updateGhostCells();
    
    
    perBGrid.finalize();
