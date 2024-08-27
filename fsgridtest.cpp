@@ -156,17 +156,9 @@ int main(int argn,char* args[]) {
    }
    cout << endl;
 
-// various ways of calling from ldz_main.cpp:
-//     calculateDerivativesSimple(perBGrid, perBDt2Grid, momentsGrid, momentsDt2Grid, dPerBGrid, dMomentsGrid, technicalGrid, RK_ORDER1, true);
-//     calculateDerivativesSimple(perBGrid, perBDt2Grid, momentsGrid, momentsDt2Grid, dPerBGrid, dMomentsGrid, technicalGrid, RK_ORDER2_STEP1, true);
-//     calculateDerivativesSimple(perBGrid, perBDt2Grid, momentsGrid, momentsDt2Grid, dPerBGrid, dMomentsGrid, technicalGrid, RK_ORDER2_STEP2, true);
-//     calculateDerivativesSimple(perBGrid, perBDt2Grid, momentsGrid, momentsDt2Grid, dPerBGrid, dMomentsGrid, technicalGrid, RK_ORDER2_STEP1, (subcycleCount==0));
-//     calculateDerivativesSimple(perBGrid, perBDt2Grid, momentsGrid, momentsDt2Grid, dPerBGrid, dMomentsGrid, technicalGrid, RK_ORDER2_STEP2, (subcycleCount==0));
 
-
-  calculateDerivativesSimple(perBGrid, perBDt2Grid, momentsGrid, momentsDt2Grid, dPerBGrid, dMomentsGrid, technicalGrid, RK_ORDER1, true);
-
-      //dPerBGrid.updateGhostCells();
+  calculateDerivativesSimple(perBGrid, momentsGrid, dPerBGrid, dMomentsGrid, technicalGrid, true);
+  //dPerBGrid.updateGhostCells();
 
 
    perBGrid.finalize();
