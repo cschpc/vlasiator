@@ -55,8 +55,8 @@ void calculateDerivatives(
    FsGrid< std::array<Real, fsgrids::dmoments::N_DMOMENTS>, FS_STENCIL_WIDTH> & dMomentsGrid,
    FsGrid< fsgrids::technical, FS_STENCIL_WIDTH> & technicalGrid
 ) {
-   std::array<Real, fsgrids::dperb::N_DPERB> * dPerB = dPerBGrid.get(i,j,k);
-   std::array<Real, fsgrids::dmoments::N_DMOMENTS> * dMoments = dMomentsGrid.get(i,j,k);
+   auto dPerB = dPerBGrid.get(i,j,k);
+   auto dMoments = dMomentsGrid.get(i,j,k);
 
    // Get boundary flag for the cell:
    cuint sysBoundaryFlag  = technicalGrid.get(i,j,k)->sysBoundaryFlag;
@@ -67,10 +67,8 @@ void calculateDerivatives(
    Real Peupstream = Parameters::electronTemperature * Parameters::electronDensity * physicalconstants::K_B;
    Real Peconst = Peupstream * pow(Parameters::electronDensity, -Parameters::electronPTindex);
 
-   std::array<Real, fsgrids::moments::N_MOMENTS> * leftMoments = NULL;
-   std::array<Real, fsgrids::bfield::N_BFIELD> * leftPerB = NULL;
-   std::array<Real, fsgrids::moments::N_MOMENTS> * centMoments = momentsGrid.get(i,j,k);
-   std::array<Real, fsgrids::bfield::N_BFIELD> * centPerB = perBGrid.get(i,j,k);
+   auto centMoments = momentsGrid.get(i,j,k);
+   auto centPerB = perBGrid.get(i,j,k);
    #ifdef DEBUG_SOLVERS
    if (centMoments->at(fsgrids::moments::RHOM) <= 0) {
       std::cerr << __FILE__ << ":" << __LINE__
@@ -79,18 +77,12 @@ void calculateDerivatives(
       abort();
    }
    #endif
-   std::array<Real, fsgrids::moments::N_MOMENTS> * rghtMoments = NULL;
-   std::array<Real, fsgrids::bfield::N_BFIELD>  * rghtPerB = NULL;
-   std::array<Real, fsgrids::bfield::N_BFIELD>  * botLeft = NULL;
-   std::array<Real, fsgrids::bfield::N_BFIELD>  * botRght = NULL;
-   std::array<Real, fsgrids::bfield::N_BFIELD>  * topLeft = NULL;
-   std::array<Real, fsgrids::bfield::N_BFIELD>  * topRght = NULL;
 
    // Calculate x-derivatives (is not TVD for AMR mesh):
-   leftPerB = perBGrid.get(i-1,j,k);
-   rghtPerB = perBGrid.get(i+1,j,k);
-   leftMoments = momentsGrid.get(i-1,j,k);
-   rghtMoments = momentsGrid.get(i+1,j,k);
+   auto leftPerB = perBGrid.get(i-1,j,k);
+   auto rghtPerB = perBGrid.get(i+1,j,k);
+   auto leftMoments = momentsGrid.get(i-1,j,k);
+   auto rghtMoments = momentsGrid.get(i+1,j,k);
    if(leftPerB == NULL) {
       leftPerB = centPerB;
       leftMoments = centMoments;
@@ -252,10 +244,10 @@ void calculateDerivatives(
    } else {
       // Calculate xy mixed derivatives:
       if (sysBoundaryFlag == sysboundarytype::NOT_SYSBOUNDARY) {
-         botLeft = perBGrid.get(i-1,j-1,k);
-         botRght = perBGrid.get(i+1,j-1,k);
-         topLeft = perBGrid.get(i-1,j+1,k);
-         topRght = perBGrid.get(i+1,j+1,k);
+         auto botLeft = perBGrid.get(i-1,j-1,k);
+         auto botRght = perBGrid.get(i+1,j-1,k);
+         auto topLeft = perBGrid.get(i-1,j+1,k);
+         auto topRght = perBGrid.get(i+1,j+1,k);
          dPerB->at(fsgrids::dperb::dPERBzdxy) = FOURTH * (botLeft->at(fsgrids::bfield::PERBZ) + topRght->at(fsgrids::bfield::PERBZ) - botRght->at(fsgrids::bfield::PERBZ) - topLeft->at(fsgrids::bfield::PERBZ));
       } else {
          SBC::SysBoundaryCondition::setCellDerivativesToZero(dPerBGrid, dMomentsGrid, i, j, k, 3);
@@ -263,10 +255,10 @@ void calculateDerivatives(
 
       // Calculate xz mixed derivatives:
       if (sysBoundaryFlag == sysboundarytype::NOT_SYSBOUNDARY) {
-         botLeft = perBGrid.get(i-1,j,k-1);
-         botRght = perBGrid.get(i+1,j,k-1);
-         topLeft = perBGrid.get(i-1,j,k+1);
-         topRght = perBGrid.get(i+1,j,k+1);
+         auto botLeft = perBGrid.get(i-1,j,k-1);
+         auto botRght = perBGrid.get(i+1,j,k-1);
+         auto topLeft = perBGrid.get(i-1,j,k+1);
+         auto topRght = perBGrid.get(i+1,j,k+1);
          dPerB->at(fsgrids::dperb::dPERBydxz) = FOURTH * (botLeft->at(fsgrids::bfield::PERBY) + topRght->at(fsgrids::bfield::PERBY) - botRght->at(fsgrids::bfield::PERBY) - topLeft->at(fsgrids::bfield::PERBY));
       } else {
          SBC::SysBoundaryCondition::setCellDerivativesToZero(dPerBGrid, dMomentsGrid, i, j, k, 4);
@@ -274,10 +266,10 @@ void calculateDerivatives(
 
       // Calculate yz mixed derivatives:
       if (sysBoundaryFlag == sysboundarytype::NOT_SYSBOUNDARY) {
-         botLeft = perBGrid.get(i,j-1,k-1);
-         botRght = perBGrid.get(i,j+1,k-1);
-         topLeft = perBGrid.get(i,j-1,k+1);
-         topRght = perBGrid.get(i,j+1,k+1);
+         auto botLeft = perBGrid.get(i,j-1,k-1);
+         auto botRght = perBGrid.get(i,j+1,k-1);
+         auto topLeft = perBGrid.get(i,j-1,k+1);
+         auto topRght = perBGrid.get(i,j+1,k+1);
          dPerB->at(fsgrids::dperb::dPERBxdyz) = FOURTH * (botLeft->at(fsgrids::bfield::PERBX) + topRght->at(fsgrids::bfield::PERBX) - botRght->at(fsgrids::bfield::PERBX) - topLeft->at(fsgrids::bfield::PERBX));
       } else {
          SBC::SysBoundaryCondition::setCellDerivativesToZero(dPerBGrid, dMomentsGrid, i, j, k, 5);
