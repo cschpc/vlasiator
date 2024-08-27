@@ -233,6 +233,7 @@ void calculateDerivatives(
       dPerB->at(fsgrids::dperb::dPERBydzz) = leftPerB->at(fsgrids::bfield::PERBY) + rghtPerB->at(fsgrids::bfield::PERBY) - 2.0*centPerB->at(fsgrids::bfield::PERBY);
    }
 
+   // Calculate mixed derivatives
    if (Parameters::ohmHallTerm < 2 || sysBoundaryLayer == 1) {
       dPerB->at(fsgrids::dperb::dPERBxdyz) = 0.0;
       dPerB->at(fsgrids::dperb::dPERBydxz) = 0.0;
@@ -296,10 +297,12 @@ void calculateDerivativesSimple(
    FsGrid< std::array<Real, fsgrids::dperb::N_DPERB>, FS_STENCIL_WIDTH> & dPerBGrid,
    FsGrid< std::array<Real, fsgrids::dmoments::N_DMOMENTS>, FS_STENCIL_WIDTH> & dMomentsGrid,
    FsGrid< fsgrids::technical, FS_STENCIL_WIDTH> & technicalGrid,
-   const bool communicateMoments) {
-   //const std::array<int, 3> gridDims = technicalGrid.getLocalSize();
-   const FsGridTools::FsIndex_t* gridDims = &technicalGrid.getLocalSize()[0];
+   const bool communicateMoments
+) {
+   const auto gridDims = &technicalGrid.getLocalSize()[0];  // Workaround intel compiler bug in collapsed openmp loops (604c81142729c5025a0073cd5dc64a24882f1675)
+
    const size_t N_cells = gridDims[0]*gridDims[1]*gridDims[2];
+
    phiprof::Timer derivativesTimer {"Calculate face derivatives"};
    int computeTimerId {phiprof::initializeTimer("FS derivatives compute cells")};
 
