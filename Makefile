@@ -113,13 +113,13 @@ CXXFLAGS += ${COMPFLAGS}
 testpackage: CXXFLAGS += ${COMPFLAGS}
 CXXEXTRAFLAGS = ${CXXFLAGS} -DTOOL_NOT_PARALLEL
 
-default: vlasiator
+default: fsgridtest
 
 tools: parallel_tools not_parallel_tools
 
 parallel_tools: vlsvextract vlsvdiff
 
-testpackage: fsgridtest
+testpackage: vlasiator
 
 FORCE:
 # On FERMI one has to use the front-end compiler (e.g. g++) to compile this tool.
