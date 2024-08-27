@@ -88,10 +88,8 @@ void recalculateLocalCellsCache() {
 
 int main(int argn,char* args[]) {
    int myRank;
-   
    int required=MPI_THREAD_FUNNELED;
    int provided;
-
 
    // After the MPI_T settings we can init MPI all right.
    MPI_Init_thread(&argn,&args,required,&provided);
@@ -101,7 +99,7 @@ int main(int argn,char* args[]) {
    }
 
    phiprof::initialize();
-   
+
    // Initialize simplified Fieldsolver grids.
    std::array<FsGridTools::FsSize_t, 3> fsGridDimensions = {15, 15, 15};
    std::array<bool,3> periodicity = {1, 1, 1};
@@ -141,6 +139,22 @@ int main(int argn,char* args[]) {
       = BgBGrid.physicalGlobalStart = volGrid.physicalGlobalStart = technicalGrid.physicalGlobalStart
       = {-10000, -10000, -10000};
 
+   auto s = technicalGrid.getLocalSize();
+   cout << "local size" << endl;
+   cout << s[0] << endl;  // 15
+   cout << s[1] << endl;  // 15
+   cout << s[2] << endl;  // 15
+   cout << "size is " << perBGrid.getData().size() << endl;  // 6859 = (15+2+2)**3
+
+   cout << "data is " << endl;
+   auto data = perBGrid.getData();
+   for (auto v : data) {
+     if (v[0] == 0.0 && v[1] == 0 && v[2] == 0) {
+       continue;
+     }
+     printf("(%f,%f,%f) ", v[0], v[1], v[2]);
+   }
+   cout << endl;
 
 // various ways of calling from ldz_main.cpp:
 //     calculateDerivativesSimple(perBGrid, perBDt2Grid, momentsGrid, momentsDt2Grid, dPerBGrid, dMomentsGrid, technicalGrid, RK_ORDER1, true);
@@ -153,8 +167,8 @@ int main(int argn,char* args[]) {
   calculateDerivativesSimple(perBGrid, perBDt2Grid, momentsGrid, momentsDt2Grid, dPerBGrid, dMomentsGrid, technicalGrid, RK_ORDER1, true);
 
       //dPerBGrid.updateGhostCells();
-   
-   
+
+
    perBGrid.finalize();
    perBDt2Grid.finalize();
    EGrid.finalize();
