@@ -294,26 +294,20 @@ void calculateDerivatives(
  * Then the derivatives are calculated.
  *
  * \param perBGrid fsGrid holding the perturbed B quantities
- * \param perBDt2Grid fsGrid holding the perturbed B quantities at runge-kutta t=0.5
  * \param momentsGrid fsGrid holding the moment quantities
- * \param momentsDt2Grid fsGrid holding the moment quantities at runge-kutta t=0.5
  * \param dPerBGrid fsGrid holding the derivatives of perturbed B
  * \param dMomentsGrid fsGrid holding the derviatives of moments
  * \param technicalGrid fsGrid holding technical information (such as boundary types)
- * \param RKCase Element in the enum defining the Runge-Kutta method steps
  * \param communicateMoments If true, the derivatives of moments (rho, V, P) are communicated to neighbours.
 
  * \sa calculateDerivatives calculateBVOLDerivativesSimple calculateBVOLDerivatives
  */
 void calculateDerivativesSimple(
    FsGrid< std::array<Real, fsgrids::bfield::N_BFIELD>, FS_STENCIL_WIDTH> & perBGrid,
-   FsGrid< std::array<Real, fsgrids::bfield::N_BFIELD>, FS_STENCIL_WIDTH> & perBDt2Grid,
    FsGrid< std::array<Real, fsgrids::moments::N_MOMENTS>, FS_STENCIL_WIDTH> & momentsGrid,
-   FsGrid< std::array<Real, fsgrids::moments::N_MOMENTS>, FS_STENCIL_WIDTH> & momentsDt2Grid,
    FsGrid< std::array<Real, fsgrids::dperb::N_DPERB>, FS_STENCIL_WIDTH> & dPerBGrid,
    FsGrid< std::array<Real, fsgrids::dmoments::N_DMOMENTS>, FS_STENCIL_WIDTH> & dMomentsGrid,
    FsGrid< fsgrids::technical, FS_STENCIL_WIDTH> & technicalGrid,
-   cint& RKCase,
    const bool communicateMoments) {
    //const std::array<int, 3> gridDims = technicalGrid.getLocalSize();
    const FsGridTools::FsIndex_t* gridDims = &technicalGrid.getLocalSize()[0];
@@ -322,39 +316,12 @@ void calculateDerivativesSimple(
    int computeTimerId {phiprof::initializeTimer("FS derivatives compute cells")};
 
    phiprof::Timer mpiTimer {"FS derivatives ghost updates MPI", {"MPI"}};
-   switch (RKCase) {
-    case RK_ORDER1:
-      // Means initialising the solver as well as RK_ORDER1
-      // standard case Exchange PERB* with neighbours
-      // The update of PERB[XYZ] is needed after the system
-      // boundary update of propagateMagneticFieldSimple.
-       perBGrid.updateGhostCells();
-       if(communicateMoments) {
-         momentsGrid.updateGhostCells();
-       }
-       break;
-    case RK_ORDER2_STEP1:
-      // Exchange PERB*_DT2,RHO_DT2,V*_DT2 with neighbours The
-      // update of PERB[XYZ]_DT2 is needed after the system
-      // boundary update of propagateMagneticFieldSimple.
-       perBDt2Grid.updateGhostCells();
-       if(communicateMoments) {
-         momentsDt2Grid.updateGhostCells();
-       }
-       break;
-    case RK_ORDER2_STEP2:
-      // Exchange PERB*,RHO,V* with neighbours The update of B
-      // is needed after the system boundary update of
-      // propagateMagneticFieldSimple.
-       perBGrid.updateGhostCells();
-       if(communicateMoments) {
-         momentsGrid.updateGhostCells();
-       }
-      break;
-    default:
-      cerr << __FILE__ << ":" << __LINE__ << " Went through switch, this should not happen." << endl;
-      abort();
+
+   perBGrid.updateGhostCells();
+   if(communicateMoments) {
+     momentsGrid.updateGhostCells();
    }
+
    mpiTimer.stop();
 
    // Calculate derivatives
@@ -365,11 +332,7 @@ void calculateDerivativesSimple(
       for (FsGridTools::FsIndex_t k=0; k<gridDims[2]; k++) {
          for (FsGridTools::FsIndex_t j=0; j<gridDims[1]; j++) {
             for (FsGridTools::FsIndex_t i=0; i<gridDims[0]; i++) {
-               if (RKCase == RK_ORDER1 || RKCase == RK_ORDER2_STEP2) {
-                  calculateDerivatives(i,j,k, perBGrid, momentsGrid, dPerBGrid, dMomentsGrid, technicalGrid);
-               } else {
-                  calculateDerivatives(i,j,k, perBDt2Grid, momentsDt2Grid, dPerBGrid, dMomentsGrid, technicalGrid);
-               }
+               calculateDerivatives(i,j,k, perBGrid, momentsGrid, dPerBGrid, dMomentsGrid, technicalGrid);
             }
          }
       }

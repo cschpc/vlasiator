@@ -123,7 +123,7 @@ bool propagateFields(
    if (subcycles == 1) {
       #ifdef FS_1ST_ORDER_TIME
       propagateMagneticFieldSimple(perBGrid, perBDt2Grid, BgBGrid, EGrid, EDt2Grid, technicalGrid, sysBoundaries, dt, RK_ORDER1);
-      calculateDerivativesSimple(perBGrid, perBDt2Grid, momentsGrid, momentsDt2Grid, dPerBGrid, dMomentsGrid, technicalGrid, RK_ORDER1, true);
+      calculateDerivativesSimple(perBGrid, momentsGrid, dPerBGrid, dMomentsGrid, technicalGrid, true);
       if(P::ohmGradPeTerm > 0){
          calculateGradPeTermSimple(EGradPeGrid, momentsGrid, momentsDt2Grid, dMomentsGrid, technicalGrid, sysBoundaries, RK_ORDER1);
       }
@@ -160,7 +160,7 @@ bool propagateFields(
       );
       #else
       propagateMagneticFieldSimple(perBGrid, perBDt2Grid, BgBGrid, EGrid, EDt2Grid, technicalGrid, sysBoundaries, dt, RK_ORDER2_STEP1);
-      calculateDerivativesSimple(perBGrid, perBDt2Grid, momentsGrid, momentsDt2Grid, dPerBGrid, dMomentsGrid, technicalGrid, RK_ORDER2_STEP1, true);
+      calculateDerivativesSimple(perBDt2Grid, momentsDt2Grid, dPerBGrid, dMomentsGrid, technicalGrid, true);
       if(P::ohmGradPeTerm > 0) {
          calculateGradPeTermSimple(EGradPeGrid, momentsGrid, momentsDt2Grid, dMomentsGrid, technicalGrid, sysBoundaries, RK_ORDER2_STEP1);
       }
@@ -197,7 +197,7 @@ bool propagateFields(
       );
       
       propagateMagneticFieldSimple(perBGrid, perBDt2Grid, BgBGrid, EGrid, EDt2Grid, technicalGrid, sysBoundaries, dt, RK_ORDER2_STEP2);
-      calculateDerivativesSimple(perBGrid, perBDt2Grid, momentsGrid, momentsDt2Grid, dPerBGrid, dMomentsGrid, technicalGrid, RK_ORDER2_STEP2, true);
+      calculateDerivativesSimple(perBGrid, momentsGrid, dPerBGrid, dMomentsGrid, technicalGrid, true);
       if(P::ohmGradPeTerm > 0) {
          calculateGradPeTermSimple(EGradPeGrid, momentsGrid, momentsDt2Grid, dMomentsGrid, technicalGrid, sysBoundaries, RK_ORDER2_STEP2);
       }
@@ -248,7 +248,7 @@ bool propagateFields(
 
          // We need to calculate derivatives of the moments at every substep, but the moments only
          // need to be communicated in the first one.
-         calculateDerivativesSimple(perBGrid, perBDt2Grid, momentsGrid, momentsDt2Grid, dPerBGrid, dMomentsGrid, technicalGrid, RK_ORDER2_STEP1, (subcycleCount==0));
+         calculateDerivativesSimple(perBDt2Grid, momentsDt2Grid, dPerBGrid, dMomentsGrid, technicalGrid, (subcycleCount==0));
          if(P::ohmGradPeTerm > 0 && subcycleCount==0) {
             calculateGradPeTermSimple(EGradPeGrid, momentsGrid, momentsDt2Grid, dMomentsGrid, technicalGrid, sysBoundaries, RK_ORDER2_STEP1);
          }
@@ -288,7 +288,7 @@ bool propagateFields(
          
          // We need to calculate derivatives of the moments at every substep, but the moments only
          // need to be communicated in the first one.
-         calculateDerivativesSimple(perBGrid, perBDt2Grid, momentsGrid, momentsDt2Grid, dPerBGrid, dMomentsGrid, technicalGrid, RK_ORDER2_STEP2, (subcycleCount==0));
+         calculateDerivativesSimple(perBGrid, momentsGrid, dPerBGrid, dMomentsGrid, technicalGrid, (subcycleCount==0));
          if(P::ohmGradPeTerm > 0 && subcycleCount==0) {
             calculateGradPeTermSimple(EGradPeGrid, momentsGrid, momentsDt2Grid, dMomentsGrid, technicalGrid, sysBoundaries, RK_ORDER2_STEP2);
          }
