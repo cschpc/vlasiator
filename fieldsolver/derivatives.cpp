@@ -55,20 +55,21 @@ void calculateDerivatives(
    FsGrid< std::array<Real, fsgrids::dmoments::N_DMOMENTS>, FS_STENCIL_WIDTH> & dMomentsGrid,
    FsGrid< fsgrids::technical, FS_STENCIL_WIDTH> & technicalGrid
 ) {
-   auto dPerB = dPerBGrid.get(i,j,k);
-   auto dMoments = dMomentsGrid.get(i,j,k);
+   auto cent = technicalGrid.calculateIndex(i, j, k);
+   auto dPerB = dPerBGrid.get(cent);
+   auto dMoments = dMomentsGrid.get(cent);
 
    // Get boundary flag for the cell:
-   cuint sysBoundaryFlag  = technicalGrid.get(i,j,k)->sysBoundaryFlag;
-   cuint sysBoundaryLayer = technicalGrid.get(i,j,k)->sysBoundaryLayer;
+   cuint sysBoundaryFlag  = technicalGrid.get(cent)->sysBoundaryFlag;
+   cuint sysBoundaryLayer = technicalGrid.get(cent)->sysBoundaryLayer;
 
    // Constants for electron pressure derivatives
    // Upstream pressure
    Real Peupstream = Parameters::electronTemperature * Parameters::electronDensity * physicalconstants::K_B;
    Real Peconst = Peupstream * pow(Parameters::electronDensity, -Parameters::electronPTindex);
 
-   auto centMoments = momentsGrid.get(i,j,k);
-   auto centPerB = perBGrid.get(i,j,k);
+   auto centMoments = momentsGrid.get(cent);
+   auto centPerB = perBGrid.get(cent);
    #ifdef DEBUG_SOLVERS
    if (centMoments->at(fsgrids::moments::RHOM) <= 0) {
       std::cerr << __FILE__ << ":" << __LINE__
@@ -79,18 +80,13 @@ void calculateDerivatives(
    #endif
 
    // Calculate x-derivatives (is not TVD for AMR mesh):
-   auto leftPerB = perBGrid.get(i-1,j,k);
-   auto rghtPerB = perBGrid.get(i+1,j,k);
-   auto leftMoments = momentsGrid.get(i-1,j,k);
-   auto rghtMoments = momentsGrid.get(i+1,j,k);
-   if(leftPerB == NULL) {
-      leftPerB = centPerB;
-      leftMoments = centMoments;
-   }
-   if(rghtPerB == NULL) {
-      rghtPerB = centPerB;
-      rghtMoments = centMoments;
-   }
+   auto left = technicalGrid.calculateIndex(i-1, j, k);
+   auto rght = technicalGrid.calculateIndex(i+1, j, k);
+   auto leftPerB = left < 0 ? centPerB : perBGrid.get(left);
+   auto rghtPerB = rght < 0 ? centPerB : perBGrid.get(rght);
+   auto leftMoments = left < 0 ? centMoments : momentsGrid.get(left);
+   auto rghtMoments = rght < 0 ? centMoments : momentsGrid.get(rght);
+
    #ifdef DEBUG_SOLVERS
    if (leftMoments->at(fsgrids::moments::RHOM) <= 0) {
       std::cerr << __FILE__ << ":" << __LINE__
