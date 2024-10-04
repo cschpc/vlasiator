@@ -301,7 +301,7 @@ vlasiator: $(OBJS) $(OBJS_FSOLVER)
 
 
 # Make fsgridtest
-fsgridtest: $(OBJS_TEST) $(OBJS_FSOLVER)
+fsgridtest: $(OBJS_FSOLVER) $(OBJS_TEST)
 	@echo "[LINK] fsgridtest"
 	$(SILENT)$(LNK) ${LDFLAGS} -o fsgridtest $(OBJS_TEST) $(LIBS) $(OBJS_FSOLVER)
 
