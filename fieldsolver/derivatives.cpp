@@ -301,9 +301,6 @@ void calculateDerivativesSimple(
    FsGrid< fsgrids::technical, FS_STENCIL_WIDTH> & technicalGrid,
    const bool communicateMoments
 ) {
-   const auto gridDims = &technicalGrid.getLocalSize()[0];  // Workaround intel compiler bug in collapsed openmp loops (604c81142729c5025a0073cd5dc64a24882f1675)
-
-   const size_t N_cells = gridDims[0]*gridDims[1]*gridDims[2];
 
    phiprof::Timer derivativesTimer {"Calculate face derivatives"};
    int computeTimerId {phiprof::initializeTimer("FS derivatives compute cells")};
@@ -318,6 +315,9 @@ void calculateDerivativesSimple(
    mpiTimer.stop();
 
    // Calculate derivatives
+   const auto gridDims = &technicalGrid.getLocalSize()[0];  // Workaround intel compiler bug in collapsed openmp loops (604c81142729c5025a0073cd5dc64a24882f1675)
+   const size_t N_cells = gridDims[0]*gridDims[1]*gridDims[2];
+
    #pragma omp parallel
    {
       phiprof::Timer computeTimer {computeTimerId};
