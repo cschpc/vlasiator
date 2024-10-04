@@ -56,12 +56,14 @@ void calculateDerivatives(
    FsGrid< fsgrids::technical, FS_STENCIL_WIDTH> & technicalGrid
 ) {
    auto cent = technicalGrid.calculateIndex(i, j, k);
+
    auto dPerB = dPerBGrid.get(cent);
    auto dMoments = dMomentsGrid.get(cent);
+   auto technical = technicalGrid.get(cent);
 
    // Get boundary flag for the cell:
-   cuint sysBoundaryFlag  = technicalGrid.get(cent)->sysBoundaryFlag;
-   cuint sysBoundaryLayer = technicalGrid.get(cent)->sysBoundaryLayer;
+   cuint sysBoundaryFlag  = technical->sysBoundaryFlag;
+   cuint sysBoundaryLayer = technical->sysBoundaryLayer;
 
    // Constants for electron pressure derivatives
    // Upstream pressure
