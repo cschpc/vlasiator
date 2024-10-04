@@ -100,25 +100,25 @@ void calculateDerivatives(
    if(sysBoundaryLayer == 1 || (sysBoundaryLayer == 2 && sysBoundaryFlag == sysboundarytype::NOT_SYSBOUNDARY)) {
       dMoments->at(fsgrids::dmoments::drhomdx) = (rghtMoments->at(fsgrids::moments::RHOM)-leftMoments->at(fsgrids::moments::RHOM))/2;
       dMoments->at(fsgrids::dmoments::drhoqdx) = (rghtMoments->at(fsgrids::moments::RHOQ)-leftMoments->at(fsgrids::moments::RHOQ))/2;
-      dMoments->at(fsgrids::dmoments::dp11dx) = (rghtMoments->at(fsgrids::moments::P_11)-leftMoments->at(fsgrids::moments::P_11))/2;
-      dMoments->at(fsgrids::dmoments::dp22dx) = (rghtMoments->at(fsgrids::moments::P_22)-leftMoments->at(fsgrids::moments::P_22))/2;
-      dMoments->at(fsgrids::dmoments::dp33dx) = (rghtMoments->at(fsgrids::moments::P_33)-leftMoments->at(fsgrids::moments::P_33))/2;
-      dMoments->at(fsgrids::dmoments::dVxdx)  = (rghtMoments->at(fsgrids::moments::VX)-leftMoments->at(fsgrids::moments::VX))/2;
-      dMoments->at(fsgrids::dmoments::dVydx)  = (rghtMoments->at(fsgrids::moments::VY)-leftMoments->at(fsgrids::moments::VY))/2;
-      dMoments->at(fsgrids::dmoments::dVzdx)  = (rghtMoments->at(fsgrids::moments::VZ)-leftMoments->at(fsgrids::moments::VZ))/2;
-      dPerB->at(fsgrids::dperb::dPERBydx)  = (rghtPerB->at(fsgrids::bfield::PERBY)-leftPerB->at(fsgrids::bfield::PERBY))/2;
-      dPerB->at(fsgrids::dperb::dPERBzdx)  = (rghtPerB->at(fsgrids::bfield::PERBZ)-leftPerB->at(fsgrids::bfield::PERBZ))/2;
+      dMoments->at(fsgrids::dmoments::dp11dx)  = (rghtMoments->at(fsgrids::moments::P_11)-leftMoments->at(fsgrids::moments::P_11))/2;
+      dMoments->at(fsgrids::dmoments::dp22dx)  = (rghtMoments->at(fsgrids::moments::P_22)-leftMoments->at(fsgrids::moments::P_22))/2;
+      dMoments->at(fsgrids::dmoments::dp33dx)  = (rghtMoments->at(fsgrids::moments::P_33)-leftMoments->at(fsgrids::moments::P_33))/2;
+      dMoments->at(fsgrids::dmoments::dVxdx)   = (rghtMoments->at(fsgrids::moments::VX)  -leftMoments->at(fsgrids::moments::VX))/2;
+      dMoments->at(fsgrids::dmoments::dVydx)   = (rghtMoments->at(fsgrids::moments::VY)  -leftMoments->at(fsgrids::moments::VY))/2;
+      dMoments->at(fsgrids::dmoments::dVzdx)   = (rghtMoments->at(fsgrids::moments::VZ)  -leftMoments->at(fsgrids::moments::VZ))/2;
+      dPerB->at(fsgrids::dperb::dPERBydx)      = (rghtPerB->at(fsgrids::bfield::PERBY)   -leftPerB->at(fsgrids::bfield::PERBY))/2;
+      dPerB->at(fsgrids::dperb::dPERBzdx)      = (rghtPerB->at(fsgrids::bfield::PERBZ)   -leftPerB->at(fsgrids::bfield::PERBZ))/2;
    } else {
       dMoments->at(fsgrids::dmoments::drhomdx) = limiter(leftMoments->at(fsgrids::moments::RHOM),centMoments->at(fsgrids::moments::RHOM),rghtMoments->at(fsgrids::moments::RHOM));
       dMoments->at(fsgrids::dmoments::drhoqdx) = limiter(leftMoments->at(fsgrids::moments::RHOQ),centMoments->at(fsgrids::moments::RHOQ),rghtMoments->at(fsgrids::moments::RHOQ));
-      dMoments->at(fsgrids::dmoments::dp11dx) = limiter(leftMoments->at(fsgrids::moments::P_11),centMoments->at(fsgrids::moments::P_11),rghtMoments->at(fsgrids::moments::P_11));
-      dMoments->at(fsgrids::dmoments::dp22dx) = limiter(leftMoments->at(fsgrids::moments::P_22),centMoments->at(fsgrids::moments::P_22),rghtMoments->at(fsgrids::moments::P_22));
-      dMoments->at(fsgrids::dmoments::dp33dx) = limiter(leftMoments->at(fsgrids::moments::P_33),centMoments->at(fsgrids::moments::P_33),rghtMoments->at(fsgrids::moments::P_33));
-      dMoments->at(fsgrids::dmoments::dVxdx)  = limiter(leftMoments->at(fsgrids::moments::VX), centMoments->at(fsgrids::moments::VX), rghtMoments->at(fsgrids::moments::VX));
-      dMoments->at(fsgrids::dmoments::dVydx)  = limiter(leftMoments->at(fsgrids::moments::VY), centMoments->at(fsgrids::moments::VY), rghtMoments->at(fsgrids::moments::VY));
-      dMoments->at(fsgrids::dmoments::dVzdx)  = limiter(leftMoments->at(fsgrids::moments::VZ), centMoments->at(fsgrids::moments::VZ), rghtMoments->at(fsgrids::moments::VZ));
-      dPerB->at(fsgrids::dperb::dPERBydx)  = limiter(leftPerB->at(fsgrids::bfield::PERBY),centPerB->at(fsgrids::bfield::PERBY),rghtPerB->at(fsgrids::bfield::PERBY));
-      dPerB->at(fsgrids::dperb::dPERBzdx)  = limiter(leftPerB->at(fsgrids::bfield::PERBZ),centPerB->at(fsgrids::bfield::PERBZ),rghtPerB->at(fsgrids::bfield::PERBZ));
+      dMoments->at(fsgrids::dmoments::dp11dx)  = limiter(leftMoments->at(fsgrids::moments::P_11),centMoments->at(fsgrids::moments::P_11),rghtMoments->at(fsgrids::moments::P_11));
+      dMoments->at(fsgrids::dmoments::dp22dx)  = limiter(leftMoments->at(fsgrids::moments::P_22),centMoments->at(fsgrids::moments::P_22),rghtMoments->at(fsgrids::moments::P_22));
+      dMoments->at(fsgrids::dmoments::dp33dx)  = limiter(leftMoments->at(fsgrids::moments::P_33),centMoments->at(fsgrids::moments::P_33),rghtMoments->at(fsgrids::moments::P_33));
+      dMoments->at(fsgrids::dmoments::dVxdx)   = limiter(leftMoments->at(fsgrids::moments::VX),  centMoments->at(fsgrids::moments::VX),  rghtMoments->at(fsgrids::moments::VX));
+      dMoments->at(fsgrids::dmoments::dVydx)   = limiter(leftMoments->at(fsgrids::moments::VY),  centMoments->at(fsgrids::moments::VY),  rghtMoments->at(fsgrids::moments::VY));
+      dMoments->at(fsgrids::dmoments::dVzdx)   = limiter(leftMoments->at(fsgrids::moments::VZ),  centMoments->at(fsgrids::moments::VZ),  rghtMoments->at(fsgrids::moments::VZ));
+      dPerB->at(fsgrids::dperb::dPERBydx)      = limiter(leftPerB->at(fsgrids::bfield::PERBY),   centPerB->at(fsgrids::bfield::PERBY),   rghtPerB->at(fsgrids::bfield::PERBY));
+      dPerB->at(fsgrids::dperb::dPERBzdx)      = limiter(leftPerB->at(fsgrids::bfield::PERBZ),   centPerB->at(fsgrids::bfield::PERBZ),   rghtPerB->at(fsgrids::bfield::PERBZ));
    }
 
    // pres_e = const * np.power(rho_e, index)
