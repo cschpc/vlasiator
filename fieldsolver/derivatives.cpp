@@ -315,6 +315,21 @@ void calculateDerivativesSimple(
    mpiTimer.stop();
 
    // Calculate derivatives
+/* PROPOSAL for splitting inner and boundary values
+   // Inner cells (most of the work ->> GPU)
+   technicalGrid.parallel_for_inner(ARCH_LOOP_LAMBDA(int i, int j, int k) {
+      // if (technicalGrid.get(i,j,k)->sysBoundaryFlag == sysboundarytype::DO_NOT_COMPUTE) return;
+      calculateDerivativesInner(i,j,k, perBGrid, momentsGrid, dPerBGrid, dMomentsGrid, technicalGrid);
+   });
+
+   // Boundary cells (only a bit of work?? ->> CPU async??)
+   technicalGrid.parallel_for_boundary(ARCH_LOOP_LAMBDA(int i, int j, int k) {
+      // if (technicalGrid.get(i,j,k)->sysBoundaryFlag == sysboundarytype::DO_NOT_COMPUTE) return;
+      calculateDerivativesBoundary(i,j,k, perBGrid, momentsGrid, dPerBGrid, dMomentsGrid, technicalGrid);
+   });
+*/
+
+
    const auto gridDims = &technicalGrid.getLocalSize()[0];  // Workaround intel compiler bug in collapsed openmp loops (604c81142729c5025a0073cd5dc64a24882f1675)
    const size_t N_cells = gridDims[0]*gridDims[1]*gridDims[2];
 
