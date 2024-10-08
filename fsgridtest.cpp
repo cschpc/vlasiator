@@ -149,14 +149,35 @@ int main(int argn,char* args[]) {
    perBGrid.physicalGlobalStart = momentsGrid.physicalGlobalStart = dPerBGrid.physicalGlobalStart = dMomentsGrid.physicalGlobalStart = technicalGrid.physicalGlobalStart
       = {-10000, -10000, -10000};
 
+/*
+   for (int i = 0; i < 27; i++){
+     printf("%2d %2d\n", i, perBGrid.neighbour[i]);
+   }
+*/
+
    auto s = technicalGrid.getLocalSize();
    cout << "local size" << endl;
    cout << s[0] << endl;  // 15
    cout << s[1] << endl;  // 15
    cout << s[2] << endl;  // 15
-   cout << "size is " << perBGrid.getData().size() << endl;  // 6859 = (15+2+2)**3
+//   cout << "size is " << perBGrid.getData().size() << endl;  // 6859 = (15+2+2)**3
 
    cout << "data is " << endl;
+   auto data = perBGrid.get(0);
+
+   for (int i = 0; i < s[0] + FS_STENCIL_WIDTH*2; i++) {
+       for (int j = 0; j < s[1] + FS_STENCIL_WIDTH*2; j++) {
+           for (int k = 0; k < s[2] + FS_STENCIL_WIDTH*2; k++) {
+               for (int l = 0; l < fsgrids::bfield::N_BFIELD; l++) {
+                 printf("%2d %2d %2d %2d: %.1f\n", i, j, k, l, data[i+j+k][l]);
+               }
+           }
+       }
+   }
+
+
+
+/*
    auto data = perBGrid.getData();
    for (auto v : data) {
      if (v[0] == 0.0 && v[1] == 0 && v[2] == 0) {
@@ -165,7 +186,7 @@ int main(int argn,char* args[]) {
      printf("(%f,%f,%f) ", v[0], v[1], v[2]);
    }
    cout << endl;
-
+*/
 
   calculateDerivativesSimple(perBGrid, momentsGrid, dPerBGrid, dMomentsGrid, technicalGrid, true);
   //dPerBGrid.updateGhostCells();
