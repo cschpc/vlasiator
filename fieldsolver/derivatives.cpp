@@ -49,11 +49,11 @@ void calculateDerivatives(
    cint i,
    cint j,
    cint k,
-   FsGrid< std::array<Real, fsgrids::bfield::N_BFIELD>, FS_STENCIL_WIDTH> & perBGrid,
-   FsGrid< std::array<Real, fsgrids::moments::N_MOMENTS>, FS_STENCIL_WIDTH> & momentsGrid,
-   FsGrid< std::array<Real, fsgrids::dperb::N_DPERB>, FS_STENCIL_WIDTH> & dPerBGrid,
-   FsGrid< std::array<Real, fsgrids::dmoments::N_DMOMENTS>, FS_STENCIL_WIDTH> & dMomentsGrid,
-   FsGrid< fsgrids::technical, FS_STENCIL_WIDTH> & technicalGrid
+   const FsGrid< std::array<Real, fsgrids::bfield::N_BFIELD>, FS_STENCIL_WIDTH> & perBGrid,
+   const FsGrid< std::array<Real, fsgrids::moments::N_MOMENTS>, FS_STENCIL_WIDTH> & momentsGrid,
+   const FsGrid< std::array<Real, fsgrids::dperb::N_DPERB>, FS_STENCIL_WIDTH> & dPerBGrid,
+   const FsGrid< std::array<Real, fsgrids::dmoments::N_DMOMENTS>, FS_STENCIL_WIDTH> & dMomentsGrid,
+   const FsGrid< fsgrids::technical, FS_STENCIL_WIDTH> & technicalGrid
 ) {
    auto cent = technicalGrid.calculateIndex(i, j, k);
 
@@ -303,8 +303,6 @@ void calculateDerivativesSimple(
 ) {
 
    phiprof::Timer derivativesTimer {"Calculate face derivatives"};
-   int computeTimerId {phiprof::initializeTimer("FS derivatives compute cells")};
-
    phiprof::Timer mpiTimer {"FS derivatives ghost updates MPI", {"MPI"}};
 
    perBGrid.updateGhostCells();
@@ -315,24 +313,11 @@ void calculateDerivativesSimple(
    mpiTimer.stop();
 
    // Calculate derivatives
-   const auto gridDims = &technicalGrid.getLocalSize()[0];  // Workaround intel compiler bug in collapsed openmp loops (604c81142729c5025a0073cd5dc64a24882f1675)
-   const size_t N_cells = gridDims[0]*gridDims[1]*gridDims[2];
+   technicalGrid.parallel_for([=](int i, int j, int k) {
+       calculateDerivatives(i,j,k, perBGrid, momentsGrid, dPerBGrid, dMomentsGrid, technicalGrid);
+   });
 
-   #pragma omp parallel
-   {
-      phiprof::Timer computeTimer {computeTimerId};
-      #pragma omp for collapse(2)
-      for (FsGridTools::FsIndex_t k=0; k<gridDims[2]; k++) {
-         for (FsGridTools::FsIndex_t j=0; j<gridDims[1]; j++) {
-            for (FsGridTools::FsIndex_t i=0; i<gridDims[0]; i++) {
-               calculateDerivatives(i,j,k, perBGrid, momentsGrid, dPerBGrid, dMomentsGrid, technicalGrid);
-            }
-         }
-      }
-      computeTimer.stop(N_cells, "Spatial Cells");
-   }
-
-   derivativesTimer.stop(N_cells, "Spatial Cells");
+   derivativesTimer.stop();
 }
 
 /*! \brief Low-level spatial derivatives calculation.
