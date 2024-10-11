@@ -475,6 +475,20 @@ int main(int argn,char* args[]) {
    FsGrid< std::array<Real, fsgrids::volfields::N_VOL>, FS_STENCIL_WIDTH> volGrid(fsGridDimensions, MPI_COMM_WORLD, periodicity,gridCoupling, P::manualFsGridDecomposition);
    FsGrid< fsgrids::technical, FS_STENCIL_WIDTH> technicalGrid(fsGridDimensions, MPI_COMM_WORLD, periodicity,gridCoupling, P::manualFsGridDecomposition);
 
+   // Allocate MPI data types on technicalgrid
+   auto perBDataObj       = technicalGrid.allocate_data<std::array<Real, fsgrids::bfield::N_BFIELD>>();
+   auto perBDt2DataObj    = technicalGrid.allocate_data<std::array<Real, fsgrids::bfield::N_BFIELD>>();
+   auto EDataObj          = technicalGrid.allocate_data<std::array<Real, fsgrids::efield::N_EFIELD>>();
+   auto EDt2DataObj       = technicalGrid.allocate_data<std::array<Real, fsgrids::efield::N_EFIELD>>();
+   auto EHallDataObj      = technicalGrid.allocate_data<std::array<Real, fsgrids::ehall::N_EHALL>>();
+   auto EGradPeDataObj    = technicalGrid.allocate_data<std::array<Real, fsgrids::egradpe::N_EGRADPE>>();
+   auto momentsDataObj    = technicalGrid.allocate_data<std::array<Real, fsgrids::moments::N_MOMENTS>>();
+   auto momentsDt2DataObj = technicalGrid.allocate_data<std::array<Real, fsgrids::moments::N_MOMENTS>>();
+   auto dPerBDataObj      = technicalGrid.allocate_data<std::array<Real, fsgrids::dperb::N_DPERB>>();
+   auto dMomentsDataObj   = technicalGrid.allocate_data<std::array<Real, fsgrids::dmoments::N_DMOMENTS>>();
+   auto BgBDataObj        = technicalGrid.allocate_data<std::array<Real, fsgrids::bgbfield::N_BGB>>();
+   auto volDataObj        = technicalGrid.allocate_data<std::array<Real, fsgrids::volfields::N_VOL>>();
+
    // Set DX, DY and DZ
    // TODO: This is currently just taking the values from cell 1, and assuming them to be
    // constant throughout the simulation.
