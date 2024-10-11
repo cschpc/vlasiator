@@ -305,9 +305,9 @@ void calculateDerivativesSimple(
    phiprof::Timer derivativesTimer {"Calculate face derivatives"};
    phiprof::Timer mpiTimer {"FS derivatives ghost updates MPI", {"MPI"}};
 
-   perBGrid.updateGhostCells();
+   technicalGrid.updateGhostCells(perBGrid.get(), perBGrid.neighbourSendType, perBGrid.neighbourReceiveType);
    if(communicateMoments) {
-     momentsGrid.updateGhostCells();
+     technicalGrid.updateGhostCells(momentsGrid.get(), momentsGrid.neighbourSendType, momentsGrid.neighbourReceiveType);
    }
 
    mpiTimer.stop();
