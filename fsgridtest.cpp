@@ -155,6 +155,33 @@ int main(int argn,char* args[]) {
    }
 */
 
+   printf("sizes: %ld %ld %ld\n", sizeof(*technicalGrid.get()), sizeof(*dMomentsGrid.get()), sizeof(*perBGrid.get()));
+   printf("sizes: %ld\n", sizeof(fsgrids::technical));
+   printf("sizes: %d %d %d %d %d %d %d %d %d\n",
+   fsgrids::bfield::N_BFIELD * 8,
+   fsgrids::efield::N_EFIELD * 8,
+   fsgrids::ehall::N_EHALL * 8,
+   fsgrids::egradpe::N_EGRADPE * 8,
+   fsgrids::moments::N_MOMENTS * 8,
+   fsgrids::dperb::N_DPERB * 8,
+   fsgrids::dmoments::N_DMOMENTS * 8,
+   fsgrids::bgbfield::N_BGB * 8,
+   fsgrids::volfields::N_VOL * 8);
+   printf("sizes: %d %d %d %d %d %d %d %d %d\n",
+   fsgrids::bfield::N_BFIELD,
+   fsgrids::efield::N_EFIELD,
+   fsgrids::ehall::N_EHALL,
+   fsgrids::egradpe::N_EGRADPE,
+   fsgrids::moments::N_MOMENTS,
+   fsgrids::dperb::N_DPERB,
+   fsgrids::dmoments::N_DMOMENTS,
+   fsgrids::bgbfield::N_BGB,
+   fsgrids::volfields::N_VOL);
+
+
+
+
+
    auto s = technicalGrid.getLocalSize();
    cout << "local size" << endl;
    cout << s[0] << endl;  // 15
@@ -165,6 +192,7 @@ int main(int argn,char* args[]) {
    cout << "data is " << endl;
    auto data = perBGrid.get(0);
 
+   /*
    for (int i = 0; i < s[0] + FS_STENCIL_WIDTH*2; i++) {
        for (int j = 0; j < s[1] + FS_STENCIL_WIDTH*2; j++) {
            for (int k = 0; k < s[2] + FS_STENCIL_WIDTH*2; k++) {
@@ -174,6 +202,7 @@ int main(int argn,char* args[]) {
            }
        }
    }
+   */
 
 
 
@@ -188,7 +217,14 @@ int main(int argn,char* args[]) {
    cout << endl;
 */
 
-  calculateDerivativesSimple(perBGrid, momentsGrid, dPerBGrid, dMomentsGrid, technicalGrid, true);
+   auto perBData = perBGrid.get();
+   auto momentsData = momentsGrid.get();
+   auto dPerBData = dPerBGrid.get();
+   auto dMomentsData = dMomentsGrid.get();
+
+   printf("START calculateDerivativesSimple\n");
+   calculateDerivativesSimple(perBData, momentsData, dPerBData, dMomentsData, technicalGrid, true);
+   printf("DONE  calculateDerivativesSimple\n");
   //dPerBGrid.updateGhostCells();
 
 
