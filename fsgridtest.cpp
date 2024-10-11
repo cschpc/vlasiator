@@ -53,6 +53,7 @@
 #include "object_wrapper.h"
 #include "fieldsolver/gridGlue.hpp"
 #include "fieldsolver/derivatives.hpp"
+#include "fieldsolver/ldz_volume.hpp"
 
 #include "phiprof.hpp"
 using namespace std;
@@ -106,48 +107,16 @@ int main(int argn,char* args[]) {
    std::array<int,3> manualFsGridDecomposition = {0, 0, 0};
 
    FsGridCouplingInformation gridCoupling;
-   FsGrid< std::array<Real, fsgrids::bfield::N_BFIELD>,     FS_STENCIL_WIDTH> perBGrid       (fsGridDimensions, MPI_COMM_WORLD, periodicity, gridCoupling, manualFsGridDecomposition);
-//   FsGrid< std::array<Real, fsgrids::bfield::N_BFIELD>,     FS_STENCIL_WIDTH> perBDt2Grid    (fsGridDimensions, MPI_COMM_WORLD, periodicity, gridCoupling, manualFsGridDecomposition);
-//   FsGrid< std::array<Real, fsgrids::efield::N_EFIELD>,     FS_STENCIL_WIDTH> EGrid          (fsGridDimensions, MPI_COMM_WORLD, periodicity, gridCoupling, manualFsGridDecomposition);
-//   FsGrid< std::array<Real, fsgrids::efield::N_EFIELD>,     FS_STENCIL_WIDTH> EDt2Grid       (fsGridDimensions, MPI_COMM_WORLD, periodicity, gridCoupling, manualFsGridDecomposition);
-//   FsGrid< std::array<Real, fsgrids::ehall::N_EHALL>,       FS_STENCIL_WIDTH> EHallGrid      (fsGridDimensions, MPI_COMM_WORLD, periodicity, gridCoupling, manualFsGridDecomposition);
-//   FsGrid< std::array<Real, fsgrids::egradpe::N_EGRADPE>,   FS_STENCIL_WIDTH> EGradPeGrid    (fsGridDimensions, MPI_COMM_WORLD, periodicity, gridCoupling, manualFsGridDecomposition);
-   FsGrid< std::array<Real, fsgrids::moments::N_MOMENTS>,   FS_STENCIL_WIDTH> momentsGrid    (fsGridDimensions, MPI_COMM_WORLD, periodicity, gridCoupling, manualFsGridDecomposition);
-//   FsGrid< std::array<Real, fsgrids::moments::N_MOMENTS>,   FS_STENCIL_WIDTH> momentsDt2Grid (fsGridDimensions, MPI_COMM_WORLD, periodicity, gridCoupling, manualFsGridDecomposition);
-   FsGrid< std::array<Real, fsgrids::dperb::N_DPERB>,       FS_STENCIL_WIDTH> dPerBGrid      (fsGridDimensions, MPI_COMM_WORLD, periodicity, gridCoupling, manualFsGridDecomposition);
-   FsGrid< std::array<Real, fsgrids::dmoments::N_DMOMENTS>, FS_STENCIL_WIDTH> dMomentsGrid   (fsGridDimensions, MPI_COMM_WORLD, periodicity, gridCoupling, manualFsGridDecomposition);
-//   FsGrid< std::array<Real, fsgrids::bgbfield::N_BGB>,      FS_STENCIL_WIDTH> BgBGrid        (fsGridDimensions, MPI_COMM_WORLD, periodicity, gridCoupling, manualFsGridDecomposition);
-//   FsGrid< std::array<Real, fsgrids::volfields::N_VOL>,     FS_STENCIL_WIDTH> volGrid        (fsGridDimensions, MPI_COMM_WORLD, periodicity, gridCoupling, manualFsGridDecomposition);
-   FsGrid< fsgrids::technical,                              FS_STENCIL_WIDTH> technicalGrid  (fsGridDimensions, MPI_COMM_WORLD, periodicity, gridCoupling, manualFsGridDecomposition);
+   FsGrid< fsgrids::technical, FS_STENCIL_WIDTH> technicalGrid (fsGridDimensions, MPI_COMM_WORLD, periodicity, gridCoupling, manualFsGridDecomposition);
 
    // Set DX, DY and DZ
    // TODO: This is currently just taking the values from cell 1, and assuming them to be
    // constant throughout the simulation.
-//   perBGrid.DX = perBDt2Grid.DX = EGrid.DX = EDt2Grid.DX = EHallGrid.DX = EGradPeGrid.DX = momentsGrid.DX
-//      = momentsDt2Grid.DX = dPerBGrid.DX = dMomentsGrid.DX = BgBGrid.DX = volGrid.DX = technicalGrid.DX
-//      = 4000 / 3.0;
-//   perBGrid.DY = perBDt2Grid.DY = EGrid.DY = EDt2Grid.DY = EHallGrid.DY = EGradPeGrid.DY = momentsGrid.DY
-//      = momentsDt2Grid.DY = dPerBGrid.DY = dMomentsGrid.DY = BgBGrid.DY = volGrid.DY = technicalGrid.DY
-//      = 4000 / 3.0;
-//   perBGrid.DZ = perBDt2Grid.DZ = EGrid.DZ = EDt2Grid.DZ = EHallGrid.DZ = EGradPeGrid.DZ = momentsGrid.DZ
-//      = momentsDt2Grid.DZ = dPerBGrid.DZ = dMomentsGrid.DZ = BgBGrid.DZ = volGrid.DZ = technicalGrid.DZ
-//      = 4000 / 3.0;
-//   // Set the physical start (lower left corner) X, Y, Z
-//   perBGrid.physicalGlobalStart = perBDt2Grid.physicalGlobalStart = EGrid.physicalGlobalStart = EDt2Grid.physicalGlobalStart
-//      = EHallGrid.physicalGlobalStart = EGradPeGrid.physicalGlobalStart = momentsGrid.physicalGlobalStart
-//      = momentsDt2Grid.physicalGlobalStart = dPerBGrid.physicalGlobalStart = dMomentsGrid.physicalGlobalStart
-//      = BgBGrid.physicalGlobalStart = volGrid.physicalGlobalStart = technicalGrid.physicalGlobalStart
-//      = {-10000, -10000, -10000};
-
-   perBGrid.DX = momentsGrid.DX = dPerBGrid.DX = dMomentsGrid.DX = technicalGrid.DX
-      = 4000 / 3.0;
-   perBGrid.DY = momentsGrid.DY = dPerBGrid.DY = dMomentsGrid.DY = technicalGrid.DX
-      = 4000 / 3.0;
-   perBGrid.DZ = momentsGrid.DZ = dPerBGrid.DZ = dMomentsGrid.DZ = technicalGrid.DX
-      = 4000 / 3.0;
+   technicalGrid.DX = 4000 / 3.0;
+   technicalGrid.DY = 4000 / 3.0;
+   technicalGrid.DZ = 4000 / 3.0;
    // Set the physical start (lower left corner) X, Y, Z
-   perBGrid.physicalGlobalStart = momentsGrid.physicalGlobalStart = dPerBGrid.physicalGlobalStart = dMomentsGrid.physicalGlobalStart = technicalGrid.physicalGlobalStart
-      = {-10000, -10000, -10000};
+   technicalGrid.physicalGlobalStart = {-10000, -10000, -10000};
 
 /*
    for (int i = 0; i < 27; i++){
@@ -155,7 +124,6 @@ int main(int argn,char* args[]) {
    }
 */
 
-   printf("sizes: %ld %ld %ld\n", sizeof(*technicalGrid.get()), sizeof(*dMomentsGrid.get()), sizeof(*perBGrid.get()));
    printf("sizes: %ld\n", sizeof(fsgrids::technical));
    printf("sizes: %d %d %d %d %d %d %d %d %d\n",
    fsgrids::bfield::N_BFIELD * 8,
@@ -178,19 +146,13 @@ int main(int argn,char* args[]) {
    fsgrids::bgbfield::N_BGB,
    fsgrids::volfields::N_VOL);
 
-
-
-
-
    auto s = technicalGrid.getLocalSize();
    cout << "local size" << endl;
    cout << s[0] << endl;  // 15
    cout << s[1] << endl;  // 15
    cout << s[2] << endl;  // 15
-//   cout << "size is " << perBGrid.getData().size() << endl;  // 6859 = (15+2+2)**3
 
    cout << "data is " << endl;
-   auto data = perBGrid.get(0);
 
    /*
    for (int i = 0; i < s[0] + FS_STENCIL_WIDTH*2; i++) {
@@ -217,29 +179,45 @@ int main(int argn,char* args[]) {
    cout << endl;
 */
 
-   auto perBData = perBGrid.get();
-   auto momentsData = momentsGrid.get();
-   auto dPerBData = dPerBGrid.get();
-   auto dMomentsData = dMomentsGrid.get();
+
+   auto perBDataObj       = technicalGrid.allocate_data<std::array<Real, fsgrids::bfield::N_BFIELD>>();
+   auto perBDt2DataObj    = technicalGrid.allocate_data<std::array<Real, fsgrids::bfield::N_BFIELD>>();
+   auto EDataObj          = technicalGrid.allocate_data<std::array<Real, fsgrids::efield::N_EFIELD>>();
+   auto EDt2DataObj       = technicalGrid.allocate_data<std::array<Real, fsgrids::efield::N_EFIELD>>();
+   auto EHallDataObj      = technicalGrid.allocate_data<std::array<Real, fsgrids::ehall::N_EHALL>>();
+   auto EGradPeDataObj    = technicalGrid.allocate_data<std::array<Real, fsgrids::egradpe::N_EGRADPE>>();
+   auto momentsDataObj    = technicalGrid.allocate_data<std::array<Real, fsgrids::moments::N_MOMENTS>>();
+   auto momentsDt2DataObj = technicalGrid.allocate_data<std::array<Real, fsgrids::moments::N_MOMENTS>>();
+   auto dPerBDataObj      = technicalGrid.allocate_data<std::array<Real, fsgrids::dperb::N_DPERB>>();
+   auto dMomentsDataObj   = technicalGrid.allocate_data<std::array<Real, fsgrids::dmoments::N_DMOMENTS>>();
+   auto BgBDataObj        = technicalGrid.allocate_data<std::array<Real, fsgrids::bgbfield::N_BGB>>();
+   auto volDataObj        = technicalGrid.allocate_data<std::array<Real, fsgrids::volfields::N_VOL>>();
+
+   auto perBData       = perBDataObj.get();
+   auto perBDt2Data    = perBDt2DataObj.get();
+   auto EData          = EDataObj.get();
+   auto EDt2Data       = EDt2DataObj.get();
+   auto EHallData      = EHallDataObj.get();
+   auto EGradPeData    = EGradPeDataObj.get();
+   auto momentsData    = momentsDataObj.get();
+   auto momentsDt2Data = momentsDt2DataObj.get();
+   auto dPerBData      = dPerBDataObj.get();
+   auto dMomentsData   = dMomentsDataObj.get();
+   auto BgBData        = BgBDataObj.get();
+   auto volData        = volDataObj.get();
 
    printf("START calculateDerivativesSimple\n");
    calculateDerivativesSimple(perBData, momentsData, dPerBData, dMomentsData, technicalGrid, true);
    printf("DONE  calculateDerivativesSimple\n");
-  //dPerBGrid.updateGhostCells();
 
+   printf("START updateGhostCells\n");
+   technicalGrid.updateGhostCells(perBData);
+   printf("DONE  updateGhostCells\n");
 
-   perBGrid.finalize();
-//   perBDt2Grid.finalize();
-//   EGrid.finalize();
-//   EDt2Grid.finalize();
-//   EHallGrid.finalize();
-//   EGradPeGrid.finalize();
-   momentsGrid.finalize();
-//   momentsDt2Grid.finalize();
-   dPerBGrid.finalize();
-   dMomentsGrid.finalize();
-//   BgBGrid.finalize();
-//   volGrid.finalize();
+   printf("START calculateVolumeAveragedFields\n");
+   calculateVolumeAveragedFields(perBData, EData, dPerBData, volData, technicalGrid);
+   printf("DONE  calculateVolumeAveragedFields\n");
+
    technicalGrid.finalize();
 
    MPI_Finalize();
