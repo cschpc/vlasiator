@@ -39,4 +39,12 @@ void calculateVolumeAveragedFields(
    FsGrid< fsgrids::technical, FS_STENCIL_WIDTH> & technicalGrid
 );
 
+void calculateVolumeAveragedFields(
+   std::array<Real, fsgrids::bfield::N_BFIELD> * perBData,
+   std::array<Real, fsgrids::efield::N_EFIELD> * EData,
+   std::array<Real, fsgrids::dperb::N_DPERB> * dPerBData,
+   std::array<Real, fsgrids::volfields::N_VOL> * volData,
+   FsGrid< fsgrids::technical, FS_STENCIL_WIDTH> & technicalGrid
+);
+
 #endif

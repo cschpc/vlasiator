@@ -125,6 +125,14 @@ void reconstructionCoefficients(
    creal& reconstructionOrder
 );
 
+void reconstructionCoefficients(
+   FsStencil s,
+   std::array<Real, fsgrids::bfield::N_BFIELD> * perBData,
+   std::array<Real, fsgrids::dperb::N_DPERB> * dPerBData,
+   std::array<Real, Rec::N_REC_COEFFICIENTS> & perturbedResult,
+   creal& reconstructionOrder
+);
+
 std::array<Real, 3> interpolatePerturbedB(
    FsGrid< std::array<Real, fsgrids::bfield::N_BFIELD>, FS_STENCIL_WIDTH> & perBGrid,
    FsGrid< std::array<Real, fsgrids::dperb::N_DPERB>, FS_STENCIL_WIDTH> & dPerBGrid,

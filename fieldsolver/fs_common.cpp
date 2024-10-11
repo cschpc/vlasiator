@@ -61,40 +61,42 @@ void reconstructionCoefficients(
    cint k,
    creal& reconstructionOrder
 ) {
-   std::array<Real, fsgrids::bfield::N_BFIELD> * cep_i1j1k1 = NULL;
-   std::array<Real, fsgrids::dperb::N_DPERB> * der_i1j1k1 = dPerBGrid.get(i,j,k);
-   std::array<Real, fsgrids::bfield::N_BFIELD> * dummyCellParams = NULL;
-   std::array<Real, fsgrids::bfield::N_BFIELD> * cep_i2j1k1 = NULL;
-   std::array<Real, fsgrids::bfield::N_BFIELD> * cep_i1j2k1 = NULL;
-   std::array<Real, fsgrids::bfield::N_BFIELD> * cep_i1j1k2 = NULL;
+   FsStencil s;
+   s.center = perBGrid.calculateIndex(i, j, k);
+
+   s.xRght = perBGrid.calculateIndex(i+1, j, k, s.center);
+   s.yRght = perBGrid.calculateIndex(i, j+1, k, s.center);
+   s.zRght = perBGrid.calculateIndex(i, j, k+1, s.center);
+
+   reconstructionCoefficients(s, perBGrid.get(), dPerBGrid.get(), perturbedResult, reconstructionOrder);
+
+}
+
+void reconstructionCoefficients(
+   FsStencil s,
+   std::array<Real, fsgrids::bfield::N_BFIELD> * perBData,
+   std::array<Real, fsgrids::dperb::N_DPERB> * dPerBData,
+   std::array<Real, Rec::N_REC_COEFFICIENTS> & perturbedResult,
+   creal& reconstructionOrder
+) {
+   auto der_i1j1k1 = &dPerBData[s.center];
    
-   FsGrid< std::array<Real, fsgrids::bfield::N_BFIELD>, FS_STENCIL_WIDTH> * params = & perBGrid;
-   
-   cep_i1j1k1 = params->get(i,j,k);
-   dummyCellParams = cep_i1j1k1;
-   cep_i2j1k1 = dummyCellParams;
-   cep_i1j2k1 = dummyCellParams;
-   cep_i1j1k2 = dummyCellParams;
-   if (params->get(i+1,j,k) != NULL) cep_i2j1k1 = params->get(i+1,j,k);
-   if (params->get(i,j+1,k) != NULL) cep_i1j2k1 = params->get(i,j+1,k);
-   if (params->get(i,j,k+1) != NULL) cep_i1j1k2 = params->get(i,j,k+1);
+   auto cep_i1j1k1 = &perBData[s.center];
+   auto cep_i2j1k1 = &perBData[s.xRght];
+   auto cep_i1j2k1 = &perBData[s.yRght];
+   auto cep_i1j1k2 = &perBData[s.zRght];
    
    #ifndef FS_1ST_ORDER_SPACE
 
    // Create a dummy array for containing zero values for derivatives on non-existing cells:
    std::array<Real, fsgrids::dperb::N_DPERB> dummyDerivatives;
-   for (int ii=0; ii<fsgrids::dperb::N_DPERB; ii++) {
-      dummyDerivatives.at(ii) = 0.0;
-   }
-   
+   dummyDerivatives.fill(0.0);
+
    // Fetch neighbour cell derivatives, or in case the neighbour does not 
    // exist, use dummyDerivatives array:
-   std::array<Real, fsgrids::dperb::N_DPERB> * der_i2j1k1 = &dummyDerivatives;
-   std::array<Real, fsgrids::dperb::N_DPERB> * der_i1j2k1 = &dummyDerivatives;
-   std::array<Real, fsgrids::dperb::N_DPERB> * der_i1j1k2 = &dummyDerivatives;
-   if (dPerBGrid.get(i+1,j,k) != NULL) der_i2j1k1 = dPerBGrid.get(i+1,j,k);
-   if (dPerBGrid.get(i,j+1,k) != NULL) der_i1j2k1 = dPerBGrid.get(i,j+1,k);
-   if (dPerBGrid.get(i,j,k+1) != NULL) der_i1j1k2 = dPerBGrid.get(i,j,k+1);
+   auto der_i2j1k1 = s.xRght == s.center ? &dummyDerivatives : &dPerBData[s.xRght];
+   auto der_i1j2k1 = s.yRght == s.center ? &dummyDerivatives : &dPerBData[s.yRght];
+   auto der_i1j1k2 = s.zRght == s.center ? &dummyDerivatives : &dPerBData[s.zRght];
    
    // Calculate 3rd order reconstruction coefficients:
    if (reconstructionOrder == 2) {
@@ -188,9 +190,9 @@ void reconstructionCoefficients(
    perturbedResult[Rec::c_z ] = cep_i1j1k2->at(fsgrids::bfield::PERBZ) - cep_i1j1k1->at(fsgrids::bfield::PERBZ) - TENTH*perturbedResult[Rec::c_zzz];
 
    #else
-   for (int i=0; i<Rec::N_REC_COEFFICIENTS; ++i) {
-      perturbedResult[i] = 0.0;
-   }
+
+   perturbedResult.fill(0.0);
+
    #endif
 
    // Calculate 1st order reconstruction coefficients:
