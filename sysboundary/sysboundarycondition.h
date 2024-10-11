@@ -129,11 +129,16 @@ namespace SBC {
             cuint component
          )=0;
          static void setCellDerivativesToZero(
-            FsGrid< std::array<Real, fsgrids::dperb::N_DPERB>, FS_STENCIL_WIDTH> & dPerBGrid,
-            FsGrid< std::array<Real, fsgrids::dmoments::N_DMOMENTS>, FS_STENCIL_WIDTH> & dMomentsGrid,
+            const FsGrid< std::array<Real, fsgrids::dperb::N_DPERB>, FS_STENCIL_WIDTH> & dPerBGrid,
+            const FsGrid< std::array<Real, fsgrids::dmoments::N_DMOMENTS>, FS_STENCIL_WIDTH> & dMomentsGrid,
             cint i,
             cint j,
             cint k,
+            cuint component
+         );
+         static void setCellDerivativesToZero(
+            std::array<Real, fsgrids::dperb::N_DPERB> * dPerBGrid,
+            std::array<Real, fsgrids::dmoments::N_DMOMENTS> * dMomentsGrid,
             cuint component
          );
          static void setCellBVOLDerivativesToZero(

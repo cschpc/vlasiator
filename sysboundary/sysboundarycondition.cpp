@@ -187,8 +187,8 @@ namespace SBC {
     * \param component 0: x-derivatives, 1: y-derivatives, 2: z-derivatives, 3: xy-derivatives, 4: xz-derivatives, 5: yz-derivatives.
     */
    void SysBoundaryCondition::setCellDerivativesToZero(
-      FsGrid< array<Real, fsgrids::dperb::N_DPERB>, FS_STENCIL_WIDTH> & dPerBGrid,
-      FsGrid< array<Real, fsgrids::dmoments::N_DMOMENTS>, FS_STENCIL_WIDTH> & dMomentsGrid,
+      const FsGrid< array<Real, fsgrids::dperb::N_DPERB>, FS_STENCIL_WIDTH> & dPerBGrid,
+      const FsGrid< array<Real, fsgrids::dmoments::N_DMOMENTS>, FS_STENCIL_WIDTH> & dMomentsGrid,
       cint i,
       cint j,
       cint k,
@@ -196,6 +196,14 @@ namespace SBC {
    ) {
       array<Real, fsgrids::dperb::N_DPERB> * dPerBGrid0 = dPerBGrid.get(i,j,k);
       array<Real, fsgrids::dmoments::N_DMOMENTS> * dMomentsGrid0 = dMomentsGrid.get(i,j,k);
+      setCellDerivativesToZero(dPerBGrid0, dMomentsGrid0, component);
+   }
+
+   void SysBoundaryCondition::setCellDerivativesToZero(
+      std::array<Real, fsgrids::dperb::N_DPERB> * dPerBGrid0,
+      std::array<Real, fsgrids::dmoments::N_DMOMENTS> * dMomentsGrid0,
+      cuint component
+   ) {
       switch(component) {
          case 0: // x, xx
             dMomentsGrid0->at(fsgrids::dmoments::drhomdx) = 0.0;
