@@ -26,6 +26,8 @@
 #include "derivatives.hpp"
 #include "fs_limiters.h"
 
+typedef int64_t LocalID;  // FsGridTools::LocalID
+
 /*! \brief Low-level spatial derivatives calculation.
  *
  * For the cell with ID cellID calculate the spatial derivatives or apply the derivative boundary conditions defined in project.h.
@@ -46,32 +48,25 @@
  * \sa calculateDerivativesSimple calculateBVOLDerivativesSimple calculateBVOLDerivatives
  */
 void calculateDerivatives(
-   cint i,
-   cint j,
-   cint k,
-   const FsGrid< std::array<Real, fsgrids::bfield::N_BFIELD>, FS_STENCIL_WIDTH> & perBGrid,
-   const FsGrid< std::array<Real, fsgrids::moments::N_MOMENTS>, FS_STENCIL_WIDTH> & momentsGrid,
-   const FsGrid< std::array<Real, fsgrids::dperb::N_DPERB>, FS_STENCIL_WIDTH> & dPerBGrid,
-   const FsGrid< std::array<Real, fsgrids::dmoments::N_DMOMENTS>, FS_STENCIL_WIDTH> & dMomentsGrid,
-   const FsGrid< fsgrids::technical, FS_STENCIL_WIDTH> & technicalGrid
+   FsStencil s,
+   cuint sysBoundaryFlag,
+   cuint sysBoundaryLayer,
+   std::array<Real, fsgrids::bfield::N_BFIELD> * perBData,
+   std::array<Real, fsgrids::moments::N_MOMENTS> * momentsData,
+   std::array<Real, fsgrids::dperb::N_DPERB> * dPerBData,
+   std::array<Real, fsgrids::dmoments::N_DMOMENTS> * dMomentsData
 ) {
-   auto cent = technicalGrid.calculateIndex(i, j, k);
-
-   auto dPerB = dPerBGrid.get(cent);
-   auto dMoments = dMomentsGrid.get(cent);
-   auto technical = technicalGrid.get(cent);
-
-   // Get boundary flag for the cell:
-   cuint sysBoundaryFlag  = technical->sysBoundaryFlag;
-   cuint sysBoundaryLayer = technical->sysBoundaryLayer;
+   auto cent = s.center;
+   auto dPerB = &dPerBData[cent];
+   auto dMoments = &dMomentsData[cent];
 
    // Constants for electron pressure derivatives
    // Upstream pressure
    Real Peupstream = Parameters::electronTemperature * Parameters::electronDensity * physicalconstants::K_B;
    Real Peconst = Peupstream * pow(Parameters::electronDensity, -Parameters::electronPTindex);
 
-   auto centMoments = momentsGrid.get(cent);
-   auto centPerB = perBGrid.get(cent);
+   auto centMoments = &momentsData[cent];
+   auto centPerB = &perBData[cent];
    #ifdef DEBUG_SOLVERS
    if (centMoments->at(fsgrids::moments::RHOM) <= 0) {
       std::cerr << __FILE__ << ":" << __LINE__
@@ -82,12 +77,10 @@ void calculateDerivatives(
    #endif
 
    // Calculate x-derivatives (is not TVD for AMR mesh):
-   auto left = technicalGrid.calculateIndex(i-1, j, k);
-   auto rght = technicalGrid.calculateIndex(i+1, j, k);
-   auto leftPerB = left < 0 ? centPerB : perBGrid.get(left);
-   auto rghtPerB = rght < 0 ? centPerB : perBGrid.get(rght);
-   auto leftMoments = left < 0 ? centMoments : momentsGrid.get(left);
-   auto rghtMoments = rght < 0 ? centMoments : momentsGrid.get(rght);
+   auto leftPerB = &perBData[s.xLeft];
+   auto rghtPerB = &perBData[s.xRght];
+   auto leftMoments = &momentsData[s.xLeft];
+   auto rghtMoments = &momentsData[s.xRght];
 
    #ifdef DEBUG_SOLVERS
    if (leftMoments->at(fsgrids::moments::RHOM) <= 0) {
@@ -140,18 +133,10 @@ void calculateDerivatives(
    }
 
    // Calculate y-derivatives (is not TVD for AMR mesh):
-   leftPerB = perBGrid.get(i,j-1,k);
-   rghtPerB = perBGrid.get(i,j+1,k);
-   leftMoments = momentsGrid.get(i,j-1,k);
-   rghtMoments = momentsGrid.get(i,j+1,k);
-   if(leftPerB == NULL) {
-      leftPerB = centPerB;
-      leftMoments = centMoments;
-   }
-   if(rghtPerB == NULL) {
-      rghtPerB = centPerB;
-      rghtMoments = centMoments;
-   }
+   leftPerB = &perBData[s.yLeft];
+   rghtPerB = &perBData[s.yRght];
+   leftMoments = &momentsData[s.yLeft];
+   rghtMoments = &momentsData[s.yRght];
 
    if(sysBoundaryLayer == 1 || (sysBoundaryLayer == 2 && sysBoundaryFlag == sysboundarytype::NOT_SYSBOUNDARY)) {
       dMoments->at(fsgrids::dmoments::drhomdy) = (rghtMoments->at(fsgrids::moments::RHOM)-leftMoments->at(fsgrids::moments::RHOM))/2;
@@ -188,18 +173,10 @@ void calculateDerivatives(
    }
 
    // Calculate z-derivatives (is not TVD for AMR mesh):
-   leftPerB = perBGrid.get(i,j,k-1);
-   rghtPerB = perBGrid.get(i,j,k+1);
-   leftMoments = momentsGrid.get(i,j,k-1);
-   rghtMoments = momentsGrid.get(i,j,k+1);
-   if(leftPerB == NULL) {
-      leftPerB = centPerB;
-      leftMoments = centMoments;
-   }
-   if(rghtPerB == NULL) {
-      rghtPerB = centPerB;
-      rghtMoments = centMoments;
-   }
+   leftPerB = &perBData[s.zLeft];
+   rghtPerB = &perBData[s.zRght];
+   leftMoments = &momentsData[s.zLeft];
+   rghtMoments = &momentsData[s.zRght];
 
    if(sysBoundaryLayer == 1 || (sysBoundaryLayer == 2 && sysBoundaryFlag == sysboundarytype::NOT_SYSBOUNDARY)) {
       dMoments->at(fsgrids::dmoments::drhomdz) = (rghtMoments->at(fsgrids::moments::RHOM)-leftMoments->at(fsgrids::moments::RHOM))/2;
@@ -243,35 +220,35 @@ void calculateDerivatives(
    } else {
       // Calculate xy mixed derivatives:
       if (sysBoundaryFlag == sysboundarytype::NOT_SYSBOUNDARY) {
-         auto botLeft = perBGrid.get(i-1,j-1,k);
-         auto botRght = perBGrid.get(i+1,j-1,k);
-         auto topLeft = perBGrid.get(i-1,j+1,k);
-         auto topRght = perBGrid.get(i+1,j+1,k);
+         auto botLeft = &perBData[s.xyBotLeft];
+         auto botRght = &perBData[s.xyBotRght];
+         auto topLeft = &perBData[s.xyTopLeft];
+         auto topRght = &perBData[s.xyTopRght];
          dPerB->at(fsgrids::dperb::dPERBzdxy) = FOURTH * (botLeft->at(fsgrids::bfield::PERBZ) + topRght->at(fsgrids::bfield::PERBZ) - botRght->at(fsgrids::bfield::PERBZ) - topLeft->at(fsgrids::bfield::PERBZ));
       } else {
-         SBC::SysBoundaryCondition::setCellDerivativesToZero(dPerBGrid, dMomentsGrid, i, j, k, 3);
+         SBC::SysBoundaryCondition::setCellDerivativesToZero(dPerB, dMoments, 3);
       }
 
       // Calculate xz mixed derivatives:
       if (sysBoundaryFlag == sysboundarytype::NOT_SYSBOUNDARY) {
-         auto botLeft = perBGrid.get(i-1,j,k-1);
-         auto botRght = perBGrid.get(i+1,j,k-1);
-         auto topLeft = perBGrid.get(i-1,j,k+1);
-         auto topRght = perBGrid.get(i+1,j,k+1);
+         auto botLeft = &perBData[s.xzBotLeft];
+         auto botRght = &perBData[s.xzBotRght];
+         auto topLeft = &perBData[s.xzTopLeft];
+         auto topRght = &perBData[s.xzTopRght];
          dPerB->at(fsgrids::dperb::dPERBydxz) = FOURTH * (botLeft->at(fsgrids::bfield::PERBY) + topRght->at(fsgrids::bfield::PERBY) - botRght->at(fsgrids::bfield::PERBY) - topLeft->at(fsgrids::bfield::PERBY));
       } else {
-         SBC::SysBoundaryCondition::setCellDerivativesToZero(dPerBGrid, dMomentsGrid, i, j, k, 4);
+         SBC::SysBoundaryCondition::setCellDerivativesToZero(dPerB, dMoments, 4);
       }
 
       // Calculate yz mixed derivatives:
       if (sysBoundaryFlag == sysboundarytype::NOT_SYSBOUNDARY) {
-         auto botLeft = perBGrid.get(i,j-1,k-1);
-         auto botRght = perBGrid.get(i,j+1,k-1);
-         auto topLeft = perBGrid.get(i,j-1,k+1);
-         auto topRght = perBGrid.get(i,j+1,k+1);
+         auto botLeft = &perBData[s.yzBotLeft];
+         auto botRght = &perBData[s.yzBotRght];
+         auto topLeft = &perBData[s.yzTopLeft];
+         auto topRght = &perBData[s.yzTopRght];
          dPerB->at(fsgrids::dperb::dPERBxdyz) = FOURTH * (botLeft->at(fsgrids::bfield::PERBX) + topRght->at(fsgrids::bfield::PERBX) - botRght->at(fsgrids::bfield::PERBX) - topLeft->at(fsgrids::bfield::PERBX));
       } else {
-         SBC::SysBoundaryCondition::setCellDerivativesToZero(dPerBGrid, dMomentsGrid, i, j, k, 5);
+         SBC::SysBoundaryCondition::setCellDerivativesToZero(dPerB, dMoments, 5);
       }
    }
 }
@@ -301,20 +278,39 @@ void calculateDerivativesSimple(
    FsGrid< fsgrids::technical, FS_STENCIL_WIDTH> & technicalGrid,
    const bool communicateMoments
 ) {
+   calculateDerivativesSimple(
+      perBGrid.get(),
+      momentsGrid.get(),
+      dPerBGrid.get(),
+      dMomentsGrid.get(),
+      technicalGrid,
+      communicateMoments);
+}
+
+
+
+void calculateDerivativesSimple(
+   std::array<Real, fsgrids::bfield::N_BFIELD> * perBData,
+   std::array<Real, fsgrids::moments::N_MOMENTS> * momentsData,
+   std::array<Real, fsgrids::dperb::N_DPERB> * dPerBData,
+   std::array<Real, fsgrids::dmoments::N_DMOMENTS> * dMomentsData,
+   FsGrid< fsgrids::technical, FS_STENCIL_WIDTH> & technicalGrid,
+   const bool communicateMoments
+) {
 
    phiprof::Timer derivativesTimer {"Calculate face derivatives"};
    phiprof::Timer mpiTimer {"FS derivatives ghost updates MPI", {"MPI"}};
 
-   technicalGrid.updateGhostCells(perBGrid.get(), perBGrid.neighbourSendType, perBGrid.neighbourReceiveType);
+   technicalGrid.updateGhostCells(perBData);
    if(communicateMoments) {
-     technicalGrid.updateGhostCells(momentsGrid.get(), momentsGrid.neighbourSendType, momentsGrid.neighbourReceiveType);
+     technicalGrid.updateGhostCells(momentsData);
    }
 
    mpiTimer.stop();
 
    // Calculate derivatives
-   technicalGrid.parallel_for([=](int i, int j, int k) {
-       calculateDerivatives(i,j,k, perBGrid, momentsGrid, dPerBGrid, dMomentsGrid, technicalGrid);
+   technicalGrid.parallel_for([=](FsStencil s, cuint sysBoundaryFlag, cuint sysBoundaryLayer) {
+       calculateDerivatives(s, sysBoundaryFlag, sysBoundaryLayer, perBData, momentsData, dPerBData, dMomentsData);
    });
 
    derivativesTimer.stop();

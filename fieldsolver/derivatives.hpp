@@ -37,6 +37,14 @@ void calculateDerivativesSimple(
    FsGrid< fsgrids::technical, FS_STENCIL_WIDTH> & technicalGrid,
    const bool communicateMoments);
 
+void calculateDerivativesSimple(
+   std::array<Real, fsgrids::bfield::N_BFIELD> * perBData,
+   std::array<Real, fsgrids::moments::N_MOMENTS> * momentsData,
+   std::array<Real, fsgrids::dperb::N_DPERB> * dPerBData,
+   std::array<Real, fsgrids::dmoments::N_DMOMENTS> * dMomentsData,
+   FsGrid< fsgrids::technical, FS_STENCIL_WIDTH> & technicalGrid,
+   const bool communicateMoments);
+
 void calculateBVOLDerivativesSimple(
    FsGrid< std::array<Real, fsgrids::volfields::N_VOL>, FS_STENCIL_WIDTH> & volGrid,
    FsGrid< fsgrids::technical, FS_STENCIL_WIDTH> & technicalGrid,
