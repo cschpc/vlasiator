@@ -126,7 +126,7 @@ void reconstructionCoefficients(
 );
 
 void reconstructionCoefficients(
-   FsStencil s,
+   FsStencilRght s,
    std::array<Real, fsgrids::bfield::N_BFIELD> * perBData,
    std::array<Real, fsgrids::dperb::N_DPERB> * dPerBData,
    std::array<Real, Rec::N_REC_COEFFICIENTS> & perturbedResult,

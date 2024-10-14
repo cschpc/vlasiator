@@ -48,7 +48,7 @@ typedef int64_t LocalID;  // FsGridTools::LocalID
  * \sa calculateDerivativesSimple calculateBVOLDerivativesSimple calculateBVOLDerivatives
  */
 void calculateDerivatives(
-   FsStencil s,
+   FsStencilAll s,
    cuint sysBoundaryFlag,
    cuint sysBoundaryLayer,
    std::array<Real, fsgrids::bfield::N_BFIELD> * perBData,
@@ -309,7 +309,7 @@ void calculateDerivativesSimple(
    mpiTimer.stop();
 
    // Calculate derivatives
-   technicalGrid.parallel_for([=](FsStencil s, cuint sysBoundaryFlag, cuint sysBoundaryLayer) {
+   technicalGrid.parallel_for<FsStencilAll>([=](FsStencilAll s, cuint sysBoundaryFlag, cuint sysBoundaryLayer) {
        calculateDerivatives(s, sysBoundaryFlag, sysBoundaryLayer, perBData, momentsData, dPerBData, dMomentsData);
    });
 

@@ -56,7 +56,7 @@ void calculateVolumeAveragedFields(
 ) {
    phiprof::Timer timer {"Calculate volume averaged fields"};
 
-   technicalGrid.parallel_for([=](FsStencil s, cuint sysBoundaryFlag, cuint sysBoundaryLayer) {
+   technicalGrid.parallel_for<FsStencilRght>([=](FsStencilRght s, cuint sysBoundaryFlag, cuint sysBoundaryLayer) {
                std::array<Real, Rec::N_REC_COEFFICIENTS> perturbedCoefficients;
                auto volGrid0 = &volData[s.center];
 
