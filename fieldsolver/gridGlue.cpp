@@ -70,8 +70,8 @@ template <typename T, int stencil> void computeCoupling(dccrg::Dccrg<SpatialCell
          CellID dccrgCell = mpiGrid.get_existing_cell(indices, 0, mpiGrid.mapping.get_maximum_refinement_level());
 
          int process = mpiGrid.get_process(dccrgCell);
-         FsGridTools::LocalID fsgridLid = momentsGrid.LocalIDForCoords(i, j, k);
-         // int64_t  fsgridGid = momentsGrid.GlobalIDForCoords(i,j,k);
+         FsGridTools::LocalID fsgridLid = momentsGrid.localIDFromLocalCoordinates(i, j, k);
+         // int64_t  fsgridGid = momentsGrid.globalIDFromLocalCoordinates(i,j,k);
          onFsgridMapRemoteProcess[process].insert(dccrgCell); // cells are ordered (sorted) in set
          onFsgridMapCells[dccrgCell].push_back(fsgridLid);
       }
@@ -85,8 +85,8 @@ template <typename T, int stencil> void computeCoupling(dccrg::Dccrg<SpatialCell
 
      //loop over fsgrid cells which this dccrg cell maps to
      for (auto const &fsCellID : fsCells) {
-       int process = momentsGrid.getTaskForGlobalID(fsCellID).first; //process on fsgrid
-       onDccrgMapRemoteProcess[process].insert(dccrgCells[i]); //add to map
+        const int process = momentsGrid.getTaskForGlobalID(fsCellID); // process on fsgrid
+        onDccrgMapRemoteProcess[process].insert(dccrgCells[i]);       // add to map
      }    
   }
 }
