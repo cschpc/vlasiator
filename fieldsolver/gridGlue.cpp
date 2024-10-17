@@ -95,55 +95,56 @@ template <typename T, int stencil> void computeCoupling(dccrg::Dccrg<SpatialCell
 Filter moments after feeding them to FsGrid to alleviate the staircase effect caused in AMR runs.
 This is using a 3D, 5-point stencil triangle kernel.
 */
-void filterMoments(dccrg::Dccrg<SpatialCell,dccrg::Cartesian_Geometry>& mpiGrid,
-                           FsGrid< std::array<Real, fsgrids::moments::N_MOMENTS>, FS_STENCIL_WIDTH> & momentsGrid,
-                           FsGrid< fsgrids::technical, FS_STENCIL_WIDTH> & technicalGrid) 
-{
-
-
+void filterMoments(FsGrid<std::array<Real, fsgrids::moments::N_MOMENTS>, FS_STENCIL_WIDTH>& momentsGrid,
+                   FsGrid<fsgrids::technical, FS_STENCIL_WIDTH>& technicalGrid) {
 
    // Kernel Characteristics
-   const int kernelOffset = 2;   // offset of 5 pointstencil 3D kernel => (floor(stencilWidth/2);)
-   const Real inverseKernelSum = 1.0 / 729.0;   // the inverse of the total kernel's sum 
-   const static Real kernel[5][5][5] ={
-                                 {{ 1 * inverseKernelSum,  2 * inverseKernelSum,  3 * inverseKernelSum,  2 * inverseKernelSum,  1 * inverseKernelSum},
-                                 { 2 * inverseKernelSum,  4 * inverseKernelSum,  6 * inverseKernelSum,  4 * inverseKernelSum,  2 * inverseKernelSum},
-                                 { 3 * inverseKernelSum,  6 * inverseKernelSum,  9 * inverseKernelSum,  6 * inverseKernelSum,  3 * inverseKernelSum},
-                                 { 2 * inverseKernelSum,  4 * inverseKernelSum,  6 * inverseKernelSum,  4 * inverseKernelSum,  2 * inverseKernelSum},
-                                 { 1 * inverseKernelSum,  2 * inverseKernelSum,  3 * inverseKernelSum,  2 * inverseKernelSum,  1 * inverseKernelSum}},
+   constexpr int kernelOffset = 2;                // offset of 5 pointstencil 3D kernel => (floor(stencilWidth/2);)
+   constexpr Real inverseKernelSum = 1.0 / 729.0; // the inverse of the total kernel's sum
+   constexpr Real kernel[5][5][5] = {
+       {{1 * inverseKernelSum, 2 * inverseKernelSum, 3 * inverseKernelSum, 2 * inverseKernelSum, 1 * inverseKernelSum},
+        {2 * inverseKernelSum, 4 * inverseKernelSum, 6 * inverseKernelSum, 4 * inverseKernelSum, 2 * inverseKernelSum},
+        {3 * inverseKernelSum, 6 * inverseKernelSum, 9 * inverseKernelSum, 6 * inverseKernelSum, 3 * inverseKernelSum},
+        {2 * inverseKernelSum, 4 * inverseKernelSum, 6 * inverseKernelSum, 4 * inverseKernelSum, 2 * inverseKernelSum},
+        {1 * inverseKernelSum, 2 * inverseKernelSum, 3 * inverseKernelSum, 2 * inverseKernelSum, 1 * inverseKernelSum}},
 
-                                 {{ 2 * inverseKernelSum,  4 * inverseKernelSum,  6 * inverseKernelSum,  4 * inverseKernelSum,  2 * inverseKernelSum},
-                                 { 4 * inverseKernelSum,  8 * inverseKernelSum, 12 * inverseKernelSum,  8 * inverseKernelSum,  4 * inverseKernelSum},
-                                 { 6 * inverseKernelSum, 12 * inverseKernelSum, 18 * inverseKernelSum, 12 * inverseKernelSum,  6 * inverseKernelSum},
-                                 { 4 * inverseKernelSum,  8 * inverseKernelSum, 12 * inverseKernelSum,  8 * inverseKernelSum,  4 * inverseKernelSum},
-                                 { 2 * inverseKernelSum,  4 * inverseKernelSum,  6 * inverseKernelSum,  4 * inverseKernelSum,  2 * inverseKernelSum}},
+       {{2 * inverseKernelSum, 4 * inverseKernelSum, 6 * inverseKernelSum, 4 * inverseKernelSum, 2 * inverseKernelSum},
+        {4 * inverseKernelSum, 8 * inverseKernelSum, 12 * inverseKernelSum, 8 * inverseKernelSum, 4 * inverseKernelSum},
+        {6 * inverseKernelSum, 12 * inverseKernelSum, 18 * inverseKernelSum, 12 * inverseKernelSum,
+         6 * inverseKernelSum},
+        {4 * inverseKernelSum, 8 * inverseKernelSum, 12 * inverseKernelSum, 8 * inverseKernelSum, 4 * inverseKernelSum},
+        {2 * inverseKernelSum, 4 * inverseKernelSum, 6 * inverseKernelSum, 4 * inverseKernelSum, 2 * inverseKernelSum}},
 
-                                 {{ 3 * inverseKernelSum,  6 * inverseKernelSum,  9 * inverseKernelSum,  6 * inverseKernelSum,  3 * inverseKernelSum},
-                                 { 6 * inverseKernelSum, 12 * inverseKernelSum, 18 * inverseKernelSum, 12 * inverseKernelSum,  6 * inverseKernelSum},
-                                 { 9 * inverseKernelSum, 18 * inverseKernelSum, 27 * inverseKernelSum, 18 * inverseKernelSum,  9 * inverseKernelSum},
-                                 { 6 * inverseKernelSum, 12 * inverseKernelSum, 18 * inverseKernelSum, 12 * inverseKernelSum,  6 * inverseKernelSum},
-                                 { 3 * inverseKernelSum,  6 * inverseKernelSum,  9 * inverseKernelSum,  6 * inverseKernelSum,  3 * inverseKernelSum}},
+       {{3 * inverseKernelSum, 6 * inverseKernelSum, 9 * inverseKernelSum, 6 * inverseKernelSum, 3 * inverseKernelSum},
+        {6 * inverseKernelSum, 12 * inverseKernelSum, 18 * inverseKernelSum, 12 * inverseKernelSum,
+         6 * inverseKernelSum},
+        {9 * inverseKernelSum, 18 * inverseKernelSum, 27 * inverseKernelSum, 18 * inverseKernelSum,
+         9 * inverseKernelSum},
+        {6 * inverseKernelSum, 12 * inverseKernelSum, 18 * inverseKernelSum, 12 * inverseKernelSum,
+         6 * inverseKernelSum},
+        {3 * inverseKernelSum, 6 * inverseKernelSum, 9 * inverseKernelSum, 6 * inverseKernelSum, 3 * inverseKernelSum}},
 
-                                 {{ 2 * inverseKernelSum,  4 * inverseKernelSum,  6 * inverseKernelSum,  4 * inverseKernelSum,  2 * inverseKernelSum},
-                                 { 4 * inverseKernelSum,  8 * inverseKernelSum, 12 * inverseKernelSum,  8 * inverseKernelSum,  4 * inverseKernelSum},
-                                 { 6 * inverseKernelSum, 12 * inverseKernelSum, 18 * inverseKernelSum, 12 * inverseKernelSum,  6 * inverseKernelSum},
-                                 { 4 * inverseKernelSum,  8 * inverseKernelSum, 12 * inverseKernelSum,  8 * inverseKernelSum,  4 * inverseKernelSum},
-                                 { 2 * inverseKernelSum,  4 * inverseKernelSum,  6 * inverseKernelSum,  4 * inverseKernelSum,  2 * inverseKernelSum}},
+       {{2 * inverseKernelSum, 4 * inverseKernelSum, 6 * inverseKernelSum, 4 * inverseKernelSum, 2 * inverseKernelSum},
+        {4 * inverseKernelSum, 8 * inverseKernelSum, 12 * inverseKernelSum, 8 * inverseKernelSum, 4 * inverseKernelSum},
+        {6 * inverseKernelSum, 12 * inverseKernelSum, 18 * inverseKernelSum, 12 * inverseKernelSum,
+         6 * inverseKernelSum},
+        {4 * inverseKernelSum, 8 * inverseKernelSum, 12 * inverseKernelSum, 8 * inverseKernelSum, 4 * inverseKernelSum},
+        {2 * inverseKernelSum, 4 * inverseKernelSum, 6 * inverseKernelSum, 4 * inverseKernelSum, 2 * inverseKernelSum}},
 
-                                 {{ 1 * inverseKernelSum,  2 * inverseKernelSum,  3 * inverseKernelSum,  2 * inverseKernelSum,  1 * inverseKernelSum},
-                                 { 2 * inverseKernelSum,  4 * inverseKernelSum,  6 * inverseKernelSum,  4 * inverseKernelSum,  2 * inverseKernelSum},
-                                 { 3 * inverseKernelSum,  6 * inverseKernelSum,  9 * inverseKernelSum,  6 * inverseKernelSum,  3 * inverseKernelSum},
-                                 { 2 * inverseKernelSum,  4 * inverseKernelSum,  6 * inverseKernelSum,  4 * inverseKernelSum,  2 * inverseKernelSum},
-                                 { 1 * inverseKernelSum,  2 * inverseKernelSum,  3 * inverseKernelSum,  2 * inverseKernelSum,  1 * inverseKernelSum}}
-                                 };
+       {{1 * inverseKernelSum, 2 * inverseKernelSum, 3 * inverseKernelSum, 2 * inverseKernelSum, 1 * inverseKernelSum},
+        {2 * inverseKernelSum, 4 * inverseKernelSum, 6 * inverseKernelSum, 4 * inverseKernelSum, 2 * inverseKernelSum},
+        {3 * inverseKernelSum, 6 * inverseKernelSum, 9 * inverseKernelSum, 6 * inverseKernelSum, 3 * inverseKernelSum},
+        {2 * inverseKernelSum, 4 * inverseKernelSum, 6 * inverseKernelSum, 4 * inverseKernelSum, 2 * inverseKernelSum},
+        {1 * inverseKernelSum, 2 * inverseKernelSum, 3 * inverseKernelSum, 2 * inverseKernelSum,
+         1 * inverseKernelSum}}};
 
    // Update momentsGrid Ghost Cells
-   momentsGrid.updateGhostCells(); 
+   momentsGrid.updateGhostCells();
 
-
-   // Get size of local domain and create swapGrid for filtering
-   const FsGridTools::FsIndex_t* mntDims = &momentsGrid.getLocalSize()[0];  
-   FsGrid<std::array<Real, fsgrids::moments::N_MOMENTS>, FS_STENCIL_WIDTH> swapGrid = momentsGrid;  //swap array 
+   // Get size of local domain
+   const auto& mntDims = momentsGrid.getLocalSize();
+   // Create a copy of momentsGrid data for filtering
+   std::vector<std::array<Real, fsgrids::moments::N_MOMENTS>> swapData(momentsGrid.getData());
 
    // Filtering Loop
    for (int blurPass = 0; blurPass < Parameters::maxFilteringPasses; blurPass++){
@@ -162,25 +163,18 @@ void filterMoments(dccrg::Dccrg<SpatialCell,dccrg::Cartesian_Geometry>& mpiGrid,
                   continue;
                }
 
-               // Get pointers to our cells
-               std::array<Real, fsgrids::moments::N_MOMENTS> *cell;  
-               std::array<Real, fsgrids::moments::N_MOMENTS> *swap;
-            
                // Set Cell to zero before passing filter
-               swap = swapGrid.get(i,j,k);
-               #pragma omp simd
-               for (int e = 0; e < fsgrids::moments::N_MOMENTS; ++e) {
-                  swap->at(e)=0.0;
-               }
+               auto& swap = swapData[momentsGrid.localIDFromLocalCoordinates(i, j, k)];
+               swap.fill(0.0);
 
                // Perform the blur
                for (int c=-kernelOffset; c<=kernelOffset; c++){
                   for (int b=-kernelOffset; b<=kernelOffset; b++){
                      for (int a=-kernelOffset; a<=kernelOffset; a++){
-                        cell = momentsGrid.get(i+a,j+b,k+c);
-                        #pragma omp simd
+                        const auto* cell = momentsGrid.get(i + a, j + b, k + c);
+#pragma omp simd
                         for (int e = 0; e < fsgrids::moments::N_MOMENTS; ++e) {
-                           swap->at(e)+=cell->at(e) *kernel[kernelOffset+a][kernelOffset+b][kernelOffset+c];
+                           swap.at(e) += cell->at(e) * kernel[kernelOffset + a][kernelOffset + b][kernelOffset + c];
                         } 
                      }
                   }
@@ -189,8 +183,8 @@ void filterMoments(dccrg::Dccrg<SpatialCell,dccrg::Cartesian_Geometry>& mpiGrid,
          }
       } //spatial loops
 
-      // Copy swapGrid back to momentsGrid
-      momentsGrid=swapGrid;
+      // Copy filtered data back to momentsGrid
+      momentsGrid.getData() = swapData;
       // Update Ghost Cells
       momentsGrid.updateGhostCells();
 
@@ -296,7 +290,7 @@ void feedMomentsIntoFsGrid(dccrg::Dccrg<SpatialCell,dccrg::Cartesian_Geometry>& 
    //Filter Moments if this is a 3D AMR run.
   if (P::amrMaxSpatialRefLevel>0) { 
       phiprof::Timer filteringTimer {"AMR Filtering-Triangle-3D"};
-      filterMoments(mpiGrid,momentsGrid,technicalGrid);
+      filterMoments(momentsGrid, technicalGrid);
    }   
 }
 
