@@ -1026,7 +1026,7 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
                          retval[gridSize[1] * gridSize[0] * z + gridSize[0] * y + x] =
-                             dPerBGrid.get(x, y, z)->at(fsgrids::dperb::dPERBxdy) / dPerBGrid.DY;
+                             dPerBGrid.get(x, y, z)->at(fsgrids::dperb::dPERBxdy) / dPerBGrid.getGridSpacing()[1];
                       }
                    }
                 }
@@ -1052,7 +1052,7 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
                          retval[gridSize[1] * gridSize[0] * z + gridSize[0] * y + x] =
-                             dPerBGrid.get(x, y, z)->at(fsgrids::dperb::dPERBxdz) / dPerBGrid.DZ;
+                             dPerBGrid.get(x, y, z)->at(fsgrids::dperb::dPERBxdz) / dPerBGrid.getGridSpacing()[2];
                       }
                    }
                 }
@@ -1078,7 +1078,7 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
                          retval[gridSize[1] * gridSize[0] * z + gridSize[0] * y + x] =
-                             dPerBGrid.get(x, y, z)->at(fsgrids::dperb::dPERBydx) / dPerBGrid.DX;
+                             dPerBGrid.get(x, y, z)->at(fsgrids::dperb::dPERBydx) / dPerBGrid.getGridSpacing()[0];
                       }
                    }
                 }
@@ -1104,7 +1104,7 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
                          retval[gridSize[1] * gridSize[0] * z + gridSize[0] * y + x] =
-                             dPerBGrid.get(x, y, z)->at(fsgrids::dperb::dPERBydz) / dPerBGrid.DZ;
+                             dPerBGrid.get(x, y, z)->at(fsgrids::dperb::dPERBydz) / dPerBGrid.getGridSpacing()[2];
                       }
                    }
                 }
@@ -1130,7 +1130,7 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
                          retval[gridSize[1] * gridSize[0] * z + gridSize[0] * y + x] =
-                             dPerBGrid.get(x, y, z)->at(fsgrids::dperb::dPERBzdx) / dPerBGrid.DX;
+                             dPerBGrid.get(x, y, z)->at(fsgrids::dperb::dPERBzdx) / dPerBGrid.getGridSpacing()[0];
                       }
                    }
                 }
@@ -1156,7 +1156,7 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
                          retval[gridSize[1] * gridSize[0] * z + gridSize[0] * y + x] =
-                             dPerBGrid.get(x, y, z)->at(fsgrids::dperb::dPERBzdy) / dPerBGrid.DY;
+                             dPerBGrid.get(x, y, z)->at(fsgrids::dperb::dPERBzdy) / dPerBGrid.getGridSpacing()[1];
                       }
                    }
                 }
@@ -1182,7 +1182,8 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
                          retval[gridSize[1] * gridSize[0] * z + gridSize[0] * y + x] =
-                             dPerBGrid.get(x, y, z)->at(fsgrids::dperb::dPERBxdyy) / dPerBGrid.DY / dPerBGrid.DY;
+                             dPerBGrid.get(x, y, z)->at(fsgrids::dperb::dPERBxdyy) / dPerBGrid.getGridSpacing()[1] /
+                             dPerBGrid.getGridSpacing()[1];
                       }
                    }
                 }
@@ -1208,7 +1209,8 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
                          retval[gridSize[1] * gridSize[0] * z + gridSize[0] * y + x] =
-                             dPerBGrid.get(x, y, z)->at(fsgrids::dperb::dPERBxdzz) / dPerBGrid.DZ / dPerBGrid.DZ;
+                             dPerBGrid.get(x, y, z)->at(fsgrids::dperb::dPERBxdzz) / dPerBGrid.getGridSpacing()[2] /
+                             dPerBGrid.getGridSpacing()[2];
                       }
                    }
                 }
@@ -1234,7 +1236,8 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
                          retval[gridSize[1] * gridSize[0] * z + gridSize[0] * y + x] =
-                             dPerBGrid.get(x, y, z)->at(fsgrids::dperb::dPERBxdyz) / dPerBGrid.DY / dPerBGrid.DZ;
+                             dPerBGrid.get(x, y, z)->at(fsgrids::dperb::dPERBxdyz) / dPerBGrid.getGridSpacing()[1] /
+                             dPerBGrid.getGridSpacing()[2];
                       }
                    }
                 }
@@ -1260,7 +1263,8 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
                          retval[gridSize[1] * gridSize[0] * z + gridSize[0] * y + x] =
-                             dPerBGrid.get(x, y, z)->at(fsgrids::dperb::dPERBydxx) / dPerBGrid.DX / dPerBGrid.DX;
+                             dPerBGrid.get(x, y, z)->at(fsgrids::dperb::dPERBydxx) / dPerBGrid.getGridSpacing()[0] /
+                             dPerBGrid.getGridSpacing()[0];
                       }
                    }
                 }
@@ -1286,7 +1290,8 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
                          retval[gridSize[1] * gridSize[0] * z + gridSize[0] * y + x] =
-                             dPerBGrid.get(x, y, z)->at(fsgrids::dperb::dPERBydzz) / dPerBGrid.DZ / dPerBGrid.DZ;
+                             dPerBGrid.get(x, y, z)->at(fsgrids::dperb::dPERBydzz) / dPerBGrid.getGridSpacing()[2] /
+                             dPerBGrid.getGridSpacing()[2];
                       }
                    }
                 }
@@ -1312,7 +1317,8 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
                          retval[gridSize[1] * gridSize[0] * z + gridSize[0] * y + x] =
-                             dPerBGrid.get(x, y, z)->at(fsgrids::dperb::dPERBydxz) / dPerBGrid.DX / dPerBGrid.DZ;
+                             dPerBGrid.get(x, y, z)->at(fsgrids::dperb::dPERBydxz) / dPerBGrid.getGridSpacing()[0] /
+                             dPerBGrid.getGridSpacing()[2];
                       }
                    }
                 }
@@ -1338,7 +1344,8 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
                          retval[gridSize[1] * gridSize[0] * z + gridSize[0] * y + x] =
-                             dPerBGrid.get(x, y, z)->at(fsgrids::dperb::dPERBzdxx) / dPerBGrid.DX / dPerBGrid.DX;
+                             dPerBGrid.get(x, y, z)->at(fsgrids::dperb::dPERBzdxx) / dPerBGrid.getGridSpacing()[0] /
+                             dPerBGrid.getGridSpacing()[0];
                       }
                    }
                 }
@@ -1364,7 +1371,8 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
                          retval[gridSize[1] * gridSize[0] * z + gridSize[0] * y + x] =
-                             dPerBGrid.get(x, y, z)->at(fsgrids::dperb::dPERBzdyy) / dPerBGrid.DY / dPerBGrid.DY;
+                             dPerBGrid.get(x, y, z)->at(fsgrids::dperb::dPERBzdyy) / dPerBGrid.getGridSpacing()[1] /
+                             dPerBGrid.getGridSpacing()[1];
                       }
                    }
                 }
@@ -1390,7 +1398,8 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
                          retval[gridSize[1] * gridSize[0] * z + gridSize[0] * y + x] =
-                             dPerBGrid.get(x, y, z)->at(fsgrids::dperb::dPERBzdxy) / dPerBGrid.DX / dPerBGrid.DY;
+                             dPerBGrid.get(x, y, z)->at(fsgrids::dperb::dPERBzdxy) / dPerBGrid.getGridSpacing()[0] /
+                             dPerBGrid.getGridSpacing()[1];
                       }
                    }
                 }
@@ -1417,7 +1426,8 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
                          retval[gridSize[1] * gridSize[0] * z + gridSize[0] * y + x] =
-                             dMomentsGrid.get(x, y, z)->at(fsgrids::dmoments::drhomdx) / dMomentsGrid.DX;
+                             dMomentsGrid.get(x, y, z)->at(fsgrids::dmoments::drhomdx) /
+                             dMomentsGrid.getGridSpacing()[0];
                       }
                    }
                 }
@@ -1443,7 +1453,8 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
                          retval[gridSize[1] * gridSize[0] * z + gridSize[0] * y + x] =
-                             dMomentsGrid.get(x, y, z)->at(fsgrids::dmoments::drhomdy) / dMomentsGrid.DY;
+                             dMomentsGrid.get(x, y, z)->at(fsgrids::dmoments::drhomdy) /
+                             dMomentsGrid.getGridSpacing()[1];
                       }
                    }
                 }
@@ -1469,7 +1480,8 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
                          retval[gridSize[1] * gridSize[0] * z + gridSize[0] * y + x] =
-                             dMomentsGrid.get(x, y, z)->at(fsgrids::dmoments::drhomdz) / dMomentsGrid.DZ;
+                             dMomentsGrid.get(x, y, z)->at(fsgrids::dmoments::drhomdz) /
+                             dMomentsGrid.getGridSpacing()[2];
                       }
                    }
                 }
@@ -1495,7 +1507,8 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
                          retval[gridSize[1] * gridSize[0] * z + gridSize[0] * y + x] =
-                             dMomentsGrid.get(x, y, z)->at(fsgrids::dmoments::drhoqdx) / dMomentsGrid.DX;
+                             dMomentsGrid.get(x, y, z)->at(fsgrids::dmoments::drhoqdx) /
+                             dMomentsGrid.getGridSpacing()[0];
                       }
                    }
                 }
@@ -1521,7 +1534,8 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
                          retval[gridSize[1] * gridSize[0] * z + gridSize[0] * y + x] =
-                             dMomentsGrid.get(x, y, z)->at(fsgrids::dmoments::drhoqdy) / dMomentsGrid.DY;
+                             dMomentsGrid.get(x, y, z)->at(fsgrids::dmoments::drhoqdy) /
+                             dMomentsGrid.getGridSpacing()[1];
                       }
                    }
                 }
@@ -1547,7 +1561,8 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
                          retval[gridSize[1] * gridSize[0] * z + gridSize[0] * y + x] =
-                             dMomentsGrid.get(x, y, z)->at(fsgrids::dmoments::drhoqdz) / dMomentsGrid.DZ;
+                             dMomentsGrid.get(x, y, z)->at(fsgrids::dmoments::drhoqdz) /
+                             dMomentsGrid.getGridSpacing()[2];
                       }
                    }
                 }
@@ -1573,7 +1588,8 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
                          retval[gridSize[1] * gridSize[0] * z + gridSize[0] * y + x] =
-                             dMomentsGrid.get(x, y, z)->at(fsgrids::dmoments::dp11dx) / dMomentsGrid.DX;
+                             dMomentsGrid.get(x, y, z)->at(fsgrids::dmoments::dp11dx) /
+                             dMomentsGrid.getGridSpacing()[0];
                       }
                    }
                 }
@@ -1599,7 +1615,8 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
                          retval[gridSize[1] * gridSize[0] * z + gridSize[0] * y + x] =
-                             dMomentsGrid.get(x, y, z)->at(fsgrids::dmoments::dp11dy) / dMomentsGrid.DY;
+                             dMomentsGrid.get(x, y, z)->at(fsgrids::dmoments::dp11dy) /
+                             dMomentsGrid.getGridSpacing()[1];
                       }
                    }
                 }
@@ -1625,7 +1642,8 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
                          retval[gridSize[1] * gridSize[0] * z + gridSize[0] * y + x] =
-                             dMomentsGrid.get(x, y, z)->at(fsgrids::dmoments::dp11dz) / dMomentsGrid.DZ;
+                             dMomentsGrid.get(x, y, z)->at(fsgrids::dmoments::dp11dz) /
+                             dMomentsGrid.getGridSpacing()[2];
                       }
                    }
                 }
@@ -1651,7 +1669,8 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
                          retval[gridSize[1] * gridSize[0] * z + gridSize[0] * y + x] =
-                             dMomentsGrid.get(x, y, z)->at(fsgrids::dmoments::dp22dx) / dMomentsGrid.DX;
+                             dMomentsGrid.get(x, y, z)->at(fsgrids::dmoments::dp22dx) /
+                             dMomentsGrid.getGridSpacing()[0];
                       }
                    }
                 }
@@ -1677,7 +1696,8 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
                          retval[gridSize[1] * gridSize[0] * z + gridSize[0] * y + x] =
-                             dMomentsGrid.get(x, y, z)->at(fsgrids::dmoments::dp22dy) / dMomentsGrid.DY;
+                             dMomentsGrid.get(x, y, z)->at(fsgrids::dmoments::dp22dy) /
+                             dMomentsGrid.getGridSpacing()[1];
                       }
                    }
                 }
@@ -1703,7 +1723,8 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
                          retval[gridSize[1] * gridSize[0] * z + gridSize[0] * y + x] =
-                             dMomentsGrid.get(x, y, z)->at(fsgrids::dmoments::dp22dz) / dMomentsGrid.DZ;
+                             dMomentsGrid.get(x, y, z)->at(fsgrids::dmoments::dp22dz) /
+                             dMomentsGrid.getGridSpacing()[2];
                       }
                    }
                 }
@@ -1729,7 +1750,8 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
                          retval[gridSize[1] * gridSize[0] * z + gridSize[0] * y + x] =
-                             dMomentsGrid.get(x, y, z)->at(fsgrids::dmoments::dp33dx) / dMomentsGrid.DX;
+                             dMomentsGrid.get(x, y, z)->at(fsgrids::dmoments::dp33dx) /
+                             dMomentsGrid.getGridSpacing()[0];
                       }
                    }
                 }
@@ -1755,7 +1777,8 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
                          retval[gridSize[1] * gridSize[0] * z + gridSize[0] * y + x] =
-                             dMomentsGrid.get(x, y, z)->at(fsgrids::dmoments::dp33dy) / dMomentsGrid.DY;
+                             dMomentsGrid.get(x, y, z)->at(fsgrids::dmoments::dp33dy) /
+                             dMomentsGrid.getGridSpacing()[1];
                       }
                    }
                 }
@@ -1781,7 +1804,8 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
                          retval[gridSize[1] * gridSize[0] * z + gridSize[0] * y + x] =
-                             dMomentsGrid.get(x, y, z)->at(fsgrids::dmoments::dp33dz) / dMomentsGrid.DZ;
+                             dMomentsGrid.get(x, y, z)->at(fsgrids::dmoments::dp33dz) /
+                             dMomentsGrid.getGridSpacing()[2];
                       }
                    }
                 }
@@ -1807,7 +1831,7 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
                          retval[gridSize[1] * gridSize[0] * z + gridSize[0] * y + x] =
-                             dMomentsGrid.get(x, y, z)->at(fsgrids::dmoments::dVxdx) / dMomentsGrid.DX;
+                             dMomentsGrid.get(x, y, z)->at(fsgrids::dmoments::dVxdx) / dMomentsGrid.getGridSpacing()[0];
                       }
                    }
                 }
@@ -1833,7 +1857,7 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
                          retval[gridSize[1] * gridSize[0] * z + gridSize[0] * y + x] =
-                             dMomentsGrid.get(x, y, z)->at(fsgrids::dmoments::dVxdy) / dMomentsGrid.DY;
+                             dMomentsGrid.get(x, y, z)->at(fsgrids::dmoments::dVxdy) / dMomentsGrid.getGridSpacing()[1];
                       }
                    }
                 }
@@ -1859,7 +1883,7 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
                          retval[gridSize[1] * gridSize[0] * z + gridSize[0] * y + x] =
-                             dMomentsGrid.get(x, y, z)->at(fsgrids::dmoments::dVxdz) / dMomentsGrid.DZ;
+                             dMomentsGrid.get(x, y, z)->at(fsgrids::dmoments::dVxdz) / dMomentsGrid.getGridSpacing()[2];
                       }
                    }
                 }
@@ -1885,7 +1909,7 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
                          retval[gridSize[1] * gridSize[0] * z + gridSize[0] * y + x] =
-                             dMomentsGrid.get(x, y, z)->at(fsgrids::dmoments::dVydx) / dMomentsGrid.DX;
+                             dMomentsGrid.get(x, y, z)->at(fsgrids::dmoments::dVydx) / dMomentsGrid.getGridSpacing()[0];
                       }
                    }
                 }
@@ -1911,7 +1935,7 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
                          retval[gridSize[1] * gridSize[0] * z + gridSize[0] * y + x] =
-                             dMomentsGrid.get(x, y, z)->at(fsgrids::dmoments::dVydy) / dMomentsGrid.DY;
+                             dMomentsGrid.get(x, y, z)->at(fsgrids::dmoments::dVydy) / dMomentsGrid.getGridSpacing()[1];
                       }
                    }
                 }
@@ -1937,7 +1961,7 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
                          retval[gridSize[1] * gridSize[0] * z + gridSize[0] * y + x] =
-                             dMomentsGrid.get(x, y, z)->at(fsgrids::dmoments::dVydz) / dMomentsGrid.DZ;
+                             dMomentsGrid.get(x, y, z)->at(fsgrids::dmoments::dVydz) / dMomentsGrid.getGridSpacing()[2];
                       }
                    }
                 }
@@ -1963,7 +1987,7 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
                          retval[gridSize[1] * gridSize[0] * z + gridSize[0] * y + x] =
-                             dMomentsGrid.get(x, y, z)->at(fsgrids::dmoments::dVzdx) / dMomentsGrid.DX;
+                             dMomentsGrid.get(x, y, z)->at(fsgrids::dmoments::dVzdx) / dMomentsGrid.getGridSpacing()[0];
                       }
                    }
                 }
@@ -1989,7 +2013,7 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
                          retval[gridSize[1] * gridSize[0] * z + gridSize[0] * y + x] =
-                             dMomentsGrid.get(x, y, z)->at(fsgrids::dmoments::dVzdy) / dMomentsGrid.DY;
+                             dMomentsGrid.get(x, y, z)->at(fsgrids::dmoments::dVzdy) / dMomentsGrid.getGridSpacing()[1];
                       }
                    }
                 }
@@ -2015,7 +2039,7 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
                          retval[gridSize[1] * gridSize[0] * z + gridSize[0] * y + x] =
-                             dMomentsGrid.get(x, y, z)->at(fsgrids::dmoments::dVzdz) / dMomentsGrid.DZ;
+                             dMomentsGrid.get(x, y, z)->at(fsgrids::dmoments::dVzdz) / dMomentsGrid.getGridSpacing()[2];
                       }
                    }
                 }
@@ -2041,7 +2065,7 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
                          retval[gridSize[1] * gridSize[0] * z + gridSize[0] * y + x] =
-                             dMomentsGrid.get(x, y, z)->at(fsgrids::dmoments::dPedx) / dMomentsGrid.DX;
+                             dMomentsGrid.get(x, y, z)->at(fsgrids::dmoments::dPedx) / dMomentsGrid.getGridSpacing()[0];
                       }
                    }
                 }
@@ -2067,7 +2091,7 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
                          retval[gridSize[1] * gridSize[0] * z + gridSize[0] * y + x] =
-                             dMomentsGrid.get(x, y, z)->at(fsgrids::dmoments::dPedy) / dMomentsGrid.DY;
+                             dMomentsGrid.get(x, y, z)->at(fsgrids::dmoments::dPedy) / dMomentsGrid.getGridSpacing()[1];
                       }
                    }
                 }
@@ -2093,7 +2117,7 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
                          retval[gridSize[1] * gridSize[0] * z + gridSize[0] * y + x] =
-                             dMomentsGrid.get(x, y, z)->at(fsgrids::dmoments::dPedz) / dMomentsGrid.DZ;
+                             dMomentsGrid.get(x, y, z)->at(fsgrids::dmoments::dPedz) / dMomentsGrid.getGridSpacing()[2];
                       }
                    }
                 }
@@ -2120,7 +2144,7 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
                          retval[gridSize[1] * gridSize[0] * z + gridSize[0] * y + x] =
-                             volGrid.get(x, y, z)->at(fsgrids::volfields::dPERBXVOLdx) / BgBGrid.DX;
+                             volGrid.get(x, y, z)->at(fsgrids::volfields::dPERBXVOLdx) / BgBGrid.getGridSpacing()[0];
                       }
                    }
                 }
@@ -2146,7 +2170,7 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
                          retval[gridSize[1] * gridSize[0] * z + gridSize[0] * y + x] =
-                             volGrid.get(x, y, z)->at(fsgrids::volfields::dPERBXVOLdy) / BgBGrid.DY;
+                             volGrid.get(x, y, z)->at(fsgrids::volfields::dPERBXVOLdy) / BgBGrid.getGridSpacing()[1];
                       }
                    }
                 }
@@ -2172,7 +2196,7 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
                          retval[gridSize[1] * gridSize[0] * z + gridSize[0] * y + x] =
-                             volGrid.get(x, y, z)->at(fsgrids::volfields::dPERBXVOLdz) / BgBGrid.DZ;
+                             volGrid.get(x, y, z)->at(fsgrids::volfields::dPERBXVOLdz) / BgBGrid.getGridSpacing()[2];
                       }
                    }
                 }
@@ -2198,7 +2222,7 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
                          retval[gridSize[1] * gridSize[0] * z + gridSize[0] * y + x] =
-                             volGrid.get(x, y, z)->at(fsgrids::volfields::dPERBYVOLdx) / BgBGrid.DX;
+                             volGrid.get(x, y, z)->at(fsgrids::volfields::dPERBYVOLdx) / BgBGrid.getGridSpacing()[0];
                       }
                    }
                 }
@@ -2224,7 +2248,7 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
                          retval[gridSize[1] * gridSize[0] * z + gridSize[0] * y + x] =
-                             volGrid.get(x, y, z)->at(fsgrids::volfields::dPERBYVOLdy) / BgBGrid.DY;
+                             volGrid.get(x, y, z)->at(fsgrids::volfields::dPERBYVOLdy) / BgBGrid.getGridSpacing()[1];
                       }
                    }
                 }
@@ -2251,7 +2275,7 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
                          retval[gridSize[1] * gridSize[0] * z + gridSize[0] * y + x] =
-                             volGrid.get(x, y, z)->at(fsgrids::volfields::dPERBYVOLdz) / BgBGrid.DZ;
+                             volGrid.get(x, y, z)->at(fsgrids::volfields::dPERBYVOLdz) / BgBGrid.getGridSpacing()[2];
                       }
                    }
                 }
@@ -2277,7 +2301,7 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
                          retval[gridSize[1] * gridSize[0] * z + gridSize[0] * y + x] =
-                             volGrid.get(x, y, z)->at(fsgrids::volfields::dPERBZVOLdx) / BgBGrid.DX;
+                             volGrid.get(x, y, z)->at(fsgrids::volfields::dPERBZVOLdx) / BgBGrid.getGridSpacing()[0];
                       }
                    }
                 }
@@ -2303,7 +2327,7 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
                          retval[gridSize[1] * gridSize[0] * z + gridSize[0] * y + x] =
-                             volGrid.get(x, y, z)->at(fsgrids::volfields::dPERBZVOLdy) / BgBGrid.DY;
+                             volGrid.get(x, y, z)->at(fsgrids::volfields::dPERBZVOLdy) / BgBGrid.getGridSpacing()[1];
                       }
                    }
                 }
@@ -2329,7 +2353,7 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
                          retval[gridSize[1] * gridSize[0] * z + gridSize[0] * y + x] =
-                             volGrid.get(x, y, z)->at(fsgrids::volfields::dPERBZVOLdz) / BgBGrid.DZ;
+                             volGrid.get(x, y, z)->at(fsgrids::volfields::dPERBZVOLdz) / BgBGrid.getGridSpacing()[2];
                       }
                    }
                 }
@@ -2368,7 +2392,7 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
                          retval[gridSize[1] * gridSize[0] * z + gridSize[0] * y + x] =
-                             BgBGrid.get(x, y, z)->at(fsgrids::bgbfield::dBGBxdy) / technicalGrid.DY;
+                             BgBGrid.get(x, y, z)->at(fsgrids::bgbfield::dBGBxdy) / technicalGrid.getGridSpacing()[1];
                       }
                    }
                 }
@@ -2395,7 +2419,7 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
                          retval[gridSize[1] * gridSize[0] * z + gridSize[0] * y + x] =
-                             BgBGrid.get(x, y, z)->at(fsgrids::bgbfield::dBGBxdz) / technicalGrid.DZ;
+                             BgBGrid.get(x, y, z)->at(fsgrids::bgbfield::dBGBxdz) / technicalGrid.getGridSpacing()[2];
                       }
                    }
                 }
@@ -2422,7 +2446,7 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
                          retval[gridSize[1] * gridSize[0] * z + gridSize[0] * y + x] =
-                             BgBGrid.get(x, y, z)->at(fsgrids::bgbfield::dBGBydx) / technicalGrid.DX;
+                             BgBGrid.get(x, y, z)->at(fsgrids::bgbfield::dBGBydx) / technicalGrid.getGridSpacing()[0];
                       }
                    }
                 }
@@ -2449,7 +2473,7 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
                          retval[gridSize[1] * gridSize[0] * z + gridSize[0] * y + x] =
-                             BgBGrid.get(x, y, z)->at(fsgrids::bgbfield::dBGBydz) / technicalGrid.DZ;
+                             BgBGrid.get(x, y, z)->at(fsgrids::bgbfield::dBGBydz) / technicalGrid.getGridSpacing()[2];
                       }
                    }
                 }
@@ -2476,7 +2500,7 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
                          retval[gridSize[1] * gridSize[0] * z + gridSize[0] * y + x] =
-                             BgBGrid.get(x, y, z)->at(fsgrids::bgbfield::dBGBzdx) / technicalGrid.DX;
+                             BgBGrid.get(x, y, z)->at(fsgrids::bgbfield::dBGBzdx) / technicalGrid.getGridSpacing()[0];
                       }
                    }
                 }
@@ -2503,7 +2527,7 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
                          retval[gridSize[1] * gridSize[0] * z + gridSize[0] * y + x] =
-                             BgBGrid.get(x, y, z)->at(fsgrids::bgbfield::dBGBzdy) / technicalGrid.DY;
+                             BgBGrid.get(x, y, z)->at(fsgrids::bgbfield::dBGBzdy) / technicalGrid.getGridSpacing()[1];
                       }
                    }
                 }
@@ -2530,7 +2554,8 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
                          retval[gridSize[1] * gridSize[0] * z + gridSize[0] * y + x] =
-                             BgBGrid.get(x, y, z)->at(fsgrids::bgbfield::dBGBXVOLdx) / technicalGrid.DX;
+                             BgBGrid.get(x, y, z)->at(fsgrids::bgbfield::dBGBXVOLdx) /
+                             technicalGrid.getGridSpacing()[0];
                       }
                    }
                 }
@@ -2557,7 +2582,8 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
                          retval[gridSize[1] * gridSize[0] * z + gridSize[0] * y + x] =
-                             BgBGrid.get(x, y, z)->at(fsgrids::bgbfield::dBGBXVOLdy) / technicalGrid.DY;
+                             BgBGrid.get(x, y, z)->at(fsgrids::bgbfield::dBGBXVOLdy) /
+                             technicalGrid.getGridSpacing()[1];
                       }
                    }
                 }
@@ -2584,7 +2610,8 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
                          retval[gridSize[1] * gridSize[0] * z + gridSize[0] * y + x] =
-                             BgBGrid.get(x, y, z)->at(fsgrids::bgbfield::dBGBXVOLdz) / technicalGrid.DZ;
+                             BgBGrid.get(x, y, z)->at(fsgrids::bgbfield::dBGBXVOLdz) /
+                             technicalGrid.getGridSpacing()[2];
                       }
                    }
                 }
@@ -2611,7 +2638,8 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
                          retval[gridSize[1] * gridSize[0] * z + gridSize[0] * y + x] =
-                             BgBGrid.get(x, y, z)->at(fsgrids::bgbfield::dBGBYVOLdx) / technicalGrid.DX;
+                             BgBGrid.get(x, y, z)->at(fsgrids::bgbfield::dBGBYVOLdx) /
+                             technicalGrid.getGridSpacing()[0];
                       }
                    }
                 }
@@ -2638,7 +2666,8 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
                          retval[gridSize[1] * gridSize[0] * z + gridSize[0] * y + x] =
-                             BgBGrid.get(x, y, z)->at(fsgrids::bgbfield::dBGBYVOLdy) / technicalGrid.DY;
+                             BgBGrid.get(x, y, z)->at(fsgrids::bgbfield::dBGBYVOLdy) /
+                             technicalGrid.getGridSpacing()[1];
                       }
                    }
                 }
@@ -2665,7 +2694,8 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
                          retval[gridSize[1] * gridSize[0] * z + gridSize[0] * y + x] =
-                             BgBGrid.get(x, y, z)->at(fsgrids::bgbfield::dBGBYVOLdz) / technicalGrid.DZ;
+                             BgBGrid.get(x, y, z)->at(fsgrids::bgbfield::dBGBYVOLdz) /
+                             technicalGrid.getGridSpacing()[2];
                       }
                    }
                 }
@@ -2692,7 +2722,8 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
                          retval[gridSize[1] * gridSize[0] * z + gridSize[0] * y + x] =
-                             BgBGrid.get(x, y, z)->at(fsgrids::bgbfield::dBGBZVOLdx) / technicalGrid.DX;
+                             BgBGrid.get(x, y, z)->at(fsgrids::bgbfield::dBGBZVOLdx) /
+                             technicalGrid.getGridSpacing()[0];
                       }
                    }
                 }
@@ -2719,7 +2750,8 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
                          retval[gridSize[1] * gridSize[0] * z + gridSize[0] * y + x] =
-                             BgBGrid.get(x, y, z)->at(fsgrids::bgbfield::dBGBZVOLdy) / technicalGrid.DY;
+                             BgBGrid.get(x, y, z)->at(fsgrids::bgbfield::dBGBZVOLdy) /
+                             technicalGrid.getGridSpacing()[1];
                       }
                    }
                 }
@@ -2746,7 +2778,8 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
                          retval[gridSize[1] * gridSize[0] * z + gridSize[0] * y + x] =
-                             BgBGrid.get(x, y, z)->at(fsgrids::bgbfield::dBGBZVOLdz) / technicalGrid.DZ;
+                             BgBGrid.get(x, y, z)->at(fsgrids::bgbfield::dBGBZVOLdz) /
+                             technicalGrid.getGridSpacing()[2];
                       }
                    }
                 }
@@ -2873,7 +2906,7 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                 FsGrid<std::array<Real, fsgrids::volfields::N_VOL>, FS_STENCIL_WIDTH>& volGrid,
                 FsGrid<fsgrids::technical, FS_STENCIL_WIDTH>& technicalGrid) -> std::vector<double> {
                 const auto& gridSize = technicalGrid.getLocalSize();
-                std::vector<double> retval(gridSize[0] * gridSize[1] * gridSize[2], technicalGrid.DX);
+                std::vector<double> retval(gridSize[0] * gridSize[1] * gridSize[2], technicalGrid.getGridSpacing()[0]);
                 return retval;
              }));
          outputReducer->addMetadata(outputReducer->size()-1,"m","$\\mathrm{m}$","$\\delta X_\\mathrm{fg}$","1.0");
@@ -2890,7 +2923,7 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                 FsGrid<std::array<Real, fsgrids::volfields::N_VOL>, FS_STENCIL_WIDTH>& volGrid,
                 FsGrid<fsgrids::technical, FS_STENCIL_WIDTH>& technicalGrid) -> std::vector<double> {
                 const auto& gridSize = technicalGrid.getLocalSize();
-                std::vector<double> retval(gridSize[0] * gridSize[1] * gridSize[2], technicalGrid.DY);
+                std::vector<double> retval(gridSize[0] * gridSize[1] * gridSize[2], technicalGrid.getGridSpacing()[1]);
                 return retval;
              }));
          outputReducer->addMetadata(outputReducer->size()-1,"m","$\\mathrm{m}$","$\\delta Y_\\mathrm{fg}$","1.0");
@@ -2907,7 +2940,7 @@ void initializeDataReducers(DataReducer * outputReducer, DataReducer * diagnosti
                 FsGrid<std::array<Real, fsgrids::volfields::N_VOL>, FS_STENCIL_WIDTH>& volGrid,
                 FsGrid<fsgrids::technical, FS_STENCIL_WIDTH>& technicalGrid) -> std::vector<double> {
                 const auto& gridSize = technicalGrid.getLocalSize();
-                std::vector<double> retval(gridSize[0] * gridSize[1] * gridSize[2], technicalGrid.DZ);
+                std::vector<double> retval(gridSize[0] * gridSize[1] * gridSize[2], technicalGrid.getGridSpacing()[2]);
                 return retval;
              }));
          outputReducer->addMetadata(outputReducer->size()-1,"m","$\\mathrm{m}$","$\\delta Z_\\mathrm{fg}$","1.0");
