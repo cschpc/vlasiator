@@ -96,12 +96,12 @@ bool propagateFields(
       exit(1);
    }
    
-   const FsGridTools::FsIndex_t* gridDims = &technicalGrid.getLocalSize()[0];
+   const fsgrid::FsIndex_t* gridDims = &technicalGrid.getLocalSize()[0];
    
    #pragma omp parallel for collapse(2)
-   for (FsGridTools::FsIndex_t k=0; k<gridDims[2]; k++) {
-      for (FsGridTools::FsIndex_t j=0; j<gridDims[1]; j++) {
-         for (FsGridTools::FsIndex_t i=0; i<gridDims[0]; i++) {
+   for (fsgrid::FsIndex_t k=0; k<gridDims[2]; k++) {
+      for (fsgrid::FsIndex_t j=0; j<gridDims[1]; j++) {
+         for (fsgrid::FsIndex_t i=0; i<gridDims[0]; i++) {
             technicalGrid.get(i,j,k)->maxFsDt=std::numeric_limits<Real>::max();
          }
       }
@@ -358,9 +358,9 @@ bool propagateFields(
          dtMaxLocal=std::numeric_limits<Real>::max();
 
          const auto& localSize = technicalGrid.getLocalSize();
-         for(FsGridTools::FsIndex_t z=0; z<localSize[2]; z++) {
-            for(FsGridTools::FsIndex_t y=0; y<localSize[1]; y++) {
-               for(FsGridTools::FsIndex_t x=0; x<localSize[0]; x++) {
+         for(fsgrid::FsIndex_t z=0; z<localSize[2]; z++) {
+            for(fsgrid::FsIndex_t y=0; y<localSize[1]; y++) {
+               for(fsgrid::FsIndex_t x=0; x<localSize[0]; x++) {
                   fsgrids::technical* cell = technicalGrid.get(x,y,z);
                   if ( cell->sysBoundaryFlag == sysboundarytype::NOT_SYSBOUNDARY ||
                         (cell->sysBoundaryLayer == 1 && cell->sysBoundaryFlag != sysboundarytype::NOT_SYSBOUNDARY )) {
