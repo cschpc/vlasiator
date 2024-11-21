@@ -218,7 +218,7 @@ namespace SBC {
       creal dx = gridSpacing[0];
       creal dy = gridSpacing[1];
       creal dz = gridSpacing[2];
-      const std::array<FsGridTools::FsSize_t, 3> globalIndices = technicalGrid.localToGlobal(i, j, k);
+      const std::array<fsgrid::FsSize_t, 3> globalIndices = technicalGrid.localToGlobal(i, j, k);
       creal x = P::xmin + (convert<Real>(globalIndices[0])+0.5)*dx;
       creal y = P::ymin + (convert<Real>(globalIndices[1])+0.5)*dy;
       creal z = P::zmin + (convert<Real>(globalIndices[2])+0.5)*dz;

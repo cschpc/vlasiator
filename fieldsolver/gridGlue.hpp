@@ -144,14 +144,14 @@ template <typename T, int stencil> void computeCoupling(dccrg::Dccrg<SpatialCell
   
   
    //size of fsgrid local part
-   const std::array<FsGridTools::FsIndex_t, 3> gridDims(momentsGrid.getLocalSize());
+   const std::array<fsgrid::FsIndex_t, 3> gridDims(momentsGrid.getLocalSize());
   
  
    //Compute what we will receive, and where it should be stored
-      for (FsGridTools::FsIndex_t k=0; k<gridDims[2]; k++) {
-         for (FsGridTools::FsIndex_t j=0; j<gridDims[1]; j++) {
-            for (FsGridTools::FsIndex_t i=0; i<gridDims[0]; i++) {
-               const std::array<FsGridTools::FsSize_t, 3> globalIndices = momentsGrid.localToGlobal(i, j, k);
+      for (fsgrid::FsIndex_t k=0; k<gridDims[2]; k++) {
+         for (fsgrid::FsIndex_t j=0; j<gridDims[1]; j++) {
+            for (fsgrid::FsIndex_t i=0; i<gridDims[0]; i++) {
+               const std::array<fsgrid::FsSize_t, 3> globalIndices = momentsGrid.localToGlobal(i, j, k);
                const dccrg::Types<3>::indices_t  indices = {{(uint64_t)globalIndices[0],
                         (uint64_t)globalIndices[1],
                         (uint64_t)globalIndices[2]}}; //cast to avoid warnings
@@ -159,7 +159,7 @@ template <typename T, int stencil> void computeCoupling(dccrg::Dccrg<SpatialCell
                    mpiGrid.get_existing_cell(indices, 0, mpiGrid.mapping.get_maximum_refinement_level());
 
                const int process = mpiGrid.get_process(dccrgCell);
-               const FsGridTools::LocalID fsgridLid = momentsGrid.localIDFromLocalCoordinates(i, j, k);
+               const fsgrid::LocalID fsgridLid = momentsGrid.localIDFromLocalCoordinates(i, j, k);
                onFsgridMapRemoteProcessGlobal[process].insert(dccrgCell); // cells are ordered (sorted) in set
                onFsgridMapCellsGlobal[dccrgCell].push_back(fsgridLid);
          }
