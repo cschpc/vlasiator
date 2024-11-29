@@ -480,17 +480,22 @@ void calculateEdgeElectricFieldX(
    Real Ex_SW = By_S * Vz0 - Bz_W * Vy0;
 
    // Resistive term
+   const auto& gridSpacing = technicalGrid.getGridSpacing();
+   auto resistiveTerm = [&gridSpacing](const auto& bgb, const auto& perb, const auto& moments, const auto& dperb) {
+      const auto ax = bgb[fsgrids::bgbfield::BGBX];
+      const auto bx = perb[fsgrids::bfield::PERBX];
+      const auto ay = bgb[fsgrids::bgbfield::BGBY];
+      const auto by = perb[fsgrids::bfield::PERBY];
+      const auto az = bgb[fsgrids::bgbfield::BGBZ];
+      const auto bz = perb[fsgrids::bfield::PERBZ];
+
+      return Parameters::resistivity * sqrt((ax + bx) * (ax + bx) + (ay + by) * (ay + by) + (az + bz) * (az + bz)) /
+             moments[fsgrids::moments::RHOQ] / physicalconstants::MU_0 *
+             (dperb[fsgrids::dperb::dPERBzdy] / gridSpacing[1] - dperb[fsgrids::dperb::dPERBydz] / gridSpacing[2]);
+   };
+
    if (Parameters::resistivity > 0) {
-      Ex_SW += Parameters::resistivity *
-               sqrt((bgb_SW->at(fsgrids::bgbfield::BGBX) + perb_SW->at(fsgrids::bfield::PERBX)) *
-                        (bgb_SW->at(fsgrids::bgbfield::BGBX) + perb_SW->at(fsgrids::bfield::PERBX)) +
-                    (bgb_SW->at(fsgrids::bgbfield::BGBY) + perb_SW->at(fsgrids::bfield::PERBY)) *
-                        (bgb_SW->at(fsgrids::bgbfield::BGBY) + perb_SW->at(fsgrids::bfield::PERBY)) +
-                    (bgb_SW->at(fsgrids::bgbfield::BGBZ) + perb_SW->at(fsgrids::bfield::PERBZ)) *
-                        (bgb_SW->at(fsgrids::bgbfield::BGBZ) + perb_SW->at(fsgrids::bfield::PERBZ))) /
-               moments_SW->at(fsgrids::moments::RHOQ) / physicalconstants::MU_0 *
-               (dperb_SW->at(fsgrids::dperb::dPERBzdy) / technicalGrid.getGridSpacing()[1] -
-                dperb_SW->at(fsgrids::dperb::dPERBydz) / technicalGrid.getGridSpacing()[2]);
+      Ex_SW += resistiveTerm(*bgb_SW, *perb_SW, *moments_SW, *dperb_SW);
    }
 
    // Hall term
@@ -532,16 +537,7 @@ void calculateEdgeElectricFieldX(
 
    // Resistive term
    if (Parameters::resistivity > 0) {
-      Ex_SE += Parameters::resistivity *
-               sqrt((bgb_SE->at(fsgrids::bgbfield::BGBX) + perb_SE->at(fsgrids::bfield::PERBX)) *
-                        (bgb_SE->at(fsgrids::bgbfield::BGBX) + perb_SE->at(fsgrids::bfield::PERBX)) +
-                    (bgb_SE->at(fsgrids::bgbfield::BGBY) + perb_SE->at(fsgrids::bfield::PERBY)) *
-                        (bgb_SE->at(fsgrids::bgbfield::BGBY) + perb_SE->at(fsgrids::bfield::PERBY)) +
-                    (bgb_SE->at(fsgrids::bgbfield::BGBZ) + perb_SE->at(fsgrids::bfield::PERBZ)) *
-                        (bgb_SE->at(fsgrids::bgbfield::BGBZ) + perb_SE->at(fsgrids::bfield::PERBZ))) /
-               moments_SE->at(fsgrids::moments::RHOQ) / physicalconstants::MU_0 *
-               (dperb_SE->at(fsgrids::dperb::dPERBzdy) / technicalGrid.getGridSpacing()[1] -
-                dperb_SE->at(fsgrids::dperb::dPERBydz) / technicalGrid.getGridSpacing()[2]);
+      Ex_SE += resistiveTerm(*bgb_SE, *perb_SE, *moments_SE, *dperb_SE);
    }
 
    // Hall term
@@ -584,16 +580,7 @@ void calculateEdgeElectricFieldX(
 
    // Resistive term
    if (Parameters::resistivity > 0) {
-      Ex_NW += Parameters::resistivity *
-               sqrt((bgb_NW->at(fsgrids::bgbfield::BGBX) + perb_NW->at(fsgrids::bfield::PERBX)) *
-                        (bgb_NW->at(fsgrids::bgbfield::BGBX) + perb_NW->at(fsgrids::bfield::PERBX)) +
-                    (bgb_NW->at(fsgrids::bgbfield::BGBY) + perb_NW->at(fsgrids::bfield::PERBY)) *
-                        (bgb_NW->at(fsgrids::bgbfield::BGBY) + perb_NW->at(fsgrids::bfield::PERBY)) +
-                    (bgb_NW->at(fsgrids::bgbfield::BGBZ) + perb_NW->at(fsgrids::bfield::PERBZ)) *
-                        (bgb_NW->at(fsgrids::bgbfield::BGBZ) + perb_NW->at(fsgrids::bfield::PERBZ))) /
-               moments_NW->at(fsgrids::moments::RHOQ) / physicalconstants::MU_0 *
-               (dperb_NW->at(fsgrids::dperb::dPERBzdy) / technicalGrid.getGridSpacing()[1] -
-                dperb_NW->at(fsgrids::dperb::dPERBydz) / technicalGrid.getGridSpacing()[2]);
+      Ex_NW += resistiveTerm(*bgb_NW, *perb_NW, *moments_NW, *dperb_NW);
    }
 
    // Hall term
@@ -636,16 +623,7 @@ void calculateEdgeElectricFieldX(
 
    // Resistive term
    if (Parameters::resistivity > 0) {
-      Ex_NE += Parameters::resistivity *
-               sqrt((bgb_NE->at(fsgrids::bgbfield::BGBX) + perb_NE->at(fsgrids::bfield::PERBX)) *
-                        (bgb_NE->at(fsgrids::bgbfield::BGBX) + perb_NE->at(fsgrids::bfield::PERBX)) +
-                    (bgb_NE->at(fsgrids::bgbfield::BGBY) + perb_NE->at(fsgrids::bfield::PERBY)) *
-                        (bgb_NE->at(fsgrids::bgbfield::BGBY) + perb_NE->at(fsgrids::bfield::PERBY)) +
-                    (bgb_NE->at(fsgrids::bgbfield::BGBZ) + perb_NE->at(fsgrids::bfield::PERBZ)) *
-                        (bgb_NE->at(fsgrids::bgbfield::BGBZ) + perb_NE->at(fsgrids::bfield::PERBZ))) /
-               moments_NE->at(fsgrids::moments::RHOQ) / physicalconstants::MU_0 *
-               (dperb_NE->at(fsgrids::dperb::dPERBzdy) / technicalGrid.getGridSpacing()[1] -
-                dperb_NE->at(fsgrids::dperb::dPERBydz) / technicalGrid.getGridSpacing()[2]);
+      Ex_NE += resistiveTerm(*bgb_NE, *perb_NE, *moments_NE, *dperb_NE);
    }
 
    // Hall term
