@@ -346,19 +346,11 @@ namespace SBC {
       virtual void fieldSolverBoundaryCondElectricField(std::span<std::array<Real, fsgrids::efield::N_EFIELD>> e,
                                                         const fsgrid::FsStencil& stencil, cuint component) override;
       virtual void fieldSolverBoundaryCondHallElectricField(
-         fsgrid::FsGrid< std::array<Real, fsgrids::ehall::N_EHALL>, FS_STENCIL_WIDTH> & EHallGrid,
-         cint i,
-         cint j,
-         cint k,
-         cuint component
-      ) override;
-      virtual void fieldSolverBoundaryCondGradPeElectricField(
-         fsgrid::FsGrid< std::array<Real, fsgrids::egradpe::N_EGRADPE>, FS_STENCIL_WIDTH> & EGradPeGrid,
-         cint i,
-         cint j,
-         cint k,
-         cuint component
-      ) override;
+          fsgrid::FsGrid<std::array<Real, fsgrids::ehall::N_EHALL>, FS_STENCIL_WIDTH>& EHallGrid, cint i, cint j,
+          cint k, cuint component) override;
+      virtual void
+      fieldSolverBoundaryCondGradPeElectricField(std::span<std::array<Real, fsgrids::egradpe::N_EGRADPE>> EGradPe,
+                                                 const fsgrid::FsStencil& stencil, cuint component) override;
       virtual void fieldSolverBoundaryCondDerivatives(
          fsgrid::FsGrid< std::array<Real, fsgrids::dperb::N_DPERB>, FS_STENCIL_WIDTH> & dPerBGrid,
          fsgrid::FsGrid< std::array<Real, fsgrids::dmoments::N_DMOMENTS>, FS_STENCIL_WIDTH> & dMomentsGrid,

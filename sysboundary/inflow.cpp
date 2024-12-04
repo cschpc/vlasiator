@@ -251,9 +251,9 @@ void Inflow::fieldSolverBoundaryCondHallElectricField(
 }
 
 void Inflow::fieldSolverBoundaryCondGradPeElectricField(
-    fsgrid::FsGrid<std::array<Real, fsgrids::egradpe::N_EGRADPE>, FS_STENCIL_WIDTH>& EGradPeGrid, cint i, cint j, cint k,
+    std::span<std::array<Real, fsgrids::egradpe::N_EGRADPE>> EGradPe, const fsgrid::FsStencil& stencil,
     cuint component) {
-   EGradPeGrid.get(i, j, k)->at(fsgrids::egradpe::EXGRADPE + component) = 0.0;
+   EGradPe[stencil.center()][fsgrids::egradpe::EXGRADPE + component] = 0.0;
 }
 
 void Inflow::fieldSolverBoundaryCondDerivatives(
