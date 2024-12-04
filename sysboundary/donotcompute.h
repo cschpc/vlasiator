@@ -78,14 +78,11 @@ namespace SBC {
          creal dt,
          cuint component
       ) override { std::cerr << "ERROR: DoNotCompute::fieldSolverBoundaryCondMagneticField called!" << std::endl; return 0.;}
-      void fieldSolverBoundaryCondElectricField(
-         fsgrid::FsGrid< std::array<Real, fsgrids::efield::N_EFIELD>, FS_STENCIL_WIDTH> & EGrid,
-         cint i,
-         cint j,
-         cint k,
-         cuint component
-      ) override { std::cerr << "ERROR: DoNotCompute::fieldSolverBoundaryCondElectricField called!" << std::endl;}
-      void fieldSolverBoundaryCondHallElectricField(
+      virtual void fieldSolverBoundaryCondElectricField(std::span<std::array<Real, fsgrids::efield::N_EFIELD>>,
+                                                        const fsgrid::FsStencil&, cuint) override {
+         std::cerr << "ERROR: DoNotCompute::fieldSolverBoundaryCondElectricField called!" << std::endl;
+      }
+      virtual void fieldSolverBoundaryCondHallElectricField(
          fsgrid::FsGrid< std::array<Real, fsgrids::ehall::N_EHALL>, FS_STENCIL_WIDTH> & EHallGrid,
          cint i,
          cint j,
