@@ -109,7 +109,8 @@ bool propagateFields(
    if (subcycles == 1) {
       #ifdef FS_1ST_ORDER_TIME
       propagateMagneticFieldSimple(perBGrid, perBDt2Grid, BgBGrid, EGrid, EDt2Grid, technicalGrid, sysBoundaries, dt, RK_ORDER1);
-      calculateDerivativesSimple(perBGrid, perBDt2Grid, momentsGrid, momentsDt2Grid, dPerBGrid, dMomentsGrid, dMomentsDt2Grid, technicalGrid, sysBoundaries, RK_ORDER1, true/*doMoments*/);
+      calculateDerivativesSimple(perBGrid, perBDt2Grid, momentsGrid, momentsDt2Grid, dPerBGrid, dMomentsGrid,
+                                 dMomentsDt2Grid, technicalGrid, RK_ORDER1, true /*doMoments*/);
       if(P::ohmGradPeTerm > 0){
          calculateGradPeTermSimple(EGradPeGrid, EGradPeDt2Grid, momentsGrid, momentsDt2Grid, dMomentsGrid, dMomentsDt2Grid, technicalGrid, sysBoundaries, RK_ORDER1);
       }
@@ -140,7 +141,8 @@ bool propagateFields(
       );
       #else
       propagateMagneticFieldSimple(perBGrid, perBDt2Grid, BgBGrid, EGrid, EDt2Grid, technicalGrid, sysBoundaries, dt, RK_ORDER2_STEP1);
-      calculateDerivativesSimple(perBGrid, perBDt2Grid, momentsGrid, momentsDt2Grid, dPerBGrid, dMomentsGrid, dMomentsDt2Grid, technicalGrid, sysBoundaries, RK_ORDER2_STEP1, true/*doMoments*/);
+      calculateDerivativesSimple(perBGrid, perBDt2Grid, momentsGrid, momentsDt2Grid, dPerBGrid, dMomentsGrid,
+                                 dMomentsDt2Grid, technicalGrid, RK_ORDER2_STEP1, true /*doMoments*/);
       if(P::ohmGradPeTerm > 0) {
          calculateGradPeTermSimple(EGradPeGrid, EGradPeDt2Grid, momentsGrid, momentsDt2Grid, dMomentsGrid, dMomentsDt2Grid, technicalGrid, sysBoundaries, RK_ORDER2_STEP1);
       }
@@ -171,7 +173,8 @@ bool propagateFields(
       );
       
       propagateMagneticFieldSimple(perBGrid, perBDt2Grid, BgBGrid, EGrid, EDt2Grid, technicalGrid, sysBoundaries, dt, RK_ORDER2_STEP2);
-      calculateDerivativesSimple(perBGrid, perBDt2Grid, momentsGrid, momentsDt2Grid, dPerBGrid, dMomentsGrid, dMomentsDt2Grid, technicalGrid, sysBoundaries, RK_ORDER2_STEP2, true/*doMoments*/);
+      calculateDerivativesSimple(perBGrid, perBDt2Grid, momentsGrid, momentsDt2Grid, dPerBGrid, dMomentsGrid,
+                                 dMomentsDt2Grid, technicalGrid, RK_ORDER2_STEP2, true /*doMoments*/);
       if(P::ohmGradPeTerm > 0) {
          calculateGradPeTermSimple(EGradPeGrid, EGradPeDt2Grid, momentsGrid, momentsDt2Grid, dMomentsGrid, dMomentsDt2Grid, technicalGrid, sysBoundaries, RK_ORDER2_STEP2);
       }
@@ -217,7 +220,9 @@ bool propagateFields(
 
          // We need to calculate derivatives of the moments at every substep, but the moments only
          // need to be communicated in the first one.
-         calculateDerivativesSimple(perBGrid, perBDt2Grid, momentsGrid, momentsDt2Grid, dPerBGrid, dMomentsGrid, dMomentsDt2Grid, technicalGrid, sysBoundaries, RK_ORDER2_STEP1, (subcycleCount==0)/*doMoments*/);
+         calculateDerivativesSimple(perBGrid, perBDt2Grid, momentsGrid, momentsDt2Grid, dPerBGrid, dMomentsGrid,
+                                    dMomentsDt2Grid, technicalGrid, RK_ORDER2_STEP1,
+                                    (subcycleCount == 0) /*doMoments*/);
          if(P::ohmGradPeTerm > 0 && subcycleCount==0) {
             calculateGradPeTermSimple(EGradPeGrid, EGradPeDt2Grid, momentsGrid, momentsDt2Grid, dMomentsGrid, dMomentsDt2Grid, technicalGrid, sysBoundaries, RK_ORDER2_STEP1);
          }
@@ -252,7 +257,9 @@ bool propagateFields(
          
          // We need to calculate derivatives of the moments at every substep, but the moments only
          // need to be communicated in the first one.
-         calculateDerivativesSimple(perBGrid, perBDt2Grid, momentsGrid, momentsDt2Grid, dPerBGrid, dMomentsGrid, dMomentsDt2Grid, technicalGrid, sysBoundaries, RK_ORDER2_STEP2, (subcycleCount==0)/*doMoments*/);
+         calculateDerivativesSimple(perBGrid, perBDt2Grid, momentsGrid, momentsDt2Grid, dPerBGrid, dMomentsGrid,
+                                    dMomentsDt2Grid, technicalGrid, RK_ORDER2_STEP2,
+                                    (subcycleCount == 0) /*doMoments*/);
          if(P::ohmGradPeTerm > 0 && subcycleCount==0) {
             calculateGradPeTermSimple(EGradPeGrid, EGradPeDt2Grid, momentsGrid, momentsDt2Grid, dMomentsGrid, dMomentsDt2Grid, technicalGrid, sysBoundaries, RK_ORDER2_STEP2);
          }
@@ -351,10 +358,10 @@ bool propagateFields(
    }
 
    calculateVolumeAveragedFieldsSimple(perBGrid, EGrid, dPerBGrid, volGrid, technicalGrid);
-   calculateBVOLDerivativesSimple(volGrid, technicalGrid, sysBoundaries);
+   calculateBVOLDerivativesSimple(volGrid, technicalGrid);
    if(FieldTracing::fieldTracingParameters.doTraceFullBox || Parameters::computeCurvature) {
       volGrid.updateGhostCells();
-      calculateCurvatureSimple(volGrid, BgBGrid, technicalGrid, sysBoundaries);
+      calculateCurvatureSimple(volGrid, BgBGrid, technicalGrid);
    }
    return true;
 }
