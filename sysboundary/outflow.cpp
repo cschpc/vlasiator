@@ -300,20 +300,7 @@ namespace SBC {
       creal dt,
       cuint component
    ) {
-      switch(component) {
-      case 0:
-         return fieldBoundaryCopyFromSolvingNbrMagneticField(bGrid, technicalGrid, i, j, k, component, compute::BX);
-         break;
-      case 1:
-         return fieldBoundaryCopyFromSolvingNbrMagneticField(bGrid, technicalGrid, i, j, k, component, compute::BY);
-         break;
-      case 2:
-         return fieldBoundaryCopyFromSolvingNbrMagneticField(bGrid, technicalGrid, i, j, k, component, compute::BZ);
-         break;
-      default:
-         return 0.0;
-         break;
-      }
+      return fieldBoundaryCopyFromSolvingNbrMagneticField(bGrid, technicalGrid, i, j, k, component, 1 << component);
    }
 
    void Outflow::fieldSolverBoundaryCondElectricField(std::span<std::array<Real, fsgrids::efield::N_EFIELD>> e,
