@@ -191,6 +191,10 @@ Real Inflow::fieldSolverBoundaryCondMagneticField(
    fsgrid::FsGrid<array<Real, fsgrids::bfield::N_BFIELD>, FS_STENCIL_WIDTH>& bGrid,
    fsgrid::FsGrid<array<Real, fsgrids::bgbfield::N_BGB>, FS_STENCIL_WIDTH>& bgbGrid,
    fsgrid::FsGrid<fsgrids::technical, FS_STENCIL_WIDTH>& technicalGrid, cint i, cint j, cint k, creal dt, cuint component) {
+
+   std::span<const std::array<Real, fsgrids::bgbfield::N_BGB>> bgb = bgbGrid.getData();
+   const auto stencil = technicalGrid.makeStencil(i, j, k);
+
    Real result = 0.0;
    creal dx = Parameters::dx_ini;
    creal dy = Parameters::dy_ini;
@@ -214,7 +218,7 @@ Real Inflow::fieldSolverBoundaryCondMagneticField(
    // There are projects that have non-uniform and non-zero perturbed B, e.g. Magnetosphere with dipole type 4.
    // We cannot jsut take the value from the templateCell, we also need a copy of the value from initialization.
    // This value is stored in the BgBGrid at fsgrids::bgbfield::BGBXVDCORR,BGBYVDCORR,BGBZVDCORR
-   result += bgbGrid.get(i,j,k)->at(fsgrids::bgbfield::BGBXVDCORR + component);
+   result += bgb[stencil.center()][fsgrids::bgbfield::BGBXVDCORR + component];
    return result;
 }
 
