@@ -114,8 +114,10 @@ bool propagateFields(
          calculateGradPeTermSimple(EGradPeGrid, EGradPeDt2Grid, momentsGrid, momentsDt2Grid, dMomentsGrid, dMomentsDt2Grid, technicalGrid, sysBoundaries, RK_ORDER1);
       }
       if(P::ohmHallTerm > 0) {
-         calculateHallTermSimple(perBGrid, perBDt2Grid, EHallGrid, momentsGrid, momentsDt2Grid, dPerBGrid, BgBGrid,
-                                 technicalGrid, sysBoundaries, RK_ORDER1);
+         calculateHallTermSimple(perBGrid, perBDt2Grid, EHallGrid, momentsGrid, momentsDt2Grid, dPerBGrid, dMomentsGrid,
+                                 dMomentsDt2Grid, BgBGrid, technicalGrid, sysBoundaries, RK_ORDER1,
+                                 true // communicateMomentsDerivatives
+         );
       }
       calculateUpwindedElectricFieldSimple(
          perBGrid,
@@ -143,8 +145,10 @@ bool propagateFields(
          calculateGradPeTermSimple(EGradPeGrid, EGradPeDt2Grid, momentsGrid, momentsDt2Grid, dMomentsGrid, dMomentsDt2Grid, technicalGrid, sysBoundaries, RK_ORDER2_STEP1);
       }
       if(P::ohmHallTerm > 0) {
-         calculateHallTermSimple(perBGrid, perBDt2Grid, EHallGrid, momentsGrid, momentsDt2Grid, dPerBGrid, BgBGrid,
-                                 technicalGrid, sysBoundaries, RK_ORDER2_STEP1);
+         calculateHallTermSimple(perBGrid, perBDt2Grid, EHallGrid, momentsGrid, momentsDt2Grid, dPerBGrid, dMomentsGrid,
+                                 dMomentsDt2Grid, BgBGrid, technicalGrid, sysBoundaries, RK_ORDER2_STEP1,
+                                 true // communicateMomentsDerivatives
+         );
       }
       calculateUpwindedElectricFieldSimple(
          perBGrid,
@@ -172,8 +176,11 @@ bool propagateFields(
          calculateGradPeTermSimple(EGradPeGrid, EGradPeDt2Grid, momentsGrid, momentsDt2Grid, dMomentsGrid, dMomentsDt2Grid, technicalGrid, sysBoundaries, RK_ORDER2_STEP2);
       }
       if(P::ohmHallTerm > 0) {
-         calculateHallTermSimple(perBGrid, perBDt2Grid, EHallGrid, momentsGrid, momentsDt2Grid, dPerBGrid, BgBGrid,
-                                 technicalGrid, sysBoundaries, RK_ORDER2_STEP2);
+         calculateHallTermSimple(perBGrid, perBDt2Grid, EHallGrid, momentsGrid, momentsDt2Grid, dPerBGrid, dMomentsGrid,
+                                 dMomentsDt2Grid, BgBGrid, technicalGrid, sysBoundaries, RK_ORDER2_STEP2,
+                                 true // communicateMomentsDerivatives
+
+         );
       }
       calculateUpwindedElectricFieldSimple(
          perBGrid,
@@ -215,8 +222,11 @@ bool propagateFields(
             calculateGradPeTermSimple(EGradPeGrid, EGradPeDt2Grid, momentsGrid, momentsDt2Grid, dMomentsGrid, dMomentsDt2Grid, technicalGrid, sysBoundaries, RK_ORDER2_STEP1);
          }
          if(P::ohmHallTerm > 0) {
-            calculateHallTermSimple(perBGrid, perBDt2Grid, EHallGrid, momentsGrid, momentsDt2Grid, dPerBGrid, BgBGrid,
-                                    technicalGrid, sysBoundaries, RK_ORDER2_STEP1);
+            calculateHallTermSimple(perBGrid, perBDt2Grid, EHallGrid, momentsGrid, momentsDt2Grid, dPerBGrid,
+                                    dMomentsGrid, dMomentsDt2Grid, BgBGrid, technicalGrid, sysBoundaries,
+                                    RK_ORDER2_STEP1,
+                                    subcycleCount == 0 // communicateMomentsDerivatives
+            );
          }
          calculateUpwindedElectricFieldSimple(
             perBGrid,
@@ -247,8 +257,11 @@ bool propagateFields(
             calculateGradPeTermSimple(EGradPeGrid, EGradPeDt2Grid, momentsGrid, momentsDt2Grid, dMomentsGrid, dMomentsDt2Grid, technicalGrid, sysBoundaries, RK_ORDER2_STEP2);
          }
          if(P::ohmHallTerm > 0) {
-            calculateHallTermSimple(perBGrid, perBDt2Grid, EHallGrid, momentsGrid, momentsDt2Grid, dPerBGrid, BgBGrid,
-                                    technicalGrid, sysBoundaries, RK_ORDER2_STEP2);
+            calculateHallTermSimple(perBGrid, perBDt2Grid, EHallGrid, momentsGrid, momentsDt2Grid, dPerBGrid,
+                                    dMomentsGrid, dMomentsDt2Grid, BgBGrid, technicalGrid, sysBoundaries,
+                                    RK_ORDER2_STEP2,
+                                    subcycleCount == 0 // communicateMomentsDerivatives
+            );
          }
          calculateUpwindedElectricFieldSimple(
             perBGrid,
