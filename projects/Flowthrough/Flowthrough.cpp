@@ -253,9 +253,10 @@ namespace projects {
       fsgrid::FsGrid< std::array<Real, fsgrids::bgbfield::N_BGB>, FS_STENCIL_WIDTH> & BgBGrid,
       fsgrid::FsGrid< fsgrids::technical, FS_STENCIL_WIDTH> & technicalGrid
    ) {
+      std::span<std::array<Real, fsgrids::bgbfield::N_BGB>> bgb = BgBGrid.getData();
       ConstantField bgField;
-      bgField.initialize(Bx,By,Bz); //bg bx, by,bz      
-      setBackgroundField(bgField, BgBGrid);
+      bgField.initialize(Bx,By,Bz); //bg bx, by,bz
+      setBackgroundField(bgField, bgb, technicalGrid);
    }
    
    std::vector<std::array<Real, 3> > Flowthrough::getV0(

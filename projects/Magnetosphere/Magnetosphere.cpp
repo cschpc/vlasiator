@@ -288,35 +288,35 @@ namespace projects {
       switch(this->dipoleType) {
             case 0:
                bgFieldDipole.initialize(8e15 *this->dipoleScalingFactor, 0.0, 0.0, 0.0, 0.0 );//set dipole moment
-               setBackgroundField(bgFieldDipole, BgBGrid);
+               setBackgroundField(bgFieldDipole, bgb, technicalGrid);
                SBC::ionosphereGrid.setDipoleField(bgFieldDipole);
                break;
             case 1:
-               bgFieldLineDipole.initialize(126.2e6 *this->dipoleScalingFactor, 0.0, 0.0, 0.0 );//set dipole moment     
-               setBackgroundField(bgFieldLineDipole, BgBGrid);
+               bgFieldLineDipole.initialize(126.2e6 *this->dipoleScalingFactor, 0.0, 0.0, 0.0 );//set dipole moment
+               setBackgroundField(bgFieldLineDipole, bgb, technicalGrid);
                SBC::ionosphereGrid.setDipoleField(bgFieldLineDipole);
                break;
             case 2:
-               bgFieldLineDipole.initialize(126.2e6 *this->dipoleScalingFactor, 0.0, 0.0, 0.0 );//set dipole moment     
-               setBackgroundField(bgFieldLineDipole, BgBGrid);
+               bgFieldLineDipole.initialize(126.2e6 *this->dipoleScalingFactor, 0.0, 0.0, 0.0 );//set dipole moment
+               setBackgroundField(bgFieldLineDipole, bgb, technicalGrid);
                //Append mirror dipole
                bgFieldLineDipole.initialize(126.2e6 *this->dipoleScalingFactor, this->dipoleMirrorLocationX, 0.0, 0.0 );
-               setBackgroundField(bgFieldLineDipole, BgBGrid, true);
+               setBackgroundField(bgFieldLineDipole, bgb, technicalGrid, true);
                SBC::ionosphereGrid.setDipoleField(bgFieldLineDipole);
                break;
             case 3:
                bgFieldDipole.initialize(8e15 *this->dipoleScalingFactor, 0.0, 0.0, 0.0, 0.0 );//set dipole moment
-               setBackgroundField(bgFieldDipole, BgBGrid);
+               setBackgroundField(bgFieldDipole, bgb, technicalGrid);
                SBC::ionosphereGrid.setDipoleField(bgFieldDipole);
                //Append mirror dipole                
                bgFieldDipole.initialize(8e15 *this->dipoleScalingFactor, this->dipoleMirrorLocationX, 0.0, 0.0, 0.0 );//mirror
-               setBackgroundField(bgFieldDipole, BgBGrid, true);
+               setBackgroundField(bgFieldDipole, bgb, technicalGrid, true);
                break; 
             case 4:  // Vector potential dipole, vanishes or optionally scales to static inflow value after a given x-coordinate
                // What we in fact do is we place the regular dipole in the background field, and the
                // corrective terms in the perturbed field. This maintains the BGB as curl-free.
                bgFieldDipole.initialize(8e15 *this->dipoleScalingFactor, 0.0, 0.0, 0.0, 0.0 ); //set dipole moment
-               setBackgroundField(bgFieldDipole, BgBGrid);
+               setBackgroundField(bgFieldDipole, bgb, technicalGrid);
                SBC::ionosphereGrid.setDipoleField(bgFieldDipole);
                // Now we calculate the difference required to scale the dipole to zero as we approach the inflow,
                // and store it inside the BgBGrid object for use by e.g. boundary conditions.
@@ -454,7 +454,7 @@ namespace projects {
       if(this->constBgB[0] != 0.0 || this->constBgB[1] != 0.0 || this->constBgB[2] != 0.0) {
          ConstantField bgConstantField;
          bgConstantField.initialize(this->constBgB[0], this->constBgB[1], this->constBgB[2]);
-         setBackgroundField(bgConstantField, BgBGrid, true);
+         setBackgroundField(bgConstantField, bgb, technicalGrid, true);
          SBC::ionosphereGrid.setConstantBackgroundField(this->constBgB);
       }
       addConstantTimer.stop();
