@@ -1254,7 +1254,8 @@ int simulate(int argn,char* args[]) {
       propagateTimer.stop(computedCells,"Cells");
       
       phiprof::Timer endStepTimer {"Project endTimeStep"};
-      project->hook(hook::END_OF_TIME_STEP, mpiGrid, perBGrid);
+      std::span<std::array<Real, fsgrids::bfield::N_BFIELD>> perb = perBGrid.getData();
+      project->hook(hook::END_OF_TIME_STEP, mpiGrid, perb, technicalGrid);
       endStepTimer.stop();
 
       // Check timestep
