@@ -96,14 +96,11 @@ namespace SBC {
                                          const fsgrid::FsStencil& stencil, cuint RKCase, cuint component) override {
          std::cerr << "ERROR: DoNotCompute::fieldSolverBoundaryCondDerivatives called!" << std::endl;
       }
-      virtual void fieldSolverBoundaryCondBVOLDerivatives(
-         fsgrid::FsGrid< std::array<Real, fsgrids::volfields::N_VOL>, FS_STENCIL_WIDTH> & volGrid,
-         cint i,
-         cint j,
-         cint k,
-         cuint component
-      ) override { std::cerr << "ERROR: DoNotCompute::fieldSolverBoundaryCondBVOLDerivatives called!" << std::endl;}
-      void vlasovBoundaryCondition(
+      virtual void fieldSolverBoundaryCondBVOLDerivatives(std::span<std::array<Real, fsgrids::volfields::N_VOL>> vols,
+                                                          const fsgrid::FsStencil& stencil, cuint component) override {
+         std::cerr << "ERROR: DoNotCompute::fieldSolverBoundaryCondBVOLDerivatives called!" << std::endl;
+      }
+      virtual void vlasovBoundaryCondition(
           dccrg::Dccrg<SpatialCell,dccrg::Cartesian_Geometry>& mpiGrid,
           const CellID& cellID,
           const uint popID,

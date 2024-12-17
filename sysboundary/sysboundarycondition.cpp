@@ -260,35 +260,30 @@ namespace SBC {
     * \param cellID The cell's ID.
     * \param component 0: x-derivatives, 1: y-derivatives, 2: z-derivatives.
     */
-   void SysBoundaryCondition::setCellBVOLDerivativesToZero(
-      fsgrid::FsGrid< array<Real, fsgrids::volfields::N_VOL>, FS_STENCIL_WIDTH> & volGrid,
-      cint i,
-      cint j,
-      cint k,
-      cuint component
-   ) {
-      array<Real, fsgrids::volfields::N_VOL> * volGrid0 = volGrid.get(i,j,k);
+   void SysBoundaryCondition::setCellBVOLDerivativesToZero(std::span<std::array<Real, fsgrids::volfields::N_VOL>> vols,
+                                                           const fsgrid::FsStencil& stencil, cuint component) {
+      auto& vol = vols[stencil.center()];
       switch(component) {
          case 0:
-            volGrid0->at(fsgrids::volfields::dPERBXVOLdx) = 0.0;
-            volGrid0->at(fsgrids::volfields::dPERBYVOLdx) = 0.0;
-            volGrid0->at(fsgrids::volfields::dPERBZVOLdx) = 0.0;
+            vol[fsgrids::volfields::dPERBXVOLdx] = 0.0;
+            vol[fsgrids::volfields::dPERBYVOLdx] = 0.0;
+            vol[fsgrids::volfields::dPERBZVOLdx] = 0.0;
             break;
          case 1:
-            volGrid0->at(fsgrids::volfields::dPERBXVOLdy) = 0.0;
-            volGrid0->at(fsgrids::volfields::dPERBYVOLdy) = 0.0;
-            volGrid0->at(fsgrids::volfields::dPERBZVOLdy) = 0.0;
+            vol[fsgrids::volfields::dPERBXVOLdy] = 0.0;
+            vol[fsgrids::volfields::dPERBYVOLdy] = 0.0;
+            vol[fsgrids::volfields::dPERBZVOLdy] = 0.0;
             break;
          case 2:
-            volGrid0->at(fsgrids::volfields::dPERBXVOLdz) = 0.0;
-            volGrid0->at(fsgrids::volfields::dPERBYVOLdz) = 0.0;
-            volGrid0->at(fsgrids::volfields::dPERBZVOLdz) = 0.0;
+            vol[fsgrids::volfields::dPERBXVOLdz] = 0.0;
+            vol[fsgrids::volfields::dPERBYVOLdz] = 0.0;
+            vol[fsgrids::volfields::dPERBZVOLdz] = 0.0;
             break;
          default:
          abort_mpi("Invalid component", 1);
       }
    }
-   
+
    /*! Function used to copy the distribution and moments from (one of) the closest sysboundarytype::NOT_SYSBOUNDARY cell.
     * \param mpiGrid Grid
     * \param cellID The cell's ID.
