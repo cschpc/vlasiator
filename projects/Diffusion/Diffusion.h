@@ -25,6 +25,7 @@
 
 #include "../../definitions.h"
 #include "../project.h"
+#include <span>
 
 namespace projects {
 
@@ -44,13 +45,11 @@ namespace projects {
       static void addParameters(void);
       virtual void getParameters(void);
       /*! set background field, should set it for all cells */
-      virtual void setProjectBField(
-         fsgrid::FsGrid< std::array<Real, fsgrids::bfield::N_BFIELD>, FS_STENCIL_WIDTH> & perBGrid,
-         fsgrid::FsGrid< std::array<Real, fsgrids::bgbfield::N_BGB>, FS_STENCIL_WIDTH> & BgBGrid,
-         fsgrid::FsGrid< fsgrids::technical, FS_STENCIL_WIDTH> & technicalGrid
-      );
-      
-    protected:
+      virtual void setProjectBField(std::span<std::array<Real, fsgrids::bfield::N_BFIELD>> perb,
+                                    std::span<std::array<Real, fsgrids::bgbfield::N_BGB>> bgb,
+                                    fsgrid::FsGrid<fsgrids::technical, FS_STENCIL_WIDTH>& technicalGrid);
+
+   protected:
       Real getDistribValue(
                            creal& x,creal& y, creal& z,
                            creal& vx, creal& vy, creal& vz,

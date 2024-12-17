@@ -357,7 +357,7 @@ void SysBoundary::classifyCells(dccrg::Dccrg<spatial_cell::SpatialCell, dccrg::C
    const vector<CellID>& cells = getLocalCells();
    const auto& localSize = technicalGrid.getLocalSize();
    std::span<fsgrids::technical> technical = technicalGrid.getData();
-   const auto ranks = technicalGrid.getRank();
+   const auto rank = technicalGrid.getRank();
 
    /*set all cells to default value, not_sysboundary */
 #pragma omp parallel for
