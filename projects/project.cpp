@@ -133,11 +133,9 @@ namespace projects {
       exit(1);
    }
 
-   void Project::hook(
-      cuint& stage,
-      const dccrg::Dccrg<spatial_cell::SpatialCell,dccrg::Cartesian_Geometry>& mpiGrid,
-      fsgrid::FsGrid< std::array<Real, fsgrids::bfield::N_BFIELD>, FS_STENCIL_WIDTH> & perBGrid
-   ) const { }
+   void Project::hook(cuint& stage, const dccrg::Dccrg<spatial_cell::SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid,
+                      std::span<std::array<Real, fsgrids::bfield::N_BFIELD>> perb,
+                      fsgrid::FsGrid<fsgrids::technical, FS_STENCIL_WIDTH>& technicalGrid) const {}
 
    void Project::setupBeforeSetCell(const std::vector<CellID>& cells) {
       // Dummy implementation.

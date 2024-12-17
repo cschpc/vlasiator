@@ -95,12 +95,11 @@ namespace projects {
          speciesParams.push_back(sP);
       }
    }
-   
-   void Dispersion::hook(
-      cuint& stage,
-      const dccrg::Dccrg<spatial_cell::SpatialCell,dccrg::Cartesian_Geometry>& mpiGrid,
-      fsgrid::FsGrid< std::array<Real, fsgrids::bfield::N_BFIELD>, FS_STENCIL_WIDTH> & perBGrid
-   ) const {
+
+   void Dispersion::hook(cuint& stage,
+                         const dccrg::Dccrg<spatial_cell::SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid,
+                         std::span<std::array<Real, fsgrids::bfield::N_BFIELD>> perb,
+                         fsgrid::FsGrid<fsgrids::technical, FS_STENCIL_WIDTH>& technicalGrid) const {
       if(hook::END_OF_TIME_STEP == stage) {
          int myRank;
          MPI_Comm_rank(MPI_COMM_WORLD,&myRank);
@@ -123,15 +122,16 @@ namespace projects {
          vector<Real> outputPerBx(P::xcells_ini, 0.0);
          vector<Real> outputPerBy(P::xcells_ini, 0.0);
          vector<Real> outputPerBz(P::xcells_ini, 0.0);
-         
-         const std::array<fsgrid::FsIndex_t, 3> localSize = perBGrid.getLocalSize();
-         const std::array<fsgrid::FsIndex_t, 3> localStart = perBGrid.getLocalStart();
-         for (fsgrid::FsIndex_t x = 0; x < localSize[0]; ++x) {
-            localPerBx[x + localStart[0]] = perBGrid.get(x, 0, 0)->at(fsgrids::bfield::PERBX);
-            localPerBy[x + localStart[0]] = perBGrid.get(x, 0, 0)->at(fsgrids::bfield::PERBY);
-            localPerBz[x + localStart[0]] = perBGrid.get(x, 0, 0)->at(fsgrids::bfield::PERBZ);
+
+         const auto& localSize = technicalGrid.getLocalSize();
+         const auto& localStart = technicalGrid.getLocalStart();
+         for (auto x = 0; x < localSize[0]; ++x) {
+            const auto stencil = technicalGrid.makeStencil(x, 0, 0);
+            localPerBx[x + localStart[0]] = perb[stencil.center()][fsgrids::bfield::PERBX];
+            localPerBy[x + localStart[0]] = perb[stencil.center()][fsgrids::bfield::PERBY];
+            localPerBz[x + localStart[0]] = perb[stencil.center()][fsgrids::bfield::PERBZ];
          }
-         
+
          MPI_Reduce(&(localPerBx[0]), &(outputPerBx[0]), P::xcells_ini, MPI_DOUBLE, MPI_SUM, MASTER_RANK, MPI_COMM_WORLD);
          MPI_Reduce(&(localPerBy[0]), &(outputPerBy[0]), P::xcells_ini, MPI_DOUBLE, MPI_SUM, MASTER_RANK, MPI_COMM_WORLD);
          MPI_Reduce(&(localPerBz[0]), &(outputPerBz[0]), P::xcells_ini, MPI_DOUBLE, MPI_SUM, MASTER_RANK, MPI_COMM_WORLD);
@@ -152,7 +152,7 @@ namespace projects {
          }
       }
    }
-   
+
    Realf Dispersion::fillPhaseSpace(spatial_cell::SpatialCell *cell,
                                        const uint popID,
                                        const uint nRequested

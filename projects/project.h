@@ -90,12 +90,10 @@ namespace projects {
       virtual bool initialize();
       
       /*! Perform some operation at each time step in the main program loop. */
-      virtual void hook(
-         cuint& stage,
-         const dccrg::Dccrg<spatial_cell::SpatialCell,dccrg::Cartesian_Geometry>& mpiGrid,
-         fsgrid::FsGrid< std::array<Real, fsgrids::bfield::N_BFIELD>, FS_STENCIL_WIDTH> & perBGrid
-      ) const;
-      
+      virtual void hook(cuint& stage, const dccrg::Dccrg<spatial_cell::SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid,
+                        std::span<std::array<Real, fsgrids::bfield::N_BFIELD>> perb,
+                        fsgrid::FsGrid<fsgrids::technical, FS_STENCIL_WIDTH>& technicalGrid) const;
+
       bool initialized();
       
       /** Set the background and perturbed magnetic fields for this project.
