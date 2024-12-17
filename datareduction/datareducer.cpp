@@ -58,7 +58,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[3 * ri] = fsgrids.BgB[lid][fsgrids::BGBX] + fsgrids.perB[lid][fsgrids::PERBX];
                          retval[3 * ri + 1] = fsgrids.BgB[lid][fsgrids::BGBY] + fsgrids.perB[lid][fsgrids::PERBY];
@@ -84,7 +85,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[3 * ri] = fsgrids.BgB[lid][fsgrids::BGBX];
                          retval[3 * ri + 1] = fsgrids.BgB[lid][fsgrids::BGBY];
@@ -110,7 +112,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[3 * ri] = fsgrids.BgB[lid][fsgrids::BGBXVOL];
                          retval[3 * ri + 1] = fsgrids.BgB[lid][fsgrids::BGBYVOL];
@@ -137,7 +140,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[3 * ri] = fsgrids.perB[lid][fsgrids::PERBX];
                          retval[3 * ri + 1] = fsgrids.perB[lid][fsgrids::PERBY];
@@ -163,7 +167,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[3 * ri] = fsgrids.E[lid][fsgrids::EX];
                          retval[3 * ri + 1] = fsgrids.E[lid][fsgrids::EY];
@@ -205,7 +210,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] = fsgrids.moments[lid][fsgrids::RHOM];
                       }
@@ -238,7 +244,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] = fsgrids.moments[lid][fsgrids::RHOQ];
                       }
@@ -288,7 +295,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[3 * ri] = fsgrids.moments[lid][fsgrids::VX];
                          retval[3 * ri + 1] = fsgrids.moments[lid][fsgrids::VY];
@@ -545,7 +553,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] = fsgrids.technical[lid].maxFsDt;
                       }
@@ -591,7 +600,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] = fsgrids.technical[lid].refLevel;
                       }
@@ -623,7 +633,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] = fsgrids.technical[lid].sysBoundaryFlag;
                       }
@@ -655,7 +666,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] = fsgrids.technical[lid].sysBoundaryLayer;
                       }
@@ -723,7 +735,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[3 * ri] = fsgrids.vol[lid][fsgrids::volfields::EXVOL];
                          retval[3 * ri + 1] = fsgrids.vol[lid][fsgrids::volfields::EYVOL];
@@ -751,7 +764,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                    for (int z = 0; z < gridSize[2]; z++) {
                       for (int y = 0; y < gridSize[1]; y++) {
                          for (int x = 0; x < gridSize[0]; x++) {
-                            const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                            const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                            const auto lid = stencil.center();
                             const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                             retval[ri] = fsgrids.EHall[lid][index];
                          }
@@ -795,7 +809,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[3 * ri] = fsgrids.BgB[lid][fsgrids::BGBXVOL] + fsgrids.vol[lid][fsgrids::PERBXVOL];
                          retval[3 * ri + 1] = fsgrids.BgB[lid][fsgrids::BGBYVOL] + fsgrids.vol[lid][fsgrids::PERBYVOL];
@@ -845,7 +860,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          auto& moments = fsgrids.moments[lid];
                          retval[ri] =
@@ -936,7 +952,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] =
                              fsgrids.dPerB[lid][fsgrids::dperb::dPERBxdy] / fsgrids.technicalGrid.getGridSpacing()[1];
@@ -955,7 +972,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] =
                              fsgrids.dPerB[lid][fsgrids::dperb::dPERBxdz] / fsgrids.technicalGrid.getGridSpacing()[2];
@@ -974,7 +992,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] =
                              fsgrids.dPerB[lid][fsgrids::dperb::dPERBydx] / fsgrids.technicalGrid.getGridSpacing()[0];
@@ -993,7 +1012,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] =
                              fsgrids.dPerB[lid][fsgrids::dperb::dPERBydz] / fsgrids.technicalGrid.getGridSpacing()[2];
@@ -1012,7 +1032,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] =
                              fsgrids.dPerB[lid][fsgrids::dperb::dPERBzdx] / fsgrids.technicalGrid.getGridSpacing()[0];
@@ -1031,7 +1052,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] =
                              fsgrids.dPerB[lid][fsgrids::dperb::dPERBzdy] / fsgrids.technicalGrid.getGridSpacing()[1];
@@ -1050,7 +1072,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] = fsgrids.dPerB[lid][fsgrids::dperb::dPERBxdyy] /
                                       fsgrids.technicalGrid.getGridSpacing()[1] /
@@ -1070,7 +1093,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] = fsgrids.dPerB[lid][fsgrids::dperb::dPERBxdzz] /
                                       fsgrids.technicalGrid.getGridSpacing()[2] /
@@ -1090,7 +1114,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] = fsgrids.dPerB[lid][fsgrids::dperb::dPERBxdyz] /
                                       fsgrids.technicalGrid.getGridSpacing()[1] /
@@ -1110,7 +1135,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] = fsgrids.dPerB[lid][fsgrids::dperb::dPERBydxx] /
                                       fsgrids.technicalGrid.getGridSpacing()[0] /
@@ -1130,7 +1156,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] = fsgrids.dPerB[lid][fsgrids::dperb::dPERBydzz] /
                                       fsgrids.technicalGrid.getGridSpacing()[2] /
@@ -1150,7 +1177,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] = fsgrids.dPerB[lid][fsgrids::dperb::dPERBydxz] /
                                       fsgrids.technicalGrid.getGridSpacing()[0] /
@@ -1170,7 +1198,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] = fsgrids.dPerB[lid][fsgrids::dperb::dPERBzdxx] /
                                       fsgrids.technicalGrid.getGridSpacing()[0] /
@@ -1190,7 +1219,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] = fsgrids.dPerB[lid][fsgrids::dperb::dPERBzdyy] /
                                       fsgrids.technicalGrid.getGridSpacing()[1] /
@@ -1210,7 +1240,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] = fsgrids.dPerB[lid][fsgrids::dperb::dPERBzdxy] /
                                       fsgrids.technicalGrid.getGridSpacing()[0] /
@@ -1231,7 +1262,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] = fsgrids.dMoments[lid][fsgrids::dmoments::drhomdx] /
                                       fsgrids.technicalGrid.getGridSpacing()[0];
@@ -1250,7 +1282,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] = fsgrids.dMoments[lid][fsgrids::dmoments::drhomdy] /
                                       fsgrids.technicalGrid.getGridSpacing()[1];
@@ -1269,7 +1302,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] = fsgrids.dMoments[lid][fsgrids::dmoments::drhomdz] /
                                       fsgrids.technicalGrid.getGridSpacing()[2];
@@ -1288,7 +1322,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] = fsgrids.dMoments[lid][fsgrids::dmoments::drhoqdx] /
                                       fsgrids.technicalGrid.getGridSpacing()[0];
@@ -1307,7 +1342,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] = fsgrids.dMoments[lid][fsgrids::dmoments::drhoqdy] /
                                       fsgrids.technicalGrid.getGridSpacing()[1];
@@ -1326,7 +1362,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] = fsgrids.dMoments[lid][fsgrids::dmoments::drhoqdz] /
                                       fsgrids.technicalGrid.getGridSpacing()[2];
@@ -1345,7 +1382,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] = fsgrids.dMoments[lid][fsgrids::dmoments::dp11dx] /
                                       fsgrids.technicalGrid.getGridSpacing()[0];
@@ -1364,7 +1402,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] = fsgrids.dMoments[lid][fsgrids::dmoments::dp11dy] /
                                       fsgrids.technicalGrid.getGridSpacing()[1];
@@ -1383,7 +1422,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] = fsgrids.dMoments[lid][fsgrids::dmoments::dp11dz] /
                                       fsgrids.technicalGrid.getGridSpacing()[2];
@@ -1402,7 +1442,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] = fsgrids.dMoments[lid][fsgrids::dmoments::dp22dx] /
                                       fsgrids.technicalGrid.getGridSpacing()[0];
@@ -1421,7 +1462,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] = fsgrids.dMoments[lid][fsgrids::dmoments::dp22dy] /
                                       fsgrids.technicalGrid.getGridSpacing()[1];
@@ -1440,7 +1482,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] = fsgrids.dMoments[lid][fsgrids::dmoments::dp22dz] /
                                       fsgrids.technicalGrid.getGridSpacing()[2];
@@ -1459,7 +1502,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] = fsgrids.dMoments[lid][fsgrids::dmoments::dp33dx] /
                                       fsgrids.technicalGrid.getGridSpacing()[0];
@@ -1478,7 +1522,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] = fsgrids.dMoments[lid][fsgrids::dmoments::dp33dy] /
                                       fsgrids.technicalGrid.getGridSpacing()[1];
@@ -1497,7 +1542,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] = fsgrids.dMoments[lid][fsgrids::dmoments::dp33dz] /
                                       fsgrids.technicalGrid.getGridSpacing()[2];
@@ -1516,7 +1562,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] = fsgrids.dMoments[lid][fsgrids::dmoments::dVxdx] /
                                       fsgrids.technicalGrid.getGridSpacing()[0];
@@ -1535,7 +1582,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] = fsgrids.dMoments[lid][fsgrids::dmoments::dVxdy] /
                                       fsgrids.technicalGrid.getGridSpacing()[1];
@@ -1554,7 +1602,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] = fsgrids.dMoments[lid][fsgrids::dmoments::dVxdz] /
                                       fsgrids.technicalGrid.getGridSpacing()[2];
@@ -1573,7 +1622,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] = fsgrids.dMoments[lid][fsgrids::dmoments::dVydx] /
                                       fsgrids.technicalGrid.getGridSpacing()[0];
@@ -1592,7 +1642,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] = fsgrids.dMoments[lid][fsgrids::dmoments::dVydy] /
                                       fsgrids.technicalGrid.getGridSpacing()[1];
@@ -1611,7 +1662,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] = fsgrids.dMoments[lid][fsgrids::dmoments::dVydz] /
                                       fsgrids.technicalGrid.getGridSpacing()[2];
@@ -1630,7 +1682,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] = fsgrids.dMoments[lid][fsgrids::dmoments::dVzdx] /
                                       fsgrids.technicalGrid.getGridSpacing()[0];
@@ -1649,7 +1702,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] = fsgrids.dMoments[lid][fsgrids::dmoments::dVzdy] /
                                       fsgrids.technicalGrid.getGridSpacing()[1];
@@ -1668,7 +1722,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] = fsgrids.dMoments[lid][fsgrids::dmoments::dVzdz] /
                                       fsgrids.technicalGrid.getGridSpacing()[2];
@@ -1687,7 +1742,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] = fsgrids.dMoments[lid][fsgrids::dmoments::dPedx] /
                                       fsgrids.technicalGrid.getGridSpacing()[0];
@@ -1706,7 +1762,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] = fsgrids.dMoments[lid][fsgrids::dmoments::dPedy] /
                                       fsgrids.technicalGrid.getGridSpacing()[1];
@@ -1725,7 +1782,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] = fsgrids.dMoments[lid][fsgrids::dmoments::dPedz] /
                                       fsgrids.technicalGrid.getGridSpacing()[2];
@@ -1745,7 +1803,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] = fsgrids.vol[lid][fsgrids::volfields::dPERBXVOLdx] /
                                       fsgrids.technicalGrid.getGridSpacing()[0];
@@ -1764,7 +1823,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] = fsgrids.vol[lid][fsgrids::volfields::dPERBXVOLdy] /
                                       fsgrids.technicalGrid.getGridSpacing()[1];
@@ -1783,7 +1843,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] = fsgrids.vol[lid][fsgrids::volfields::dPERBXVOLdz] /
                                       fsgrids.technicalGrid.getGridSpacing()[2];
@@ -1802,7 +1863,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] = fsgrids.vol[lid][fsgrids::volfields::dPERBYVOLdx] /
                                       fsgrids.technicalGrid.getGridSpacing()[0];
@@ -1821,7 +1883,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] = fsgrids.vol[lid][fsgrids::volfields::dPERBYVOLdy] /
                                       fsgrids.technicalGrid.getGridSpacing()[1];
@@ -1841,7 +1904,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] = fsgrids.vol[lid][fsgrids::volfields::dPERBYVOLdz] /
                                       fsgrids.technicalGrid.getGridSpacing()[2];
@@ -1860,7 +1924,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] = fsgrids.vol[lid][fsgrids::volfields::dPERBZVOLdx] /
                                       fsgrids.technicalGrid.getGridSpacing()[0];
@@ -1879,7 +1944,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] = fsgrids.vol[lid][fsgrids::volfields::dPERBZVOLdy] /
                                       fsgrids.technicalGrid.getGridSpacing()[1];
@@ -1898,7 +1964,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] = fsgrids.vol[lid][fsgrids::volfields::dPERBZVOLdz] /
                                       fsgrids.technicalGrid.getGridSpacing()[2];
@@ -1931,7 +1998,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] =
                              fsgrids.BgB[lid][fsgrids::bgbfield::dBGBxdy] / fsgrids.technicalGrid.getGridSpacing()[1];
@@ -1951,7 +2019,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] =
                              fsgrids.BgB[lid][fsgrids::bgbfield::dBGBxdz] / fsgrids.technicalGrid.getGridSpacing()[2];
@@ -1971,7 +2040,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] =
                              fsgrids.BgB[lid][fsgrids::bgbfield::dBGBydx] / fsgrids.technicalGrid.getGridSpacing()[0];
@@ -1991,7 +2061,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] =
                              fsgrids.BgB[lid][fsgrids::bgbfield::dBGBydz] / fsgrids.technicalGrid.getGridSpacing()[2];
@@ -2011,7 +2082,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] =
                              fsgrids.BgB[lid][fsgrids::bgbfield::dBGBzdx] / fsgrids.technicalGrid.getGridSpacing()[0];
@@ -2031,7 +2103,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] =
                              fsgrids.BgB[lid][fsgrids::bgbfield::dBGBzdy] / fsgrids.technicalGrid.getGridSpacing()[1];
@@ -2051,7 +2124,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] = fsgrids.BgB[lid][fsgrids::bgbfield::dBGBXVOLdx] /
                                       fsgrids.technicalGrid.getGridSpacing()[0];
@@ -2071,7 +2145,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] = fsgrids.BgB[lid][fsgrids::bgbfield::dBGBXVOLdy] /
                                       fsgrids.technicalGrid.getGridSpacing()[1];
@@ -2091,7 +2166,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] = fsgrids.BgB[lid][fsgrids::bgbfield::dBGBXVOLdz] /
                                       fsgrids.technicalGrid.getGridSpacing()[2];
@@ -2111,7 +2187,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] = fsgrids.BgB[lid][fsgrids::bgbfield::dBGBYVOLdx] /
                                       fsgrids.technicalGrid.getGridSpacing()[0];
@@ -2131,7 +2208,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] = fsgrids.BgB[lid][fsgrids::bgbfield::dBGBYVOLdy] /
                                       fsgrids.technicalGrid.getGridSpacing()[1];
@@ -2151,7 +2229,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] = fsgrids.BgB[lid][fsgrids::bgbfield::dBGBYVOLdz] /
                                       fsgrids.technicalGrid.getGridSpacing()[2];
@@ -2171,7 +2250,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] = fsgrids.BgB[lid][fsgrids::bgbfield::dBGBZVOLdx] /
                                       fsgrids.technicalGrid.getGridSpacing()[0];
@@ -2191,7 +2271,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] = fsgrids.BgB[lid][fsgrids::bgbfield::dBGBZVOLdy] /
                                       fsgrids.technicalGrid.getGridSpacing()[1];
@@ -2211,7 +2292,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[ri] = fsgrids.BgB[lid][fsgrids::bgbfield::dBGBZVOLdz] /
                                       fsgrids.technicalGrid.getGridSpacing()[2];
@@ -3005,7 +3087,8 @@ void initializeDataReducers(DataReducer* outputReducer, DataReducer* diagnosticR
                 for (int z = 0; z < gridSize[2]; z++) {
                    for (int y = 0; y < gridSize[1]; y++) {
                       for (int x = 0; x < gridSize[0]; x++) {
-                         const auto lid = fsgrids.technicalGrid.localIDFromCellCoordinates(x, y, z);
+                         const auto stencil = fsgrids.technicalGrid.makeStencil(x, y, z);
+                         const auto lid = stencil.center();
                          const auto ri = gridSize[1] * gridSize[0] * z + gridSize[0] * y + x;
                          retval[3 * ri] = fsgrids.vol[lid][fsgrids::volfields::CURVATUREX];
                          retval[3 * ri + 1] = fsgrids.vol[lid][fsgrids::volfields::CURVATUREY];
