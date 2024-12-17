@@ -419,22 +419,21 @@ namespace projects {
       return a;
    }
 
-   void IPShock::setProjectBField(
-      fsgrid::FsGrid< std::array<Real, fsgrids::bfield::N_BFIELD>, FS_STENCIL_WIDTH> & perBGrid,
-      fsgrid::FsGrid< std::array<Real, fsgrids::bgbfield::N_BGB>, FS_STENCIL_WIDTH> & BgBGrid,
-      fsgrid::FsGrid< fsgrids::technical, FS_STENCIL_WIDTH> & technicalGrid
-      ) {
-      setBackgroundFieldToZero(BgBGrid.getData());
+   void IPShock::setProjectBField(std::span<std::array<Real, fsgrids::bfield::N_BFIELD>> perb,
+                                  std::span<std::array<Real, fsgrids::bgbfield::N_BGB>> bgb,
+                                  fsgrid::FsGrid<fsgrids::technical, FS_STENCIL_WIDTH>& technicalGrid) {
+      setBackgroundFieldToZero(bgb);
 
-      if(!P::isRestart) {
-         auto localSize = perBGrid.getLocalSize().data();
+      if (!P::isRestart) {
+         const auto& localSize = technicalGrid.getLocalSize();
 #pragma omp parallel for collapse(3)
-         for (fsgrid::FsIndex_t x = 0; x < localSize[0]; ++x) {
-            for (fsgrid::FsIndex_t y = 0; y < localSize[1]; ++y) {
-               for (fsgrid::FsIndex_t z = 0; z < localSize[2]; ++z) {
-                  const std::array<Real, 3> xyz = perBGrid.getPhysicalCoords(x, y, z);
-                  std::array<Real, fsgrids::bfield::N_BFIELD>* cell = perBGrid.get(x, y, z);
-                  
+         for (auto x = 0; x < localSize[0]; ++x) {
+            for (auto y = 0; y < localSize[1]; ++y) {
+               for (auto z = 0; z < localSize[2]; ++z) {
+                  const auto xyz = technicalGrid.getPhysicalCoords(x, y, z);
+                  const auto stencil = technicalGrid.makeStencil(x, y, z);
+                  auto& cell = perb[stencil.center()];
+
                   /* Maintain all values in BPERT for simplicity */
                   Real mu0 = physicalconstants::MU_0;
                   
@@ -466,15 +465,14 @@ namespace projects {
                   //Real VY = Vtang * this->Vucosphi * this->Vyusign;
                   //Real VZ = Vtang * sqrt(1. - this->Vucosphi * this->Vucosphi) * this->Vzusign;
                   
-                  cell->at(fsgrids::bfield::PERBX) = BX;
-                  cell->at(fsgrids::bfield::PERBY) = BY;
-                  cell->at(fsgrids::bfield::PERBZ) = BZ;
+                 cell[fsgrids::bfield::PERBX] = BX;
+                 cell[fsgrids::bfield::PERBY] = BY;
+                 cell[fsgrids::bfield::PERBZ] = BZ;
                }
             }
          }
       }
    }
-
 
    bool IPShock::refineSpatialCells( dccrg::Dccrg<spatial_cell::SpatialCell,dccrg::Cartesian_Geometry>& mpiGrid ) const {
  

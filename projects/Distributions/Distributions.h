@@ -26,6 +26,7 @@
 
 #include "../../definitions.h"
 #include "../projectTriAxisSearch.h"
+#include <span>
 
 namespace projects {
    class Distributions: public TriAxisSearch {
@@ -36,11 +37,10 @@ namespace projects {
       virtual bool initialize(void) override;
       static void addParameters(void);
       virtual void getParameters(void) override;
-      virtual void setProjectBField(
-         fsgrid::FsGrid< std::array<Real, fsgrids::bfield::N_BFIELD>, FS_STENCIL_WIDTH> & perBGrid,
-         fsgrid::FsGrid< std::array<Real, fsgrids::bgbfield::N_BGB>, FS_STENCIL_WIDTH> & BgBGrid,
-         fsgrid::FsGrid< fsgrids::technical, FS_STENCIL_WIDTH> & technicalGrid
-      ) override;
+      virtual void setProjectBField(std::span<std::array<Real, fsgrids::bfield::N_BFIELD>> perb,
+                                    std::span<std::array<Real, fsgrids::bgbfield::N_BGB>> bgb,
+                                    fsgrid::FsGrid<fsgrids::technical, FS_STENCIL_WIDTH>& technicalGrid) override;
+      virtual std::vector<std::array<Real, 3>> getV0(creal x, creal y, creal z, const uint popID) const override;
 
       virtual Realf fillPhaseSpace(spatial_cell::SpatialCell *cell,
                                   const uint popID,
@@ -49,12 +49,6 @@ namespace projects {
                                     const uint popID,
                                     Real vx_in, Real vy_in, Real vz_in) const override;
       virtual void calcCellParameters(spatial_cell::SpatialCell* cell,creal& t) override;
-      virtual std::vector<std::array<Real, 3> > getV0(
-                                                      creal x,
-                                                      creal y,
-                                                      creal z,
-                                                      const uint popID
-                                                     ) const override;
 
       Real rho[2];
       Real rhoRnd[2];
