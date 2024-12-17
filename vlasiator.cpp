@@ -21,12 +21,13 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <cstdlib>
-#include <iostream>
+#include "common.h"
 #include <cmath>
-#include <vector>
-#include <sstream>
+#include <cstdlib>
 #include <ctime>
+#include <iostream>
+#include <sstream>
+#include <vector>
 
 #ifdef _OPENMP
    #include <omp.h>
@@ -133,7 +134,7 @@ void report_cell_and_block_counts(dccrg::Dccrg<spatial_cell::SpatialCell,dccrg::
 
 void computeNewTimeStep(dccrg::Dccrg<SpatialCell,dccrg::Cartesian_Geometry>& mpiGrid,
 			fsgrid::FsGrid< fsgrids::technical, FS_STENCIL_WIDTH> & technicalGrid, Real &newDt, bool &isChanged) {
-
+   std::span<const fsgrids::technical> technical = technicalGrid.getData();
    phiprof::Timer computeTimestepTimer {"compute-timestep"};
    // Compute maximum time step. This cannot be done at the first step as the solvers compute the limits for each cell.
 
@@ -199,14 +200,15 @@ void computeNewTimeStep(dccrg::Dccrg<SpatialCell,dccrg::Cartesian_Geometry>& mpi
    }
 
    // compute max dt for fieldsolver
-   const std::array<fsgrid::FsIndex_t, 3> gridDims(technicalGrid.getLocalSize());
-   for (fsgrid::FsIndex_t k = 0; k < gridDims[2]; k++) {
-      for (fsgrid::FsIndex_t j = 0; j < gridDims[1]; j++) {
-         for (fsgrid::FsIndex_t i = 0; i < gridDims[0]; i++) {
-            fsgrids::technical* cell = technicalGrid.get(i, j, k);
-            if (cell->sysBoundaryFlag == sysboundarytype::NOT_SYSBOUNDARY ||
-               (cell->sysBoundaryLayer == 1 && cell->sysBoundaryFlag != sysboundarytype::NOT_SYSBOUNDARY)) {
-               dtMaxLocal[2] = min(dtMaxLocal[2], cell->maxFsDt);
+   const auto& localSize = technicalGrid.getLocalSize();
+   for (auto k = 0; k < localSize[2]; k++) {
+      for (auto j = 0; j < localSize[1]; j++) {
+         for (auto i = 0; i < localSize[0]; i++) {
+            const auto stencil = technicalGrid.makeStencil(i, j, k);
+            const auto& cell = technical[stencil.center()];
+            if (cell.sysBoundaryFlag == sysboundarytype::NOT_SYSBOUNDARY ||
+                (cell.sysBoundaryLayer == 1 && cell.sysBoundaryFlag != sysboundarytype::NOT_SYSBOUNDARY)) {
+               dtMaxLocal[2] = min(dtMaxLocal[2], cell.maxFsDt);
             }
          }
       }
