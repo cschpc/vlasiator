@@ -32,11 +32,11 @@
 #include "../fieldsolver/ldz_magnetic_field.hpp"
 #include "../object_wrapper.h"
 #include "../projects/projects_common.h"
-#include "../vlasovmover.h"
+#include "../vlasovsolver/vlasovmover.h"
 #include "outflow.h"
 
-#ifndef NDEBUG
-#define DEBUG_OUTFLOW
+#ifdef DEBUG_VLASIATOR
+   #define DEBUG_OUTFLOW
 #endif
 #ifdef DEBUG_SYSBOUNDARY
 #define DEBUG_OUTFLOW
@@ -82,7 +82,6 @@ void Outflow::addParameters() {
                           defStr);
       Readparameters::add(pop + "_outflow.vlasovScheme_face_z-", "Scheme to use on the face z- (Copy, Limit, None)",
                           defStr);
-
       Readparameters::add(pop + "_outflow.quench",
                           "Factor by which to quench the inflowing parts of the velocity distribution function.", 1.0);
    }

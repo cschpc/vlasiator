@@ -36,8 +36,9 @@
 #include "object_wrapper.h"
 #include "parameters.h"
 #include "phiprof.hpp"
-#include "vlasovmover.h"
+#include "vlasovsolver/vlasovmover.h"
 #include "vlsv_reader_parallel.h"
+#include "velocity_mesh_parameters.h"
 
 using namespace std;
 using namespace phiprof;
@@ -254,6 +255,8 @@ bool readNBlocks(vlsv::ParallelReader& file, const std::string& meshName, std::v
    }
 
    uint64_t N_spatialCells = 0;
+   int64_t* domainInfo = NULL;
+   if (file.read("MESH_DOMAIN_SIZES",attribsIn,0,N_domains,domainInfo) == false) return false;
 
    int64_t* domainInfo = NULL;
    if (file.read("MESH_DOMAIN_SIZES", attribsIn, 0, N_domains, domainInfo) == false)
@@ -448,7 +451,6 @@ bool _readBlockData(vlsv::ParallelReader& file, const std::string& spatMeshName,
       }
       blockBufferOffset += nBlocksInCell; // jump to location of next local cell
    }
-
    delete[] avgBuffer;
    delete[] blockIdBuffer;
    return success;
@@ -569,15 +571,13 @@ bool readBlockData(vlsv::ParallelReader& file, const string& meshName, const vec
             }
          }
 
-         const Real dVz = getObjectWrapper().velocityMeshes[meshID].cellSize[2];
-         for (const auto& c : fileVelCoordsY) {
-            Real cellindex = (c - getObjectWrapper().velocityMeshes[meshID].meshMinLimits[2]) / dVz;
-            if (fabs(nearbyint(cellindex) - cellindex) > 1. / 10000.) {
+         const Real dVz = vmesh::getMeshWrapper()->velocityMeshes->at(meshID).cellSize[2];
+         for(const auto& c : fileVelCoordsY) {
+            Real cellindex = (c - vmesh::getMeshWrapper()->velocityMeshes->at(meshID).meshMinLimits[2]) / dVz;
+            if(fabs(nearbyint(cellindex) - cellindex) > 1./10000.) {
                logFile << "(RESTART) ERROR: Can't resize velocity space as cell coordinates don't match." << endl
-                       << "           (Z coordinate " << c << " = " << cellindex << " * " << dVz << " + "
-                       << getObjectWrapper().velocityMeshes[meshID].meshMinLimits[2] << endl
-                       << "           coordinate  = cellindex *   dV  +  meshMinLimits)" << endl
-                       << write;
+                  << "           (Z coordinate " << c << " = " << cellindex <<" * " << dVz << " + " << vmesh::getMeshWrapper()->velocityMeshes->at(meshID).meshMinLimits[2] << endl
+                  << "           coordinate  = cellindex *   dV  +  meshMinLimits)" << endl << write;
                abort();
             }
          }
@@ -585,9 +585,9 @@ bool readBlockData(vlsv::ParallelReader& file, const string& meshName, const vec
          // If we haven't aborted above, we can apparently renumber our
          // cellIDs. Build an approprita blockIDremapper lambda for this purpose.
          std::array<int, 3> velGridOffset;
-         velGridOffset[0] = (fileVelCoordsX[0] - getObjectWrapper().velocityMeshes[meshID].meshMinLimits[0]) / dVx;
-         velGridOffset[1] = (fileVelCoordsY[0] - getObjectWrapper().velocityMeshes[meshID].meshMinLimits[1]) / dVy;
-         velGridOffset[2] = (fileVelCoordsZ[0] - getObjectWrapper().velocityMeshes[meshID].meshMinLimits[2]) / dVz;
+         velGridOffset[0] = (fileVelCoordsX[0] - vmesh::getMeshWrapper()->velocityMeshes->at(meshID).meshMinLimits[0]) / dVx;
+         velGridOffset[1] = (fileVelCoordsY[0] - vmesh::getMeshWrapper()->velocityMeshes->at(meshID).meshMinLimits[1]) / dVy;
+         velGridOffset[2] = (fileVelCoordsZ[0] - vmesh::getMeshWrapper()->velocityMeshes->at(meshID).meshMinLimits[2]) / dVz;
 
          if ((velGridOffset[0] % ourMeshParams.blockLength[0] != 0) ||
              (velGridOffset[1] % ourMeshParams.blockLength[1] != 0) ||

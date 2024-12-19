@@ -38,10 +38,11 @@
 #include "../object_wrapper.h"
 #include "../projects/project.h"
 #include "../projects/projects_common.h"
-#include "../vlasovmover.h"
+#include "../vlasovsolver/vlasovmover.h"
 #include "ionosphere.h"
 
 #include <Eigen/Dense>
+#include "../fieldtracing/fieldtracing.h"
 
 #define Vec3d Eigen::Vector3d
 #define cross_product(av, bv) (av).cross(bv)
@@ -49,8 +50,8 @@
 #define vector_length(v) (v).norm()
 #define normalize_vector(v) (v).normalized()
 
-#ifndef NDEBUG
-#define DEBUG_IONOSPHERE
+#ifdef DEBUG_VLASIATOR
+   #define DEBUG_IONOSPHERE
 #endif
 #ifdef DEBUG_SYSBOUNDARY
 #define DEBUG_IONOSPHERE
@@ -2540,6 +2541,15 @@ void Ionosphere::assignSysBoundary(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Ge
    }
 }
 
+void Ionosphere::gpuClear() {
+   // Remove GPU allocations from template cells
+   #ifdef USE_GPU
+   templateCell.gpu_destructor();
+   #endif
+   return;
+}
+
+
 void Ionosphere::applyInitialState(
     dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid,
     fsgrid::FsGrid<fsgrids::technical, FS_STENCIL_WIDTH>& technicalGrid,
@@ -3097,6 +3107,12 @@ void Ionosphere::vlasovBoundaryCondition(dccrg::Dccrg<SpatialCell, dccrg::Cartes
              findBlocksToInitialize(cell, density, temperature, vDrift, popID);
          Realf* data = cell.get_data(popID);
 
+         // Loop over requested blocks. Initialize the contents into the temporary buffer
+         // and return the maximum value.
+         vector<Realf> initBuffer(WID3*nRequested);
+         creal dvxCell = templateCell.get_velocity_grid_cell_size(popID)[0];
+         creal dvyCell = templateCell.get_velocity_grid_cell_size(popID)[1];
+         creal dvzCell = templateCell.get_velocity_grid_cell_size(popID)[2];
          for (size_t i = 0; i < blocksToInitialize.size(); i++) {
             const vmesh::GlobalID blockGID = blocksToInitialize[i];
             cell.add_velocity_block(blockGID, popID);

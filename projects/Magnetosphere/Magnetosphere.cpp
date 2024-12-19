@@ -600,11 +600,11 @@ namespace projects {
          if (myRank == MASTER_RANK) {
             std::cout << "Finished first level of refinement" << endl;
          }
-         #ifndef NDEBUG
+         #ifdef DEBUG_VLASIATOR
          if (cells.size() > 0) {
             std::cout << "Rank " << myRank << " refined " << cells.size() << " cells to level 1" << std::endl;
          }
-         #endif //NDEBUG
+         #endif //DEBUG_VLASIATOR
       }
       
       // L2 refinement.
@@ -626,11 +626,11 @@ namespace projects {
          if(myRank == MASTER_RANK) {
             std::cout << "Finished second level of refinement" << endl;
          }
-         #ifndef NDEBUG
+         #ifdef DEBUG_VLASIATOR
          if (cells.size() > 0) {
             std::cout << "Rank " << myRank << " refined " << cells.size() << " cells to level 2" << std::endl;
          }
-         #endif //NDEBUG
+         #endif //DEBUG_VLASIATOR
 
       }
       
@@ -653,11 +653,11 @@ namespace projects {
          if (myRank == MASTER_RANK) {
             std::cout << "Finished third level of refinement" << endl;
          }
-         #ifndef NDEBUG
+         #ifdef DEBUG_VLASIATOR
          if (cells.size() > 0) {
             std::cout << "Rank " << myRank << " refined " << cells.size() << " cells to level 3" << std::endl;
          }
-         #endif //NDEBUG
+         #endif //DEBUG_VLASIATOR
       }
 
       // L4 refinement.
@@ -681,11 +681,11 @@ namespace projects {
          if (myRank == MASTER_RANK) {
             std::cout << "Finished fourth level of refinement" << endl;
          }
-         #ifndef NDEBUG
+         #ifdef DEBUG_VLASIATOR
          if (cells.size() > 0) {
             std::cout << "Rank " << myRank << " refined " << cells.size() << " cells to level 4" << std::endl;
          }
-         #endif //NDEBUG
+         #endif //DEBUG_VLASIATOR
       }
 
       return true;

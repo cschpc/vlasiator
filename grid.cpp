@@ -46,17 +46,21 @@
 #include "parameters.h"
 #include "projects/project.h"
 #include "sysboundary/sysboundary.h"
-#include "vlasovmover.h"
+#include "vlasovsolver/vlasovmover.h"
 #include "vlasovsolver/cpu_trans_pencils.hpp"
+#ifdef USE_GPU
+#include "arch/gpu_base.hpp"
+#endif
 
 #ifdef PAPI_MEM
 #include "papi.h"
 #endif
 
-#ifndef NDEBUG
+#ifdef DEBUG_VLASIATOR
 #ifdef VAMR
 #define DEBUG_VAMR_VALIDATE
 #endif
+#define DEBUG_GRID
 #endif
 
 using namespace std;
@@ -497,7 +501,6 @@ void balanceLoad(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid, 
    phiprof::Timer deallocTimer{"deallocate boundary data"};
    // deallocate blocks in remote cells to decrease memory load
    deallocateRemoteCellBlocks(mpiGrid);
-
    deallocTimer.stop();
    // set weights based on each cells LB weight counter
    const vector<CellID>& cells = getLocalCells();
@@ -596,7 +599,7 @@ void balanceLoad(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid, 
 
       for (size_t p = 0; p < getObjectWrapper().particleSpecies.size(); ++p) {
          // Set active population
-         SpatialCell::setCommunicatedSpecies(p);
+         SpatialCell::setCommunicatedSpecies(popID);
 
          // Transfer velocity block list
          SpatialCell::set_mpi_transfer_type(Transfer::VEL_BLOCK_LIST_STAGE1);
@@ -692,6 +695,43 @@ void balanceLoad(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid, 
       phiprof::Timer timer{"set face neighbor ranks"};
       setFaceNeighborRanks(mpiGrid);
    }
+
+#ifdef USE_GPU
+   phiprof::Timer gpuMallocTimer("GPU_malloc");
+   uint gpuMaxBlockCount = 0;
+   vmesh::LocalID gpuBlockCount = 0;
+   // Not parallelized
+   const vector<CellID>& newCells = getLocalCells();
+   const std::vector<CellID>& remote_cells = mpiGrid.get_remote_cells_on_process_boundary(FULL_NEIGHBORHOOD_ID);
+   for (uint i=0; i<newCells.size()+remote_cells.size(); ++i) {
+      SpatialCell* SC;
+      if (i < newCells.size()) {
+         SC = mpiGrid[newCells[i]];
+      } else {
+         SC = mpiGrid[remote_cells[i - newCells.size()]];
+      }
+      for (size_t popID=0; popID<getObjectWrapper().particleSpecies.size(); ++popID) {
+         const vmesh::VelocityMesh* vmesh = SC->get_velocity_mesh(popID);
+         vmesh::VelocityBlockContainer* blockContainer = SC->get_velocity_blocks(popID);
+         gpuBlockCount = vmesh->size();
+         // checks if increased allocation is necessary, also performs deallocation first if necessary
+         blockContainer->setNewCapacity(gpuBlockCount);
+         if (gpuBlockCount > gpuMaxBlockCount) {
+            gpuMaxBlockCount = gpuBlockCount;
+         }
+         // Ensure cell has sufficient reservation, then apply it
+         SC->setReservation(popID,gpuBlockCount);
+         SC->applyReservation(popID);
+         SC->dev_upload_population(popID);
+      }
+   }
+   // Call GPU routines for per-thread memory allocation for Vlasov solvers
+   // deallocates first if necessary
+   //GPUTODO: Also count how many pencils exist
+   gpu_vlasov_allocate(gpuMaxBlockCount);
+   gpu_acc_allocate(gpuMaxBlockCount);
+   gpuMallocTimer.stop();
+#endif // end USE_GPU
 }
 
 /* helper for calculating AMR cell lists and building pencils
@@ -738,7 +778,6 @@ bool adjustVelocityBlocks(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& 
                           const vector<CellID>& cellsToAdjust, bool doPrepareToReceiveBlocks, const uint popID) {
    phiprof::Timer readjustBlocksTimer{"re-adjust blocks", {"Block adjustment"}};
    SpatialCell::setCommunicatedSpecies(popID);
-   const vector<CellID>& cells = getLocalCells();
 
    phiprof::Timer computeTimer{"Compute with_content_list"};
 #pragma omp parallel for
@@ -782,8 +821,10 @@ bool adjustVelocityBlocks(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& 
             if (neighbor_id != 0 && neighbor_id != cell_id) {
                neighbor_ptrs.push_back(mpiGrid[neighbor_id]);
             }
+            cell->setReservation(popID,reservationSize);
          }
       }
+      // GPUTODO: Vectorize / GPUify
       if (getObjectWrapper().particleSpecies[popID].sparse_conserve_mass) {
          for (size_t i = 0; i < cell->get_number_of_velocity_blocks(popID) * WID3; ++i) {
             density_pre_adjust += cell->get_data(popID)[i];
@@ -791,6 +832,7 @@ bool adjustVelocityBlocks(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& 
       }
       cell->adjust_velocity_blocks(neighbor_ptrs, popID);
 
+      // GPUTODO: Vectorize / GPUify
       if (getObjectWrapper().particleSpecies[popID].sparse_conserve_mass) {
          for (size_t i = 0; i < cell->get_number_of_velocity_blocks(popID) * WID3; ++i) {
             density_post_adjust += cell->get_data(popID)[i];
@@ -801,8 +843,8 @@ bool adjustVelocityBlocks(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& 
             }
          }
       }
+      timer.stop();
    }
-   adjustimer.stop();
 
    // Updated newly adjusted velocity block lists on remote cells, and
    // prepare to receive block data
@@ -941,7 +983,7 @@ void updateRemoteVelocityBlockLists(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_G
       uint64_t cell_id = incoming_cells[i];
       SpatialCell* cell = mpiGrid[cell_id];
       if (cell == NULL) {
-         // for (const auto& cell: mpiGrid.local_cells()) {
+#ifdef DEBUG_VLASIATOR
          for (const auto& cell : mpiGrid.local_cells) {
             if (cell.id == cell_id) {
                cerr << __FILE__ << ":" << __LINE__ << std::endl;
@@ -954,6 +996,7 @@ void updateRemoteVelocityBlockLists(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_G
                }
             }
          }
+#endif
          continue;
       }
       cell->prepare_to_receive_blocks(popID);
@@ -1621,7 +1664,7 @@ bool adaptRefinement(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& mpiGr
    phiprof::Timer transfersTimer{"transfers"};
    for (size_t p = 0; p < getObjectWrapper().particleSpecies.size(); ++p) {
       // Set active population
-      SpatialCell::setCommunicatedSpecies(p);
+      SpatialCell::setCommunicatedSpecies(popID);
 
       // Transfer velocity block list
       SpatialCell::set_mpi_transfer_type(Transfer::VEL_BLOCK_LIST_STAGE1);

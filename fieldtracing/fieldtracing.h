@@ -29,6 +29,9 @@
 #include "../sysboundary/ionosphere.h"
 #include <array>
 #include <cstdlib>
+#include "../logger.h"
+extern Logger logFile;
+
 
 // Used in full box + flux rope tracing, the others used in coupling should use Real as double probably.
 typedef float TReal;

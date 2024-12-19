@@ -86,6 +86,8 @@ bool P::meshRepartitioned = true;
 bool P::prepareForRebalance = false;
 vector<CellID> P::localCells;
 
+bool P::adaptGPUWID = true;
+
 vector<string> P::systemWriteName;
 vector<string> P::systemWritePath;
 vector<Real> P::systemWriteTimeInterval;
@@ -152,11 +154,6 @@ bool P::bailout_write_restart = false;
 Real P::bailout_min_dt = NAN;
 Real P::bailout_max_memory = 1073741824.;
 uint P::bailout_velocity_space_wall_margin = 0;
-
-uint P::vamrMaxVelocityRefLevel = 0;
-Realf P::vamrRefineLimit = 1.0;
-Realf P::vamrCoarsenLimit = 0.5;
-string P::vamrVelRefCriterion = string("");
 
 bool P::amrTransShortPencils = false;
 int P::amrMaxSpatialRefLevel = 0;
@@ -452,8 +449,7 @@ bool P::addParameters() {
                         "Available (20221221): " + "populations_vg_blocks " +
                         "vg_rhom populations_vg_rho_loss_adjust " + "vg_loadbalance_weight " +
                         "vg_maxdt_acceleration vg_maxdt_translation " + "fg_maxdt_fieldsolver " +
-                        "populations_vg_maxdt_acceleration populations_vg_maxdt_translation " +
-                        "populations_vg_maxdistributionfunction populations_vg_mindistributionfunction");
+                        "populations_vg_maxdt_acceleration populations_vg_maxdt_translation ");
 
    RP::addComposing("variables_deprecated.diagnostic",
                     string() +
@@ -464,7 +460,6 @@ bool P::addParameters() {
                         "maxvdt maxdt_acceleration " + "maxrdt maxdt_translation " +
                         "populations_maxvdt populations_maxrdt " +
                         "populations_maxdt_acceleration populations_maxdt_translation " +
-                        "populations_maxdistributionfunction populations_mindistributionfunction " +
                         "maxfieldsdt maxdt_fieldsolver fg_maxfieldsdt");
 
    // bailout parameters
@@ -475,14 +470,6 @@ bool P::addParameters() {
            1073741824.);
    RP::add("bailout.velocity_space_wall_block_margin", "Distance from the velocity space limits in blocks, if the distribution function reaches that distance from the wall we bail out to avoid hitting the wall.", 1);
 
-   // Velocity Refinement parameters
-   RP::add("VAMR.vel_refinement_criterion", "Name of the velocity refinement criterion", string(""));
-   RP::add("VAMR.max_velocity_level", "Maximum velocity mesh refinement level", (uint)0);
-   RP::add("VAMR.refine_limit",
-           "If the refinement criterion function returns a larger value than this, block is refined", (Realf)1.0);
-   RP::add("VAMR.coarsen_limit",
-           "If the refinement criterion function returns a smaller value than this, block can be coarsened",
-           (Realf)0.5);
    // Spatial Refinement parameters
    RP::add("AMR.max_spatial_level", "Maximum absolute spatial mesh refinement level", (uint)0);
    RP::add("AMR.max_allowed_spatial_level", "Maximum currently allowed spatial mesh refinement level", -1);
@@ -528,6 +515,8 @@ bool P::addParameters() {
    RP::addComposing("AMR.box_max_level", "max refinement level of the box that is refined");
    RP::add("AMR.transShortPencils", "if true, use one-cell pencils", false);
    RP::addComposing("AMR.filterpasses", string("AMR filter passes for each individual refinement level"));
+
+   RP::add("adaptGPUWID", "if true, will halve velocity block counts if GPU is in use and WID==8", true);
 
    RP::add("fieldtracing.fieldLineTracer", "Field line tracing method to use for coupling ionosphere and magnetosphere (options are: Euler, BS)", std::string("Euler"));
    RP::add("fieldtracing.tracer_max_allowed_error", "Maximum allowed error for the adaptive field line tracers ", 1000);
@@ -776,11 +765,6 @@ void Parameters::getParameters() {
    RP::get("gridbuilder.y_length", P::ycells_ini);
    RP::get("gridbuilder.z_length", P::zcells_ini);
 
-   RP::get("VAMR.max_velocity_level", P::vamrMaxVelocityRefLevel);
-   RP::get("VAMR.vel_refinement_criterion", P::vamrVelRefCriterion);
-   RP::get("VAMR.refine_limit", P::vamrRefineLimit);
-   RP::get("VAMR.coarsen_limit", P::vamrCoarsenLimit);
-
    RP::get("AMR.max_spatial_level", P::amrMaxSpatialRefLevel);
    RP::get("AMR.max_allowed_spatial_level", P::amrMaxAllowedSpatialRefLevel);
    if(P::amrMaxAllowedSpatialRefLevel < 0) { // negative (default is -1) just goes to max
@@ -873,6 +857,7 @@ void Parameters::getParameters() {
    RP::get("AMR.box_center_z", P::amrBoxCenterZ);
    RP::get("AMR.transShortPencils", P::amrTransShortPencils);
    RP::get("AMR.filterpasses", P::blurPassString);
+   RP::get("adaptGPUWID", P::adaptGPUWID);
 
    // We need the correct number of parameters for the AMR boxes
    if(   P::amrBoxNumber != (int)P::amrBoxHalfWidthX.size()
@@ -941,10 +926,6 @@ void Parameters::getParameters() {
       MPI_Abort(MPI_COMM_WORLD, 1);
    }
 
-   if (P::vamrCoarsenLimit >= P::vamrRefineLimit) {
-      cerr << "vamrRefineLimit must be smaller than vamrCoarsenLimit!" << endl;
-      MPI_Abort(MPI_COMM_WORLD, 1);
-   }
    if (P::xmax < P::xmin || (P::ymax < P::ymin || P::zmax < P::zmin)) {
       cerr << "Box domain error!" << endl;
       MPI_Abort(MPI_COMM_WORLD, 1);

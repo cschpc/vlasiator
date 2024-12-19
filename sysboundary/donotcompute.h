@@ -42,9 +42,10 @@ namespace SBC {
       virtual ~DoNotCompute();
       
       static void addParameters();
-      virtual void getParameters();
+      virtual void getParameters() override;
+      virtual void gpuClear() override {};
       
-      virtual void initSysBoundary(
+      void initSysBoundary(
          creal& t,
          Project &project
       );
@@ -63,8 +64,8 @@ namespace SBC {
                                fsgrid::FsGrid<std::array<Real, fsgrids::bgbfield::N_BGB>, FS_STENCIL_WIDTH>& BgBGrid,
                                creal t);
       void getFaces(bool *faces) override;
-      virtual std::string getName() const;
-      virtual uint getIndex() const;
+      std::string getName() const override;
+      uint getIndex() const override;
 
       // Explicit warning functions to inform the user if a doNotCompute cell gets computed
       virtual Real fieldSolverBoundaryCondMagneticField(std::span<const std::array<Real, fsgrids::bfield::N_BFIELD>> b,
@@ -104,7 +105,7 @@ namespace SBC {
           const CellID& cellID,
           const uint popID,
           const bool calculate_V_moments
-      ) { std::cerr << "ERROR: DoNotCompute::vlasovBoundaryCondition called!" << std::endl;}
+      ) override { std::cerr << "ERROR: DoNotCompute::vlasovBoundaryCondition called!" << std::endl;}
    };
 }
 

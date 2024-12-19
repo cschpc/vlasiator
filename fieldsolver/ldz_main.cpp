@@ -53,6 +53,24 @@
 #include "ldz_magnetic_field.hpp"
 #include "ldz_volume.hpp"
 #include "mpiconversion.h"
+#include "../logger.h"
+extern Logger logFile;
+
+/*! Re-initialize field propagator after rebalance. E, BGB, RHO, RHO_V,
+ cell_dimensions, sysboundaryflag need to be up to date for the
+ extended neighborhood
+ */
+bool initializeFieldPropagatorAfterRebalance() {
+   // Assume static background field, they are not communicated here
+   // but are assumed to be ok after each load balance as that
+   // communicates all spatial data
+   
+   return true;
+}
+
+bool finalizeFieldPropagator() {
+   return true;
+}
 
 /*! \brief Top-level field propagation function.
  *

@@ -1,4 +1,4 @@
-/*
+  /*
  * This file is part of Vlasiator.
  * Copyright 2010-2016 Finnish Meteorological Institute
  *
@@ -58,12 +58,12 @@ namespace SBC {
       virtual ~Copysphere();
       
       static void addParameters();
-      virtual void getParameters();
+      virtual void getParameters() override;
       
       virtual void initSysBoundary(
          creal& t,
          Project &project
-      );
+      ) override;
       virtual void assignSysBoundary(dccrg::Dccrg<SpatialCell,dccrg::Cartesian_Geometry>& mpiGrid,
                                      fsgrid::FsGrid< fsgrids::technical, FS_STENCIL_WIDTH> & technicalGrid);
       virtual void applyInitialState(
@@ -102,17 +102,18 @@ namespace SBC {
          const CellID& cellID,
          const uint popID,
          const bool calculate_V_moments
-      );
+      ) override;
       
       void getFaces(bool *faces) override;
-      virtual std::string getName() const;
-      virtual uint getIndex() const;
+      virtual std::string getName() const override;
+      virtual uint getIndex() const override;
+      virtual void gpuClear() override;
       
    protected:
       void generateTemplateCell(Project &project);
       void setCellFromTemplate(SpatialCell* cell,const uint popID);
       
-      Real shiftedMaxwellianDistribution(const uint popID,creal& vx, creal& vy, creal& vz);
+      Real maxwellianDistribution(const uint popID,creal& vx, creal& vy, creal& vz);
       
       vector<vmesh::GlobalID> findBlocksToInitialize(
          SpatialCell& cell,const uint popID
@@ -130,12 +131,6 @@ namespace SBC {
       uint geometry; /*!< Geometry of the copy sphere, 0: inf-norm (diamond), 1: 1-norm (square), 2: 2-norm (circle, DEFAULT), 3: polar-plane cylinder with line dipole. */
 
       std::vector<CopysphereSpeciesParameters> speciesParams;
-      Real T;
-      Real rho;
-      Real VX0;
-      Real VY0;
-      Real VZ0;
-
       bool zeroPerB;
       
       spatial_cell::SpatialCell templateCell;

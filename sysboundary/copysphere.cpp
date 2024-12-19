@@ -36,11 +36,11 @@
 #include "../object_wrapper.h"
 #include "../projects/project.h"
 #include "../projects/projects_common.h"
-#include "../vlasovmover.h"
+#include "../vlasovsolver/vlasovmover.h"
 #include "copysphere.h"
 
-#ifndef NDEBUG
-#define DEBUG_COPYSPHERE
+#ifdef DEBUG_VLASIATOR
+   #define DEBUG_COPYSPHERE
 #endif
 #ifdef DEBUG_SYSBOUNDARY
 #define DEBUG_COPYSPHERE
@@ -213,6 +213,15 @@ void Copysphere::applyInitialState(
          setCellFromTemplate(cell, popID);
    }
 }
+
+void Copysphere::gpuClear() {
+   // Remove GPU allocations from template cells
+   #ifdef USE_GPU
+   templateCell.gpu_destructor();
+   #endif
+   return;
+}
+
 
 std::array<Real, 3>
 Copysphere::fieldSolverGetNormalDirection(fsgrid::FsGrid<fsgrids::technical, FS_STENCIL_WIDTH>& technicalGrid, cint i,
