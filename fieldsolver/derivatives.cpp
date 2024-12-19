@@ -57,15 +57,12 @@ void calculateDerivatives(std::span<const std::array<Real, fsgrids::bfield::N_BF
                           std::span<const std::array<Real, fsgrids::moments::N_MOMENTS>> moments,
                           std::span<std::array<Real, fsgrids::dperb::N_DPERB>> dperb,
                           std::span<std::array<Real, fsgrids::dmoments::N_DMOMENTS>> dmoments,
-                          std::span<const fsgrids::technical> technical, const fsgrid::FsStencil& stencil,
+                          const fsgrid::FsStencil& stencil, cuint sysBoundaryFlag, cuint sysBoundaryLayer,
                           const bool shouldCalculateMoments) {
    std::array<Real, fsgrids::dperb::N_DPERB>& dPerB = dperb[stencil.center()];
    std::array<Real, fsgrids::dmoments::N_DMOMENTS>& dMoments = dmoments[stencil.center()];
-   const auto& tech = technical[stencil.center()];
 
    // Get boundary flag for the cell:
-   cuint sysBoundaryFlag = tech.sysBoundaryFlag;
-   cuint sysBoundaryLayer = tech.sysBoundaryLayer;
    const bool notSysBoundary =
        sysBoundaryLayer == 1 || (sysBoundaryLayer == 2 && sysBoundaryFlag == sysboundarytype::NOT_SYSBOUNDARY);
    const bool dontCompute2ndDerivatives = Parameters::ohmHallTerm < 2 || sysBoundaryLayer == 1;
@@ -331,83 +328,43 @@ void calculateDerivatives(std::span<const std::array<Real, fsgrids::bfield::N_BF
  * Then the derivatives are calculated.
  *
  * \param perBGrid fsGrid holding the perturbed B quantities
- * \param perBDt2Grid fsGrid holding the perturbed B quantities at runge-kutta t=0.5
  * \param momentsGrid fsGrid holding the moment quantities
- * \param momentsDt2Grid fsGrid holding the moment quantities at runge-kutta t=0.5
  * \param dPerBGrid fsGrid holding the derivatives of perturbed B
  * \param dMomentsGrid fsGrid holding the derviatives of moments
- * \param dMomentsGridDt2 fsGrid holding the derviatives of moments at runge-kutta t=0.5
  * \param technicalGrid fsGrid holding technical information (such as boundary types)
- * \param sysBoundaries System boundary conditions existing
- * \param RKCase Element in the enum defining the Runge-Kutta method steps
  * \param communicateMoments If true, the derivatives of moments (rho, V, P) are communicated to neighbours.
 
  * \sa calculateDerivatives calculateBVOLDerivativesSimple calculateBVOLDerivatives
  */
 void calculateDerivativesSimple(
     fsgrid::FsGrid<std::array<Real, fsgrids::bfield::N_BFIELD>, FS_STENCIL_WIDTH>& perBGrid,
-    fsgrid::FsGrid<std::array<Real, fsgrids::bfield::N_BFIELD>, FS_STENCIL_WIDTH>& perBDt2Grid,
     fsgrid::FsGrid<std::array<Real, fsgrids::moments::N_MOMENTS>, FS_STENCIL_WIDTH>& momentsGrid,
-    fsgrid::FsGrid<std::array<Real, fsgrids::moments::N_MOMENTS>, FS_STENCIL_WIDTH>& momentsDt2Grid,
     fsgrid::FsGrid<std::array<Real, fsgrids::dperb::N_DPERB>, FS_STENCIL_WIDTH>& dPerBGrid,
     fsgrid::FsGrid<std::array<Real, fsgrids::dmoments::N_DMOMENTS>, FS_STENCIL_WIDTH>& dMomentsGrid,
-    fsgrid::FsGrid<std::array<Real, fsgrids::dmoments::N_DMOMENTS>, FS_STENCIL_WIDTH>& dMomentsDt2Grid,
-    fsgrid::FsGrid<fsgrids::technical, FS_STENCIL_WIDTH>& technicalGrid, int32_t RKCase, const bool doMoments) {
-   const bool case0 = RKCase == RK_ORDER1 || RKCase == RK_ORDER2_STEP2;
-   const auto& localSize = technicalGrid.getLocalSize();
-   const size_t N_cells = localSize[0] * localSize[1] * localSize[2];
+    fsgrid::FsGrid<fsgrids::technical, FS_STENCIL_WIDTH>& technicalGrid, const bool doMoments) {
 
-   std::span<const std::array<Real, fsgrids::bfield::N_BFIELD>> perb = perBGrid.getData();
-   std::span<const std::array<Real, fsgrids::moments::N_MOMENTS>> moments = momentsGrid.getData();
+   std::span<std::array<Real, fsgrids::bfield::N_BFIELD>> perb = perBGrid.getData();
+   std::span<std::array<Real, fsgrids::moments::N_MOMENTS>> moments = momentsGrid.getData();
    std::span<std::array<Real, fsgrids::dperb::N_DPERB>> dperb = dPerBGrid.getData();
    std::span<std::array<Real, fsgrids::dmoments::N_DMOMENTS>> dmoments = dMomentsGrid.getData();
-   std::span<const fsgrids::technical> technical = technicalGrid.getData();
 
    phiprof::Timer derivativesTimer{"Calculate face derivatives"};
-   int computeTimerId{phiprof::initializeTimer("FS derivatives compute cells")};
 
    phiprof::Timer mpiTimer{"FS derivatives ghost updates MPI", {"MPI"}};
-   if (case0) {
-      // Means initialising the solver as well as RK_ORDER1
-      // standard case Exchange PERB* with neighbours
-      // The update of PERB[XYZ] is needed after the system
-      // boundary update of propagateMagneticFieldSimple.
-      perBGrid.updateGhostCells();
-      if (doMoments) {
-         momentsGrid.updateGhostCells();
-      }
-   } else {
-      // Exchange PERB*_DT2,RHO_DT2,V*_DT2 with neighbours The
-      // update of PERB[XYZ]_DT2 is needed after the system
-      // boundary update of propagateMagneticFieldSimple.
-      perBDt2Grid.updateGhostCells();
-      if (doMoments) {
-         momentsDt2Grid.updateGhostCells();
-      }
 
-      perb = perBDt2Grid.getData();
-      moments = momentsDt2Grid.getData();
-      dmoments = dMomentsDt2Grid.getData();
+   technicalGrid.updateGhostCells(perb);
+   if (doMoments) {
+      technicalGrid.updateGhostCells(moments);
    }
+
    mpiTimer.stop();
 
-// Calculate derivatives
-#pragma omp parallel
-   {
-      phiprof::Timer computeTimer{computeTimerId};
-#pragma omp for collapse(2)
-      for (auto k = 0; k < localSize[2]; k++) {
-         for (auto j = 0; j < localSize[1]; j++) {
-            for (auto i = 0; i < localSize[0]; i++) {
-               const auto stencil = technicalGrid.makeStencil(i, j, k);
-               calculateDerivatives(perb, moments, dperb, dmoments, technical, stencil, doMoments);
-            }
-         }
-      }
-      computeTimer.stop(N_cells, "Spatial Cells");
-   }
+   // Calculate derivatives
+   technicalGrid.parallel_for([=](const fsgrid::FsStencil stencil, cuint sysBoundaryFlag, cuint sysBoundaryLayer) {
+      calculateDerivatives(perb, moments, dperb, dmoments, stencil, sysBoundaryFlag, sysBoundaryLayer, doMoments);
+   });
 
-   derivativesTimer.stop(N_cells, "Spatial Cells");
+   derivativesTimer.stop();
 }
 
 /*! \brief Low-level spatial derivatives calculation.
