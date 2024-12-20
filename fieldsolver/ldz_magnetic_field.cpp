@@ -27,10 +27,10 @@
 
 #include "ldz_magnetic_field.hpp"
 
-void propagateMagneticField(std::span<std::array<Real, fsgrids::bfield::N_BFIELD>>& perb,
-                            std::span<std::array<Real, fsgrids::bfield::N_BFIELD>>& perbdt2,
-                            std::span<const std::array<Real, fsgrids::efield::N_EFIELD>>& e,
-                            std::span<const std::array<Real, fsgrids::efield::N_EFIELD>>& edt2,
+void propagateMagneticField(std::span<std::array<Real, fsgrids::bfield::N_BFIELD>> perb,
+                            std::span<std::array<Real, fsgrids::bfield::N_BFIELD>> perbdt2,
+                            std::span<const std::array<Real, fsgrids::efield::N_EFIELD>> e,
+                            std::span<const std::array<Real, fsgrids::efield::N_EFIELD>> edt2,
                             const fsgrid::FsStencil& stencil, Real dt, int32_t RKCase, bool doX, bool doY, bool doZ,
                             const std::array<Real, 3>& gridSpacing) {
    creal dtdx = dt / gridSpacing[0];
@@ -168,10 +168,10 @@ void propagateMagneticField(std::span<std::array<Real, fsgrids::bfield::N_BFIELD
  *
  * \sa propagateMagneticFieldSimple propagateMagneticField
  */
-void propagateSysBoundaryMagneticField(std::span<std::array<Real, fsgrids::bfield::N_BFIELD>>& perb,
-                                       std::span<std::array<Real, fsgrids::bfield::N_BFIELD>>& perbdt2,
-                                       std::span<const std::array<Real, fsgrids::bgbfield::N_BGB>>& bgb,
-                                       std::span<const fsgrids::technical>& technical,
+void propagateSysBoundaryMagneticField(std::span<std::array<Real, fsgrids::bfield::N_BFIELD>> perb,
+                                       std::span<std::array<Real, fsgrids::bfield::N_BFIELD>> perbdt2,
+                                       std::span<const std::array<Real, fsgrids::bgbfield::N_BGB>> bgb,
+                                       std::span<const fsgrids::technical> technical,
                                        const std::array<Real, 3>& gridSpacing,
                                        const std::array<fsgrid::FsSize_t, 3>& globalCoordinates,
                                        const fsgrid::FsStencil& stencil, SysBoundary& sysBoundaries, int32_t RKCase,
