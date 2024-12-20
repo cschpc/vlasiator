@@ -200,7 +200,7 @@ void computeNewTimeStep(dccrg::Dccrg<SpatialCell,dccrg::Cartesian_Geometry>& mpi
    }
 
    // compute max dt for fieldsolver
-   const auto& localSize = technicalGrid.getLocalSize();
+   const auto* localSize = &technicalGrid.getLocalSize()[0];
    for (auto k = 0; k < localSize[2]; k++) {
       for (auto j = 0; j < localSize[1]; j++) {
          for (auto i = 0; i < localSize[0]; i++) {
