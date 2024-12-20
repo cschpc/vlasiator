@@ -425,7 +425,7 @@ namespace projects {
       setBackgroundFieldToZero(bgb);
 
       if (!P::isRestart) {
-         const auto& localSize = technicalGrid.getLocalSize();
+         const auto* localSize = &technicalGrid.getLocalSize()[0];
 #pragma omp parallel for collapse(3)
          for (auto x = 0; x < localSize[0]; ++x) {
             for (auto y = 0; y < localSize[1]; ++y) {
@@ -464,10 +464,10 @@ namespace projects {
                   //Real Vtang = VX * Btang / BX;
                   //Real VY = Vtang * this->Vucosphi * this->Vyusign;
                   //Real VZ = Vtang * sqrt(1. - this->Vucosphi * this->Vucosphi) * this->Vzusign;
-                  
-                 cell[fsgrids::bfield::PERBX] = BX;
-                 cell[fsgrids::bfield::PERBY] = BY;
-                 cell[fsgrids::bfield::PERBZ] = BZ;
+
+                  cell[fsgrids::bfield::PERBX] = BX;
+                  cell[fsgrids::bfield::PERBY] = BY;
+                  cell[fsgrids::bfield::PERBZ] = BZ;
                }
             }
          }
