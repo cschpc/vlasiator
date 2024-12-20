@@ -125,6 +125,7 @@ namespace SBC {
       enum vlasovscheme {
          NONE,
          COPY,
+         LIMIT,
          N_SCHEMES
       };
    }; // class Outflow

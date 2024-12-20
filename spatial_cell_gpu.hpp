@@ -47,8 +47,10 @@ Spatial cell class for Vlasiator that supports a variable number of velocity blo
 #include "definitions.h"
 
 #include "velocity_mesh_gpu.h"
-
 #include "velocity_block_container.h"
+
+#include "logger.h"
+extern Logger logFile;
 
 #ifdef DEBUG_VLASIATOR
    #ifndef DEBUG_SPATIAL_CELL
@@ -570,6 +572,7 @@ namespace spatial_cell {
       Real getVelocityBlockMinValue(const uint popID) const;
 
       // Member variables //
+      std::array<Real, vderivatives::N_V_DERIVATIVES> derivativesV;  // Derivatives of V for AMR
       std::array<Real, bvolderivatives::N_BVOL_DERIVATIVES> derivativesBVOL;    /**< Derivatives of BVOL needed by the acceleration.
                                                                                  * Separate array because it does not need to be communicated.*/
       std::array<Real, CellParams::N_SPATIAL_CELL_PARAMS> parameters;

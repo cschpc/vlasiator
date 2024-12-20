@@ -3102,43 +3102,49 @@ void Ionosphere::vlasovBoundaryCondition(dccrg::Dccrg<SpatialCell, dccrg::Cartes
       case AverageMoments: {
          // Fill velocity space with new maxwellian data
          SpatialCell& cell = *mpiGrid[cellID];
-         cell.clear(popID); // Clear previous velocity space completely
+         cell.clear(popID,false); // Clear previous velocity space completely, do not de-allocate memory
          const vector<vmesh::GlobalID> blocksToInitialize =
              findBlocksToInitialize(cell, density, temperature, vDrift, popID);
-         Realf* data = cell.get_data(popID);
+
+         const uint nRequested = blocksToInitialize.size();
+         // Set the reservation value (capacity is increased in add_velocity_blocks
+         cell.setReservation(popID,nRequested);
+         const Realf minValue = cell.getVelocityBlockMinValue(popID);
 
          // Loop over requested blocks. Initialize the contents into the temporary buffer
          // and return the maximum value.
          vector<Realf> initBuffer(WID3*nRequested);
-         creal dvxCell = templateCell.get_velocity_grid_cell_size(popID)[0];
-         creal dvyCell = templateCell.get_velocity_grid_cell_size(popID)[1];
-         creal dvzCell = templateCell.get_velocity_grid_cell_size(popID)[2];
+         creal dvxCell = cell.get_velocity_grid_cell_size(popID)[0];
+         creal dvyCell = cell.get_velocity_grid_cell_size(popID)[1];
+         creal dvzCell = cell.get_velocity_grid_cell_size(popID)[2];
+
          for (size_t i = 0; i < blocksToInitialize.size(); i++) {
-            const vmesh::GlobalID blockGID = blocksToInitialize[i];
-            cell.add_velocity_block(blockGID, popID);
-            const vmesh::LocalID block = cell.get_velocity_block_local_id(blockGID, popID);
-            const Real* blockParameters = cell.get_block_parameters(block, popID);
-            creal vxBlock = blockParameters[BlockParams::VXCRD];
-            creal vyBlock = blockParameters[BlockParams::VYCRD];
-            creal vzBlock = blockParameters[BlockParams::VZCRD];
-            creal dvxCell = blockParameters[BlockParams::DVX];
-            creal dvyCell = blockParameters[BlockParams::DVY];
-            creal dvzCell = blockParameters[BlockParams::DVZ];
+            const vmesh::GlobalID blockGID = blocksToInitialize.at(i);
+            // Calculate parameters for new block
+            Real blockCoords[3];
+            cell.get_velocity_block_coordinates(popID,blockGID,&blockCoords[0]);
+            creal vxBlock = blockCoords[0];
+            creal vyBlock = blockCoords[1];
+            creal vzBlock = blockCoords[2];
 
-            // Iterate over cells within block
-            for (uint kc = 0; kc < WID; ++kc)
-               for (uint jc = 0; jc < WID; ++jc)
-                  for (uint ic = 0; ic < WID; ++ic) {
-                     creal vxCellCenter = vxBlock + (ic + convert<Real>(0.5)) * dvxCell - vDrift[0];
-                     creal vyCellCenter = vyBlock + (jc + convert<Real>(0.5)) * dvyCell - vDrift[1];
-                     creal vzCellCenter = vzBlock + (kc + convert<Real>(0.5)) * dvzCell - vDrift[2];
-
-                     data[block * WID3 + cellIndex(ic, jc, kc)] = shiftedMaxwellianDistribution(
-                         popID, density, temperature, vxCellCenter, vyCellCenter, vzCellCenter);
+            // Calculate volume average of distrib. function for each cell in the block.
+            for (uint kc=0; kc<WID; ++kc) {
+               for (uint jc=0; jc<WID; ++jc) {
+                  for (uint ic=0; ic<WID; ++ic) {
+                     creal vxCellCenter = vxBlock + (ic+convert<Real>(0.5))*dvxCell - vDrift[0];
+                     creal vyCellCenter = vyBlock + (jc+convert<Real>(0.5))*dvyCell - vDrift[1];
+                     creal vzCellCenter = vzBlock + (kc+convert<Real>(0.5))*dvzCell - vDrift[2];
+                     Realf average = shiftedMaxwellianDistribution(popID, density, temperature, vxCellCenter, vyCellCenter, vzCellCenter);
+                     initBuffer[i*WID3+cellIndex(ic,jc,kc)] = average;
                   }
-         }
-      } break;
+               }
+            }
+         } // for-loop over requested velocity blocks
+         // Next actually add all the blocks
+         cell.add_velocity_blocks(popID, blocksToInitialize, initBuffer.data());
+      } break; // end case several
       case CopyAndLosscone: {
+         // GPUTODO: Untested after porting to new initialization
          std::array<Real, 3> vNeighbours({0, 0, 0});
          Real pressure = 0;
          // Get moments from the nearest cells
@@ -3171,75 +3177,86 @@ void Ionosphere::vlasovBoundaryCondition(dccrg::Dccrg<SpatialCell, dccrg::Cartes
                  cell.parameters[CellParams::YCRD] + 0.5 * cell.parameters[CellParams::DY],
                  cell.parameters[CellParams::ZCRD] + 0.5 * cell.parameters[CellParams::DZ]);
 
-         cell.clear(popID); // Clear previous velocity space completely
+         cell.clear(popID,false); // Clear previous velocity space completely, do not de-allocate memory
          const vector<vmesh::GlobalID> blocksToInitialize =
              findBlocksToInitialize(cell, density, temperature, vDrift, popID);
-         Realf* data = cell.get_data(popID);
-         for (size_t i = 0; i < blocksToInitialize.size(); i++) {
-            const vmesh::GlobalID blockGID = blocksToInitialize[i];
-            cell.add_velocity_block(blockGID, popID);
-            const vmesh::LocalID block = cell.get_velocity_block_local_id(blockGID, popID);
-            const Real* blockParameters = cell.get_block_parameters(block, popID);
-            creal vxBlock = blockParameters[BlockParams::VXCRD];
-            creal vyBlock = blockParameters[BlockParams::VYCRD];
-            creal vzBlock = blockParameters[BlockParams::VZCRD];
-            creal dvxCell = blockParameters[BlockParams::DVX];
-            creal dvyCell = blockParameters[BlockParams::DVY];
-            creal dvzCell = blockParameters[BlockParams::DVZ];
 
-            // Iterate over cells within block
-            for (uint kc = 0; kc < WID; ++kc)
-               for (uint jc = 0; jc < WID; ++jc)
-                  for (uint ic = 0; ic < WID; ++ic) {
-                     creal vxCellCenter = vxBlock + (ic + convert<Real>(0.5)) * dvxCell;
-                     creal vyCellCenter = vyBlock + (jc + convert<Real>(0.5)) * dvyCell;
-                     creal vzCellCenter = vzBlock + (kc + convert<Real>(0.5)) * dvzCell;
+         const uint nRequested = blocksToInitialize.size();
+         // Set the reservation value (capacity is increased in add_velocity_blocks
+         cell.setReservation(popID,nRequested);
+         const Realf minValue = cell.getVelocityBlockMinValue(popID);
+
+         // Loop over requested blocks. Initialize the contents into the temporary buffer
+         // and return the maximum value.
+         vector<Realf> initBuffer(WID3*nRequested);
+         creal dvxCell = cell.get_velocity_grid_cell_size(popID)[0];
+         creal dvyCell = cell.get_velocity_grid_cell_size(popID)[1];
+         creal dvzCell = cell.get_velocity_grid_cell_size(popID)[2];
+
+         for (size_t i = 0; i < blocksToInitialize.size(); i++) {
+            const vmesh::GlobalID blockGID = blocksToInitialize.at(i);
+            // Calculate parameters for new block
+            Real blockCoords[3];
+            cell.get_velocity_block_coordinates(popID,blockGID,&blockCoords[0]);
+            creal vxBlock = blockCoords[0];
+            creal vyBlock = blockCoords[1];
+            creal vzBlock = blockCoords[2];
+
+            // Calculate volume average of distrib. function for each cell in the block.
+            for (uint kc=0; kc<WID; ++kc) {
+               for (uint jc=0; jc<WID; ++jc) {
+                  for (uint ic=0; ic<WID; ++ic) {
+                     creal vxCellCenter = vxBlock + (ic+convert<Real>(0.5))*dvxCell;
+                     creal vyCellCenter = vyBlock + (jc+convert<Real>(0.5))*dvyCell;
+                     creal vzCellCenter = vzBlock + (kc+convert<Real>(0.5))*dvzCell;
 
                      // Calculate pitchangle cosine
-                     Real mu =
-                         (vxCellCenter * B[0] + vyCellCenter * B[1] + vzCellCenter * B[2]) / sqrt(Bsqr) /
-                         sqrt(vxCellCenter * vxCellCenter + vyCellCenter * vyCellCenter + vzCellCenter * vzCellCenter);
+                     Real mu = (vxCellCenter*B[0] + vyCellCenter*B[1] + vzCellCenter*B[2])/sqrt(Bsqr)/sqrt(vxCellCenter*vxCellCenter+vyCellCenter*vyCellCenter+vzCellCenter*vzCellCenter);
                      // Radial velocity component
-                     Real rlength = sqrt(r[0] * r[0] + r[1] * r[1] + r[2] * r[2]);
+                     Real rlength = sqrt(r[0]*r[0] + r[1]*r[1] + r[2]*r[2]);
                      std::array<Real, 3> rnorm({r[0] / rlength, r[1] / rlength, r[2] / rlength});
-                     Real vdotr = (vxCellCenter * rnorm[0] + vyCellCenter * rnorm[1] * vzCellCenter * rnorm[2]);
+                     Real vdotr = (vxCellCenter*rnorm[0] + vyCellCenter*rnorm[1] * vzCellCenter*rnorm[2]);
 
                      // v_r = -v_r = -r <v, r> (where r is normalized)
                      // => v = v - 2*r <r,v>
-                     Real vNeighboursdotr =
-                         (vNeighbours[0] * rnorm[0] + vNeighbours[1] * rnorm[1] + vNeighbours[2] * rnorm[2]);
-                     std::array<Real, 3> vNeighboursMirrored({vNeighbours[0] - 2 * rnorm[0] * vNeighboursdotr,
-                                                              vNeighbours[1] - 2 * rnorm[1] * vNeighboursdotr,
-                                                              vNeighbours[2] - 2 * rnorm[2] * vNeighboursdotr});
-
+                     Real vNeighboursdotr = (vNeighbours[0] * rnorm[0] + vNeighbours[1] * rnorm[1] + vNeighbours[2] * rnorm[2]);
+                     std::array<Real, 3> vNeighboursMirrored({vNeighbours[0] - 2*rnorm[0]*vNeighboursdotr,
+                                                              vNeighbours[1] - 2*rnorm[1]*vNeighboursdotr,
+                                                              vNeighbours[2] - 2*rnorm[2]*vNeighboursdotr});
+                     Realf average = 0;
                      if (vdotr < 0) {
-                        data[block * WID3 + cellIndex(ic, jc, kc)] =
-                            shiftedMaxwellianDistribution(popID, density, temperature, vxCellCenter - vNeighbours[0],
-                                                          vyCellCenter - vNeighbours[1], vzCellCenter - vNeighbours[2]);
+                        average = shiftedMaxwellianDistribution(popID, density, temperature,
+                                                                vxCellCenter - vNeighbours[0],
+                                                                vyCellCenter - vNeighbours[1],
+                                                                vzCellCenter - vNeighbours[2]);
                      } else {
-                        if (1 - mu * mu < sqrt(Bsqr) / 5e-5) {
+                        if (1-mu*mu < sqrt(Bsqr)/5e-5) {
                            // outside the loss cone
-                           data[block * WID3 + cellIndex(ic, jc, kc)] = shiftedMaxwellianDistribution(
-                               popID, density, temperature,
-                               vxCellCenter - 2 * rnorm[0] * vdotr - vNeighboursMirrored[0],
-                               vyCellCenter - 2 * rnorm[1] * vdotr - vNeighboursMirrored[1],
-                               vzCellCenter + -2 * rnorm[2] * vdotr - vNeighboursMirrored[2]);
+                           average = shiftedMaxwellianDistribution(popID, density, temperature,
+                                                                   vxCellCenter - 2*rnorm[0]*vdotr - vNeighboursMirrored[0],
+                                                                   vyCellCenter - 2*rnorm[1]*vdotr - vNeighboursMirrored[1],
+                                                                   vzCellCenter +- 2*rnorm[2]*vdotr - vNeighboursMirrored[2]);
                         } else {
                            // Inside the loss cone
-                           data[block * WID3 + cellIndex(ic, jc, kc)] = 0;
+                           average = 0;
                         }
                      }
 
                      // Add ionospheric outflow maxwellian on top.
-                     data[block * WID3 + cellIndex(ic, jc, kc)] += shiftedMaxwellianDistribution(
-                         popID, speciesParams[popID].rho, speciesParams[popID].T, vxCellCenter - vDrift[0],
-                         vyCellCenter - vDrift[1], vzCellCenter - vDrift[2]);
+                     average += shiftedMaxwellianDistribution(popID, speciesParams[popID].rho, speciesParams[popID].T,
+                                                              vxCellCenter - vDrift[0],
+                                                              vyCellCenter - vDrift[1],
+                                                              vzCellCenter - vDrift[2]);
+                     initBuffer[i*WID3+cellIndex(ic,jc,kc)] = average;
                   }
-         }
-      } break;
-      }
-
-      // Block adjust and recalculate moments
+               }
+            }
+         } // for-loop over requested velocity blocks
+         // Next actually add all the blocks
+         cell.add_velocity_blocks(popID, blocksToInitialize, initBuffer.data());
+      } break; // end case CopyAndLosscone
+      } // end switch VDF method
+      // let's get rid of blocks not fulfilling the criteria here to save memory.
       mpiGrid[cellID]->adjustSingleCellVelocityBlocks(popID, true);
       // TODO: The moments can also be analytically calculated from ionosphere parameters.
       // Maybe that's faster?
@@ -3264,43 +3281,49 @@ void Ionosphere::generateTemplateCell(Project& project) {
 
    // Loop over particle species
    for (uint popID = 0; popID < getObjectWrapper().particleSpecies.size(); ++popID) {
+      templateCell.clear(popID,false); //clear, do not de-allocate memory
       const IonosphereSpeciesParameters& sP = this->speciesParams[popID];
       const std::array<Real, 3> vDrift = {0, 0, 0};
       const vector<vmesh::GlobalID> blocksToInitialize =
           findBlocksToInitialize(templateCell, sP.rho, sP.T, vDrift, popID);
-      Realf* data = templateCell.get_data(popID);
+
+      const uint nRequested = blocksToInitialize.size();
+      // Set the reservation value (capacity is increased in add_velocity_blocks
+      templateCell.setReservation(popID,nRequested);
+      const Realf minValue = templateCell.getVelocityBlockMinValue(popID);
+
+      // Loop over requested blocks. Initialize the contents into the temporary buffer
+      // and return the maximum value.
+      vector<Realf> initBuffer(WID3*nRequested);
+      creal dvxCell = templateCell.get_velocity_grid_cell_size(popID)[0];
+      creal dvyCell = templateCell.get_velocity_grid_cell_size(popID)[1];
+      creal dvzCell = templateCell.get_velocity_grid_cell_size(popID)[2];
 
       for (size_t i = 0; i < blocksToInitialize.size(); i++) {
          const vmesh::GlobalID blockGID = blocksToInitialize.at(i);
-         const vmesh::LocalID blockLID = templateCell.get_velocity_block_local_id(blockGID, popID);
-         const Real* block_parameters = templateCell.get_block_parameters(blockLID, popID);
-         creal vxBlock = block_parameters[BlockParams::VXCRD];
-         creal vyBlock = block_parameters[BlockParams::VYCRD];
-         creal vzBlock = block_parameters[BlockParams::VZCRD];
-         creal dvxCell = block_parameters[BlockParams::DVX];
-         creal dvyCell = block_parameters[BlockParams::DVY];
-         creal dvzCell = block_parameters[BlockParams::DVZ];
-
-         // creal x = templateCell.parameters[CellParams::XCRD];
-         // creal y = templateCell.parameters[CellParams::YCRD];
-         // creal z = templateCell.parameters[CellParams::ZCRD];
-         // creal dx = templateCell.parameters[CellParams::DX];
-         // creal dy = templateCell.parameters[CellParams::DY];
-         // creal dz = templateCell.parameters[CellParams::DZ];
+         // Calculate parameters for new block
+         Real blockCoords[3];
+         templateCell.get_velocity_block_coordinates(popID,blockGID,&blockCoords[0]);
+         creal vxBlock = blockCoords[0];
+         creal vyBlock = blockCoords[1];
+         creal vzBlock = blockCoords[2];
 
          // Calculate volume average of distrib. function for each cell in the block.
-         for (uint kc = 0; kc < WID; ++kc)
-            for (uint jc = 0; jc < WID; ++jc)
-               for (uint ic = 0; ic < WID; ++ic) {
-                  creal vxCell = vxBlock + ic * dvxCell;
-                  creal vyCell = vyBlock + jc * dvyCell;
-                  creal vzCell = vzBlock + kc * dvzCell;
-                  Real average = 0.0;
-                  average = shiftedMaxwellianDistribution(popID, sP.rho, sP.T, vxCell + 0.5 * dvxCell,
-                                                          vyCell + 0.5 * dvyCell, vzCell + 0.5 * dvzCell);
-                  data[blockLID * WID3 + cellIndex(ic, jc, kc)] = average;
-               } // for-loop over cells in velocity block
-      }          // for-loop over velocity blocks
+         for (uint kc=0; kc<WID; ++kc) {
+            for (uint jc=0; jc<WID; ++jc) {
+               for (uint ic=0; ic<WID; ++ic) {
+                  creal vxCell = vxBlock + (ic+convert<Real>(0.5))*dvxCell;
+                  creal vyCell = vyBlock + (jc+convert<Real>(0.5))*dvyCell;
+                  creal vzCell = vzBlock + (kc+convert<Real>(0.5))*dvzCell;
+                  Realf average = shiftedMaxwellianDistribution(popID,sP.rho,sP.T,vxCell,vyCell,vzCell);
+                  initBuffer[i*WID3+cellIndex(ic,jc,kc)] = average;
+               }
+            }
+         }
+      } // for-loop over requested velocity blocks
+
+      // Next actually add all the blocks
+      templateCell.add_velocity_blocks(popID, blocksToInitialize, initBuffer.data());
 
       // let's get rid of blocks not fulfilling the criteria here to save memory.
       templateCell.adjustSingleCellVelocityBlocks(popID, true);
@@ -3346,52 +3369,55 @@ std::vector<vmesh::GlobalID> Ionosphere::findBlocksToInitialize(spatial_cell::Sp
    vector<vmesh::GlobalID> blocksToInitialize;
    bool search = true;
    uint counter = 0;
-   const uint8_t refLevel = 0;
 
-   const vmesh::LocalID* vblocks_ini = cell.get_velocity_grid_length(popID, refLevel);
+   Real V_crds[3];
+   Real dV[3];
+   dV[0] = cell.get_velocity_grid_block_size(popID)[0];
+   dV[1] = cell.get_velocity_grid_block_size(popID)[1];
+   dV[2] = cell.get_velocity_grid_block_size(popID)[2];
+   creal minValue = cell.getVelocityBlockMinValue(popID);
+   const vmesh::LocalID* vblocks_ini = cell.get_velocity_grid_length(popID);
+   // Single cell, not block
+   const Real dvx=cell.get_velocity_grid_cell_size(popID)[0];
+   const Real dvy=cell.get_velocity_grid_cell_size(popID)[1];
+   const Real dvz=cell.get_velocity_grid_cell_size(popID)[2];
 
    while (search) {
-      if (0.1 * cell.getVelocityBlockMinValue(popID) >
-              shiftedMaxwellianDistribution(popID, density, temperature,
-                                            counter * cell.get_velocity_grid_block_size(popID, refLevel)[0] - vDrift[0],
-                                            0.0 - vDrift[1], 0.0 - vDrift[2]) ||
-          counter > vblocks_ini[0]) {
+      if ( 0.1 * minValue > shiftedMaxwellianDistribution(popID,density,temperature,
+                                                         counter*dV[0]+0.5*dvx-vDrift[0], 0.5*dvy-vDrift[1], 0.5*dvz-vDrift[2])
+           || counter > vblocks_ini[0] ) {
          search = false;
       }
       ++counter;
    }
    counter += 2;
-   Real vRadiusSquared = (Real)counter * (Real)counter * cell.get_velocity_grid_block_size(popID, refLevel)[0] *
-                         cell.get_velocity_grid_block_size(popID, refLevel)[0];
 
-   for (uint kv = 0; kv < vblocks_ini[2]; ++kv)
-      for (uint jv = 0; jv < vblocks_ini[1]; ++jv)
+   Real vRadiusSquared = (Real)counter * (Real)counter * dV[0] * dV[0];
+
+   for (uint kv = 0; kv < vblocks_ini[2]; ++kv) {
+      for (uint jv = 0; jv < vblocks_ini[1]; ++jv) {
          for (uint iv = 0; iv < vblocks_ini[0]; ++iv) {
             vmesh::LocalID blockIndices[3];
             blockIndices[0] = iv;
             blockIndices[1] = jv;
             blockIndices[2] = kv;
-            const vmesh::GlobalID blockGID = cell.get_velocity_block(popID, blockIndices, refLevel);
-            Real blockCoords[3];
-            cell.get_velocity_block_coordinates(popID, blockGID, blockCoords);
-            Real blockSize[3];
-            cell.get_velocity_block_size(popID, blockGID, blockSize);
-            blockCoords[0] += 0.5 * blockSize[0] - vDrift[0];
-            blockCoords[1] += 0.5 * blockSize[1] - vDrift[1];
-            blockCoords[2] += 0.5 * blockSize[2] - vDrift[2];
-            // creal vx = P::vxmin + (iv+0.5) * cell.get_velocity_grid_block_size(popID)[0]; // vx-coordinate of the
-            // centre creal vy = P::vymin + (jv+0.5) * cell.get_velocity_grid_block_size(popID)[1]; // vy- creal vz =
-            // P::vzmin + (kv+0.5) * cell.get_velocity_grid_block_size(popID)[2]; // vz-
 
-            if (blockCoords[0] * blockCoords[0] + blockCoords[1] * blockCoords[1] + blockCoords[2] * blockCoords[2] <
-                vRadiusSquared) {
-               // if (vx*vx + vy*vy + vz*vz < vRadiusSquared) {
-               //  Adds velocity block to active population's velocity mesh
-               // const vmesh::GlobalID newBlockGID = cell.get_velocity_block(popID,vx,vy,vz);
-               cell.add_velocity_block(blockGID, popID);
+            const vmesh::GlobalID blockGID = cell.get_velocity_block(popID,blockIndices);
+
+            cell.get_velocity_block_coordinates(popID,blockGID,V_crds);
+            V_crds[0] += ( 0.5*dV[0] - vDrift[0]);
+            V_crds[1] += ( 0.5*dV[1] - vDrift[1]);
+            V_crds[2] += ( 0.5*dV[2] - vDrift[2]);
+            Real R2 = ((V_crds[0])*(V_crds[0])
+                       + (V_crds[1])*(V_crds[1])
+                       + (V_crds[2])*(V_crds[2]));
+
+            if (R2 < vRadiusSquared) {
                blocksToInitialize.push_back(blockGID);
             }
          }
+      }
+   }
 
    return blocksToInitialize;
 }
@@ -3399,6 +3425,7 @@ std::vector<vmesh::GlobalID> Ionosphere::findBlocksToInitialize(spatial_cell::Sp
 void Ionosphere::setCellFromTemplate(SpatialCell* cell, const uint popID) {
    copyCellData(&templateCell, cell, false, popID, true); // copy also vdf, _V
    copyCellData(&templateCell, cell, true, popID, false); // don't copy vdf again but copy _R now
+   cell->setReservation(popID,templateCell.getReservation(popID));
 }
 
 std::string Ionosphere::getName() const { return "Ionosphere"; }

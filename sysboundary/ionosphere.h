@@ -270,17 +270,15 @@ namespace SBC {
          std::array<Real, 3> e1{b[0]-c[0], b[1]-c[1],b[2]-c[2]};
          std::array<Real, 3> e2{c[0]-a[0], c[1]-a[1],c[2]-a[2]};
          // Area vector A = cross(e1 e2)
-         const Real HALF = 0.5;
-         const Real THIRD = 1./3.;
-         std::array<Real, 3> area{ HALF * (e1[1]*e2[2] - e1[2]*e2[1]),
-                                   HALF * (e1[2]*e2[0] - e1[0]*e2[2]),
-                                   HALF * (e1[0]*e2[1] - e1[1]*e2[0])};
+         std::array<Real, 3> area{ 0.5 * (e1[1]*e2[2] - e1[2]*e2[1]),
+                                   0.5 * (e1[2]*e2[0] - e1[0]*e2[2]),
+                                   0.5 * (e1[0]*e2[1] - e1[1]*e2[0])};
         
          // By definition, the area is oriented outwards, so if dot(r,A) < 0, flip it.
          std::array<Real, 3> r{
-            (a[0]+b[0]+c[0]) * THIRD,
-            (a[1]+b[1]+c[1]) * THIRD,
-            (a[2]+b[2]+c[2]) * THIRD};
+            (a[0]+b[0]+c[0])/3.,
+            (a[1]+b[1]+c[1])/3.,
+            (a[2]+b[2]+c[2])/3.};
          if(area[0]*r[0] + area[1]*r[1] + area[2] *r[2] < 0) {
             area[0]*=-1.;
             area[1]*=-1.;
@@ -323,12 +321,12 @@ namespace SBC {
       virtual ~Ionosphere();
       
       static void addParameters();
-      virtual void getParameters() override;
+      virtual void getParameters();
       
       virtual void initSysBoundary(
          creal& t,
          Project &project
-      ) override;
+      );
       virtual void assignSysBoundary(dccrg::Dccrg<SpatialCell,dccrg::Cartesian_Geometry>& mpiGrid,
                                      fsgrid::FsGrid< fsgrids::technical, FS_STENCIL_WIDTH> & technicalGrid);
       virtual void applyInitialState(
@@ -360,7 +358,7 @@ namespace SBC {
       // Compute and store the EXB drift into the cell's BULKV_FORCING_X/Y/Z fields
       virtual void mapCellPotentialAndGetEXBDrift(
          std::array<Real, CellParams::N_SPATIAL_CELL_PARAMS>& cellParams
-      ) override;
+      );
       virtual void vlasovBoundaryCondition(
          dccrg::Dccrg<SpatialCell,dccrg::Cartesian_Geometry>& mpiGrid,
          const CellID& cellID,
@@ -373,9 +371,11 @@ namespace SBC {
                                fsgrid::FsGrid<std::array<Real, fsgrids::bgbfield::N_BGB>, FS_STENCIL_WIDTH>& BgBGrid,
                                creal t);
 
-      virtual void getFaces(bool *faces);
-      virtual std::string getName() const;
-      virtual uint getIndex() const;
+      virtual void getFaces(bool *faces) override;
+      virtual std::string getName() const override;
+      virtual uint getIndex() const override;
+      virtual void gpuClear() override;
+
       static Real radius; /*!< Radius of the inner simulation boundary */
       static std::vector<IonosphereSpeciesParameters> speciesParams;
 

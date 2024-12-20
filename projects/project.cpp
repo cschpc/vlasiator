@@ -552,14 +552,14 @@ namespace projects {
       const std::vector<CellID> cells {getLocalCells()};
       Real r_max2 {pow(P::refineRadius, 2)};
 
-      #pragma omp parallel for
+      //#pragma omp parallel for
       for (uint cid = 0; cid < cells.size(); ++cid) {
          CellID id = cells[cid];
          int refLevel {mpiGrid.get_refinement_level(id)};
 
          if (!canRefine(mpiGrid[id])) {
             // Skip refining, touching boundaries during runtime breaks everything
-            #pragma omp critical
+       //     #pragma omp critical
             {
                mpiGrid.dont_refine(id);
                mpiGrid.dont_unrefine(id);
@@ -591,7 +591,7 @@ namespace projects {
                }
             }
 
-            #pragma omp critical
+        //    #pragma omp critical
             {
                if ((shouldRefine || refined_neighbors > 12) && refLevel < P::amrMaxAllowedSpatialRefLevel) {
                   // Refine a cell if a majority of its neighbors are refined or about to be

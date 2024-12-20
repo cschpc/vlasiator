@@ -153,8 +153,6 @@ void Outflow::getParameters() {
             sP.faceVlasovScheme[j] = vlasovscheme::NONE;
          } else if (vlasovSysBoundarySchemeName[j] == "Copy") {
             sP.faceVlasovScheme[j] = vlasovscheme::COPY;
-         } else if (vlasovSysBoundarySchemeName[j] == "Limit") {
-            sP.faceVlasovScheme[j] = vlasovscheme::LIMIT;
          } else {
             abort_mpi("ERROR: " + vlasovSysBoundarySchemeName[j] + " is an invalid Outflow Vlasov scheme!");
          }
@@ -415,9 +413,6 @@ void Outflow::vlasovBoundaryCondition(dccrg::Dccrg<SpatialCell, dccrg::Cartesian
             break;
          case vlasovscheme::COPY:
             vlasovBoundaryCopyFromTheClosestNbr(mpiGrid, cellID, false, popID, calculate_V_moments);
-            break;
-         case vlasovscheme::LIMIT:
-            vlasovBoundaryCopyFromTheClosestNbrAndLimit(mpiGrid, cellID, popID);
             break;
          default:
             abort_mpi("ERROR: invalid Outflow Vlasov scheme", 1);

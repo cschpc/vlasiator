@@ -57,9 +57,9 @@ public:
    Inflow();
    virtual ~Inflow();
 
-   //virtual void getParameters() = 0;
+   virtual void getParameters() = 0;
 
-   virtual void initSysBoundary(creal& t, Project& project) override;
+   virtual void initSysBoundary(creal& t, Project& project);
    virtual void assignSysBoundary(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid,
                                fsgrid::FsGrid<fsgrids::technical, FS_STENCIL_WIDTH>& technicalGrid);
    virtual void applyInitialState(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid,
@@ -91,12 +91,13 @@ public:
    virtual void fieldSolverBoundaryCondBVOLDerivatives(std::span<std::array<Real, fsgrids::volfields::N_VOL>> vols,
                                                        const fsgrid::FsStencil& stencil, cuint component);
    virtual void vlasovBoundaryCondition(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid,
-                                        const CellID& cellID, const uint popID, const bool doCalcMomentsV) override;
+                                        const CellID& cellID, const uint popID, const bool doCalcMomentsV);
 
-   virtual void getFaces(bool* faces) override;
+   virtual void getFaces(bool* faces);
+
+   virtual std::string getName() const = 0;
+   virtual uint getIndex() const = 0;
    virtual void gpuClear() override;
-   virtual std::string getName() const override = 0;
-   virtual uint getIndex() const override = 0;
 
 protected:
    /*! Array of bool telling which faces are going to be processed by the boundary condition.*/

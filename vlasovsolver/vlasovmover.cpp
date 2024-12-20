@@ -49,6 +49,8 @@
 #include "gpu_acc_map.hpp"
 #include "gpu_acc_semilag.hpp"
 #include "gpu_trans_map_amr.hpp"
+#define trans_map_1d_amr                             gpu_trans_map_1d_amr
+#define update_remote_mapping_contribution_amr       gpu_update_remote_mapping_contribution_amr
 #else
 #include "cpu_acc_semilag.hpp"
 #include "cpu_trans_map_amr.hpp"
@@ -107,11 +109,7 @@ void calculateSpatialTranslation(
 
       t1 = MPI_Wtime();
       phiprof::Timer computeTimer {"compute-mapping-z"};
-#ifdef USE_GPU
-      gpu_trans_map_1d_amr(mpiGrid,local_propagated_cells, remoteTargetCellsz, nPencils, 2, dt,popID); // map along z//
-#else
       trans_map_1d_amr(mpiGrid,local_propagated_cells, remoteTargetCellsz, nPencils, 2, dt,popID); // map along z//
-#endif
       computeTimer.stop();
       time += MPI_Wtime() - t1;
 
@@ -120,13 +118,8 @@ void calculateSpatialTranslation(
       btTimer.stop();
 
       phiprof::Timer updateRemoteTimer {"update_remote-z", {"MPI"}};
-#ifdef USE_GPU
-      gpu_update_remote_mapping_contribution_amr(mpiGrid, 2,+1,popID);
-      gpu_update_remote_mapping_contribution_amr(mpiGrid, 2,-1,popID);
-#else
       update_remote_mapping_contribution_amr(mpiGrid, 2,+1,popID);
       update_remote_mapping_contribution_amr(mpiGrid, 2,-1,popID);
-#endif
       updateRemoteTimer.stop();
 
    }
@@ -151,11 +144,7 @@ void calculateSpatialTranslation(
 
       t1 = MPI_Wtime();
       phiprof::Timer computeTimer {"compute-mapping-x"};
-#ifdef USE_GPU
-      gpu_trans_map_1d_amr(mpiGrid,local_propagated_cells, remoteTargetCellsx, nPencils, 0,dt,popID); // map along x//
-#else
       trans_map_1d_amr(mpiGrid,local_propagated_cells, remoteTargetCellsx, nPencils, 0,dt,popID); // map along x//
-#endif
       computeTimer.stop();
       time += MPI_Wtime() - t1;
 
@@ -164,13 +153,8 @@ void calculateSpatialTranslation(
       btTimer.stop();
 
       phiprof::Timer updateRemoteTimer {"update_remote-x", {"MPI"}};
-#ifdef USE_GPU
-      gpu_update_remote_mapping_contribution_amr(mpiGrid, 0,+1,popID);
-      gpu_update_remote_mapping_contribution_amr(mpiGrid, 0,-1,popID);
-#else
       update_remote_mapping_contribution_amr(mpiGrid, 0,+1,popID);
       update_remote_mapping_contribution_amr(mpiGrid, 0,-1,popID);
-#endif
       updateRemoteTimer.stop();
 
    }
@@ -195,11 +179,7 @@ void calculateSpatialTranslation(
 
       t1 = MPI_Wtime();
       phiprof::Timer computeTimer {"compute-mapping-y"};
-#ifdef USE_GPU
-      gpu_trans_map_1d_amr(mpiGrid,local_propagated_cells, remoteTargetCellsy, nPencils, 1,dt,popID); // map along y//
-#else
       trans_map_1d_amr(mpiGrid,local_propagated_cells, remoteTargetCellsy, nPencils, 1,dt,popID); // map along y//
-#endif
       computeTimer.stop();
       time += MPI_Wtime() - t1;
 
@@ -208,13 +188,8 @@ void calculateSpatialTranslation(
       btTimer.stop();
 
       phiprof::Timer updateRemoteTimer {"update_remote-y", {"MPI"}};
-#ifdef USE_GPU
-      gpu_update_remote_mapping_contribution_amr(mpiGrid, 1,+1,popID);
-      gpu_update_remote_mapping_contribution_amr(mpiGrid, 1,-1,popID);
-#else
       update_remote_mapping_contribution_amr(mpiGrid, 1,+1,popID);
       update_remote_mapping_contribution_amr(mpiGrid, 1,-1,popID);
-#endif
       updateRemoteTimer.stop();
 
    }
