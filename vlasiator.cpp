@@ -443,6 +443,21 @@ int simulate(int argn,char* args[]) {
    fsgrid::FsGrid<fsgrids::technical, FS_STENCIL_WIDTH> technicalGrid(fsGridDimensions, parentComm, numFsProcs, periodicity,
                                                               gridSpacing, physicalGlobalStart, decomposition);
 
+   std::span<std::array<Real, fsgrids::bfield::N_BFIELD>> perb = perBGrid.getData();
+   std::span<std::array<Real, fsgrids::bfield::N_BFIELD>> perbdt2 = perBDt2Grid.getData();
+   std::span<std::array<Real, fsgrids::efield::N_EFIELD>> e = EGrid.getData();
+   std::span<std::array<Real, fsgrids::efield::N_EFIELD>> edt2 = EDt2Grid.getData();
+   std::span<std::array<Real, fsgrids::ehall::N_EHALL>> ehall = EHallGrid.getData();
+   std::span<std::array<Real, fsgrids::egradpe::N_EGRADPE>> egradpe = EGradPeGrid.getData();
+   std::span<std::array<Real, fsgrids::egradpe::N_EGRADPE>> egradpedt2 = EGradPeDt2Grid.getData();
+   std::span<std::array<Real, fsgrids::moments::N_MOMENTS>> moments = momentsGrid.getData();
+   std::span<std::array<Real, fsgrids::moments::N_MOMENTS>> momentsdt2 = momentsDt2Grid.getData();
+   std::span<std::array<Real, fsgrids::dperb::N_DPERB>> dperb = dPerBGrid.getData();
+   std::span<std::array<Real, fsgrids::dmoments::N_DMOMENTS>> dmoments = dMomentsGrid.getData();
+   std::span<std::array<Real, fsgrids::dmoments::N_DMOMENTS>> dmomentsdt2 = dMomentsDt2Grid.getData();
+   std::span<std::array<Real, fsgrids::bgbfield::N_BGB>> bgb = BgBGrid.getData();
+   std::span<std::array<Real, fsgrids::volfields::N_VOL>> vol = volGrid.getData();
+
    // Checking that spatial cells are cubic, otherwise field solver is incorrect (cf. derivatives in E, Hall term)
    constexpr Real uniformTolerance=1e-3;
    if ((abs((gridSpacing[0] - gridSpacing[1]) / gridSpacing[0]) > uniformTolerance) ||
@@ -597,7 +612,7 @@ int simulate(int argn,char* args[]) {
    }
 
    phiprof::Timer getFieldsTimer {"getFieldsFromFsGrid"};
-   volGrid.updateGhostCells();
+   technicalGrid.updateGhostCells(vol);
    getFieldsFromFsGrid(volGrid, BgBGrid, EGradPeGrid, dMomentsGrid, technicalGrid, mpiGrid, cells);
    getFieldsTimer.stop();
 
@@ -613,7 +628,7 @@ int simulate(int argn,char* args[]) {
          technicalGrid,
          false // Don't communicate moments, they are not needed here.
       );
-      dPerBGrid.updateGhostCells();
+      technicalGrid.updateGhostCells(dperb);
    }
    FieldTracing::calculateIonosphereFsgridCoupling(technicalGrid, perBGrid, dPerBGrid, SBC::ionosphereGrid.nodes, SBC::Ionosphere::radius);
    SBC::ionosphereGrid.initSolver(!P::isRestart); // If it is a restart we do not want to zero out everything
@@ -1158,7 +1173,7 @@ int simulate(int argn,char* args[]) {
 
          phiprof::Timer getFieldsTimer {"getFieldsFromFsGrid"};
          // Copy results back from fsgrid.
-         volGrid.updateGhostCells();
+         technicalGrid.updateGhostCells(vol);
          technicalGrid.updateGhostCells();
          getFieldsFromFsGrid(volGrid, BgBGrid, EGradPeGrid, dMomentsGrid, technicalGrid, mpiGrid, cells);
          getFieldsTimer.stop();
