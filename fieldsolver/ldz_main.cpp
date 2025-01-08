@@ -93,6 +93,7 @@ bool propagateFields(fsgrid::FsGrid<std::array<Real, fsgrids::bfield::N_BFIELD>,
 
    const auto* localSize = &technicalGrid.getLocalSize()[0];
    std::span<fsgrids::technical> technical = technicalGrid.getData();
+   std::span<const std::array<Real, fsgrids::volfields::N_VOL>> vol = volGrid.getData();
 
 #pragma omp parallel for collapse(2)
    for (auto k = 0; k < localSize[2]; k++) {
@@ -293,7 +294,7 @@ bool propagateFields(fsgrid::FsGrid<std::array<Real, fsgrids::bfield::N_BFIELD>,
    calculateVolumeAveragedFieldsSimple(perBGrid, EGrid, dPerBGrid, volGrid, technicalGrid);
    calculateBVOLDerivativesSimple(volGrid, technicalGrid);
    if (FieldTracing::fieldTracingParameters.doTraceFullBox || Parameters::computeCurvature) {
-      volGrid.updateGhostCells();
+      technicalGrid.updateGhostCells(vol);
       calculateCurvatureSimple(volGrid, BgBGrid, technicalGrid);
    }
    return true;
