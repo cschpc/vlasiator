@@ -627,7 +627,7 @@ int simulate(int argn,char* args[]) {
 
    phiprof::Timer getFieldsTimer {"getFieldsFromFsGrid"};
    technicalGrid.updateGhostCells(vol);
-   getFieldsFromFsGrid(volGrid, BgBGrid, EGradPeGrid, dMomentsGrid, technicalGrid, mpiGrid, cells);
+   getFieldsFromFsGrid(vol, bgb, egradpe, dmoments, technicalGrid, mpiGrid, cells);
    getFieldsTimer.stop();
 
    // Build communicator for ionosphere solving
@@ -1184,7 +1184,7 @@ int simulate(int argn,char* args[]) {
          // Copy results back from fsgrid.
          technicalGrid.updateGhostCells(vol);
          technicalGrid.updateGhostCells();
-         getFieldsFromFsGrid(volGrid, BgBGrid, EGradPeGrid, dMomentsGrid, technicalGrid, mpiGrid, cells);
+         getFieldsFromFsGrid(vol, bgb, egradpe, dmoments, technicalGrid, mpiGrid, cells);
          getFieldsTimer.stop();
          propagateTimer.stop(cells.size(),"SpatialCells");
          addTimedBarrier("barrier-after-field-solver");
