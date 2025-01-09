@@ -48,20 +48,17 @@ namespace SBC {
          creal& t,
          Project &project
       ) override ;
-      void assignSysBoundary(dccrg::Dccrg<SpatialCell,dccrg::Cartesian_Geometry>& mpiGrid,
-                                     fsgrid::FsGrid< fsgrids::technical, FS_STENCIL_WIDTH> & technicalGrid) override;
-      void applyInitialState(
-         dccrg::Dccrg<SpatialCell,dccrg::Cartesian_Geometry>& mpiGrid,
-         fsgrid::FsGrid< fsgrids::technical, FS_STENCIL_WIDTH> & technicalGrid,
-         fsgrid::FsGrid< std::array<Real, fsgrids::bfield::N_BFIELD>, FS_STENCIL_WIDTH> & perBGrid,
-         fsgrid::FsGrid<std::array<Real, fsgrids::bgbfield::N_BGB>, FS_STENCIL_WIDTH>& BgBGrid,
-         Project &project
-      ) override;
+      virtual void assignSysBoundary(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid,
+                                     fsgrid::FsGrid<fsgrids::technical, FS_STENCIL_WIDTH>& technicalGrid) override;
+      virtual void applyInitialState(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid,
+                                     fsgrid::FsGrid<fsgrids::technical, FS_STENCIL_WIDTH>& technicalGrid,
+                                     std::span<std::array<Real, fsgrids::bfield::N_BFIELD>> perb,
+                                     std::span<std::array<Real, fsgrids::bgbfield::N_BGB>> bgb,
+                                     Project& project) override;
       virtual void updateState(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid,
                                fsgrid::FsGrid<fsgrids::technical, FS_STENCIL_WIDTH>& technicalGrid,
-                               fsgrid::FsGrid<std::array<Real, fsgrids::bfield::N_BFIELD>, FS_STENCIL_WIDTH>& perBGrid,
-                               fsgrid::FsGrid<std::array<Real, fsgrids::bgbfield::N_BGB>, FS_STENCIL_WIDTH>& BgBGrid,
-                               creal t) override;
+                               std::span<std::array<Real, fsgrids::bfield::N_BFIELD>> perb,
+                               std::span<std::array<Real, fsgrids::bgbfield::N_BGB>> bgb, creal t) override;
       void getFaces(bool *faces) override;
       std::string getName() const override;
       uint getIndex() const override;

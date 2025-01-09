@@ -63,15 +63,13 @@ public:
    virtual void assignSysBoundary(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid,
                                fsgrid::FsGrid<fsgrids::technical, FS_STENCIL_WIDTH>& technicalGrid) override;
    virtual void applyInitialState(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid,
-                                  fsgrid::FsGrid< fsgrids::technical, FS_STENCIL_WIDTH> & technicalGrid,
-                                  fsgrid::FsGrid<std::array<Real, fsgrids::bfield::N_BFIELD>, FS_STENCIL_WIDTH>& perBGrid,
-                                  fsgrid::FsGrid<std::array<Real, fsgrids::bgbfield::N_BGB>, FS_STENCIL_WIDTH>& BgBGrid,
-                                  Project& project) override;
+                                  fsgrid::FsGrid<fsgrids::technical, FS_STENCIL_WIDTH>& technicalGrid,
+                                  std::span<std::array<Real, fsgrids::bfield::N_BFIELD>> perb,
+                                  std::span<std::array<Real, fsgrids::bgbfield::N_BGB>> bgb, Project& project) override;
    virtual void updateState(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid,
                             fsgrid::FsGrid<fsgrids::technical, FS_STENCIL_WIDTH>& technicalGrid,
-                            fsgrid::FsGrid<std::array<Real, fsgrids::bfield::N_BFIELD>, FS_STENCIL_WIDTH>& perBGrid,
-                            fsgrid::FsGrid<std::array<Real, fsgrids::bgbfield::N_BGB>, FS_STENCIL_WIDTH>& BgBGrid,
-                            creal t) override;
+                            std::span<std::array<Real, fsgrids::bfield::N_BFIELD>> perb,
+                            std::span<std::array<Real, fsgrids::bgbfield::N_BGB>> bgb, creal t) override;
    virtual Real fieldSolverBoundaryCondMagneticField(std::span<const std::array<Real, fsgrids::bfield::N_BFIELD>> b,
                                                      std::span<const std::array<Real, fsgrids::bgbfield::N_BGB>> bgb,
                                                      std::span<const fsgrids::technical> technical,
@@ -122,8 +120,8 @@ protected:
                                      creal t) = 0;
    void setCellsFromTemplate(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid, const uint popID);
    void setBFromTemplate(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid,
-                         fsgrid::FsGrid<std::array<Real, fsgrids::bfield::N_BFIELD>, FS_STENCIL_WIDTH>& perBGrid,
-                         fsgrid::FsGrid<std::array<Real, fsgrids::bgbfield::N_BGB>, FS_STENCIL_WIDTH>& BgBGrid,
+                         std::span<std::array<Real, fsgrids::bfield::N_BFIELD>> perb,
+                         std::span<std::array<Real, fsgrids::bgbfield::N_BGB>> bgb,
                          fsgrid::FsGrid<fsgrids::technical, FS_STENCIL_WIDTH>& technicalGrid);
 };
 } // namespace SBC
