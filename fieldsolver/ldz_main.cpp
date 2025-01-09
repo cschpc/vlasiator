@@ -143,8 +143,8 @@ bool propagateFields(fsgrid::FsGrid<std::array<Real, fsgrids::bfield::N_BFIELD>,
                                    RK_ORDER2_STEP1);
       calculateDerivativesSimple(perbdt2, momentsdt2, dperb, dmomentsdt2, technicalGrid, true /*doMoments*/);
       if (P::ohmGradPeTerm > 0) {
-         calculateGradPeTermSimple(EGradPeGrid, EGradPeDt2Grid, momentsGrid, momentsDt2Grid, dMomentsGrid,
-                                   dMomentsDt2Grid, technicalGrid, sysBoundaries, RK_ORDER2_STEP1);
+         calculateGradPeTermSimple(egradpe, egradpedt2, moments, momentsdt2, dmoments, dmomentsdt2, technicalGrid,
+                                   sysBoundaries, RK_ORDER2_STEP1);
       }
       if (P::ohmHallTerm > 0) {
          calculateHallTermSimple(perBGrid, perBDt2Grid, EHallGrid, momentsGrid, momentsDt2Grid, dPerBGrid, dMomentsGrid,
@@ -162,8 +162,8 @@ bool propagateFields(fsgrid::FsGrid<std::array<Real, fsgrids::bfield::N_BFIELD>,
                                    RK_ORDER2_STEP2);
       calculateDerivativesSimple(perb, moments, dperb, dmoments, technicalGrid, true /*doMoments*/);
       if (P::ohmGradPeTerm > 0) {
-         calculateGradPeTermSimple(EGradPeGrid, EGradPeDt2Grid, momentsGrid, momentsDt2Grid, dMomentsGrid,
-                                   dMomentsDt2Grid, technicalGrid, sysBoundaries, RK_ORDER2_STEP2);
+         calculateGradPeTermSimple(egradpe, egradpedt2, moments, momentsdt2, dmoments, dmomentsdt2, technicalGrid,
+                                   sysBoundaries, RK_ORDER2_STEP2);
       }
       if (P::ohmHallTerm > 0) {
          calculateHallTermSimple(perBGrid, perBDt2Grid, EHallGrid, momentsGrid, momentsDt2Grid, dPerBGrid, dMomentsGrid,
@@ -198,8 +198,8 @@ bool propagateFields(fsgrid::FsGrid<std::array<Real, fsgrids::bfield::N_BFIELD>,
          calculateDerivativesSimple(perbdt2, momentsdt2, dperb, dmomentsdt2, technicalGrid,
                                     (subcycleCount == 0) /*doMoments*/);
          if (P::ohmGradPeTerm > 0 && subcycleCount == 0) {
-            calculateGradPeTermSimple(EGradPeGrid, EGradPeDt2Grid, momentsGrid, momentsDt2Grid, dMomentsGrid,
-                                      dMomentsDt2Grid, technicalGrid, sysBoundaries, RK_ORDER2_STEP1);
+            calculateGradPeTermSimple(egradpe, egradpedt2, moments, momentsdt2, dmoments, dmomentsdt2, technicalGrid,
+                                      sysBoundaries, RK_ORDER2_STEP1);
          }
          if (P::ohmHallTerm > 0) {
             calculateHallTermSimple(perBGrid, perBDt2Grid, EHallGrid, momentsGrid, momentsDt2Grid, dPerBGrid,
@@ -221,8 +221,8 @@ bool propagateFields(fsgrid::FsGrid<std::array<Real, fsgrids::bfield::N_BFIELD>,
          // need to be communicated in the first one.
          calculateDerivativesSimple(perb, moments, dperb, dmoments, technicalGrid, (subcycleCount == 0) /*doMoments*/);
          if (P::ohmGradPeTerm > 0 && subcycleCount == 0) {
-            calculateGradPeTermSimple(EGradPeGrid, EGradPeDt2Grid, momentsGrid, momentsDt2Grid, dMomentsGrid,
-                                      dMomentsDt2Grid, technicalGrid, sysBoundaries, RK_ORDER2_STEP2);
+            calculateGradPeTermSimple(egradpe, egradpedt2, moments, momentsdt2, dmoments, dmomentsdt2, technicalGrid,
+                                      sysBoundaries, RK_ORDER2_STEP2);
          }
          if (P::ohmHallTerm > 0) {
             calculateHallTermSimple(perBGrid, perBDt2Grid, EHallGrid, momentsGrid, momentsDt2Grid, dPerBGrid,
