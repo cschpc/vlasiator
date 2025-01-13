@@ -207,7 +207,7 @@ void initializeGrids(int argn, char** argc, dccrg::Dccrg<SpatialCell, dccrg::Car
    if (P::isRestart) {
       logFile << "Restart from " << P::restartFileName << std::endl << writeVerbose;
       phiprof::Timer restartReadTimer{"Read restart"};
-      if (readGrid(mpiGrid, perb, e, technicalGrid, P::restartFileName) == false) {
+      if (readGrid(mpiGrid, perb.view(), e.view(), technicalGrid, P::restartFileName) == false) {
          logFile << "(MAIN) ERROR: restarting failed" << endl;
          exit(1);
       }
@@ -242,7 +242,7 @@ void initializeGrids(int argn, char** argc, dccrg::Dccrg<SpatialCell, dccrg::Car
    if (P::isRestart) {
       // initial state for sys-boundary cells, will skip those not set to be reapplied at restart
       phiprof::Timer timer{"Apply system boundary conditions state"};
-      sysBoundaries.applyInitialState(mpiGrid, technicalGrid, perb, bgb, project);
+      sysBoundaries.applyInitialState(mpiGrid, technicalGrid, perb.view(), bgb.view(), project);
    }
 
    // Update technicalGrid (e.g. sysboundary flags)
@@ -276,7 +276,7 @@ void initializeGrids(int argn, char** argc, dccrg::Dccrg<SpatialCell, dccrg::Car
       // Initial state for sys-boundary cells
       applyInitialTimer.stop();
       phiprof::Timer applyBCTimer{"Apply system boundary conditions state"};
-      sysBoundaries.applyInitialState(mpiGrid, technicalGrid, perb, bgb, project);
+      sysBoundaries.applyInitialState(mpiGrid, technicalGrid, perb.view(), bgb.view(), project);
       applyBCTimer.stop();
 
 #pragma omp parallel for schedule(static)
@@ -338,7 +338,7 @@ void initializeGrids(int argn, char** argc, dccrg::Dccrg<SpatialCell, dccrg::Car
    fetchNeighbourTimer.stop();
 
    phiprof::Timer setBTimer{"project.setProjectBField"};
-   project.setProjectBField(perb, bgb, technicalGrid);
+   project.setProjectBField(perb.view(), bgb.view(), technicalGrid);
    setBTimer.stop();
    phiprof::Timer fsGridGhostTimer{"fsgrid-ghost-updates"};
    technicalGrid.updateGhostCells(perb);
