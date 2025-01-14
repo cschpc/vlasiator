@@ -93,8 +93,7 @@ void initializeGrids(int argn, char** argc, dccrg::Dccrg<SpatialCell, dccrg::Car
     \param[in,out] mpiGrid The DCCRG grid with spatial cells
 */
 void balanceLoad(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid, SysBoundary& sysBoundaries,
-                 fsgrid::FsGrid<FS_STENCIL_WIDTH>& fsgrid, std::span<fsgrids::technical> technical,
-                 bool doTranslationLists = true);
+                 fsgrid::FsGrid<FS_STENCIL_WIDTH>& fsgrid, bool doTranslationLists = true);
 
 /* helper for calculating AMR flags and cell lists and building pencils
  */

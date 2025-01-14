@@ -23,11 +23,12 @@
 #ifndef OUTFLOW_H
 #define OUTFLOW_H
 
-#include <vector>
 #include "../definitions.h"
 #include "../readparameters.h"
 #include "../spatial_cell_wrapper.hpp"
 #include "sysboundarycondition.h"
+#include <span>
+#include <vector>
 
 namespace SBC {
 
@@ -63,8 +64,8 @@ namespace SBC {
          creal& t,
          Project &project
       );
-      virtual void assignSysBoundary(dccrg::Dccrg<SpatialCell,dccrg::Cartesian_Geometry>& mpiGrid,
-                                     fsgrid::FsGrid< FS_STENCIL_WIDTH> & fsgrid);
+      virtual void assignSysBoundary(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid,
+                                     fsgrid::FsGrid<FS_STENCIL_WIDTH>& fsgrid, std::span<fsgrids::technical> technical);
       virtual void applyInitialState(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid,
                                      fsgrid::FsGrid< FS_STENCIL_WIDTH>& fsgrid,
                                      std::span<std::array<Real, fsgrids::bfield::N_BFIELD>> perb,

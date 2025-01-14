@@ -6,6 +6,7 @@
 #include "../spatial_cell_wrapper.hpp"
 #include "../definitions.h"
 #include "../common.h"
+#include "src/data.hpp"
 #include "gridGlue.hpp"
 #include <span>
 
@@ -38,7 +39,7 @@ Filter moments after feeding them to FsGrid to alleviate the staircase effect ca
 This is using a 3D, 5-point stencil triangle kernel.
 */
 void filterMoments(fsgrid::FsData<std::array<Real, fsgrids::moments::N_MOMENTS>>& moments,
-                   std::span<fsgrids::technical> technical, fsgrid::FsGrid<FS_STENCIL_WIDTH> &fsgrid) {
+                   fsgrid::FsData<fsgrids::technical>& technical, fsgrid::FsGrid<FS_STENCIL_WIDTH>& fsgrid) {
 
    // Kernel Characteristics
    constexpr int kernelOffset = 2;                // offset of 5 pointstencil 3D kernel => (floor(stencilWidth/2);)
@@ -135,7 +136,8 @@ void filterMoments(fsgrid::FsData<std::array<Real, fsgrids::moments::N_MOMENTS>>
 void feedMomentsIntoFsGrid(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid,
                            const std::vector<CellID>& cells,
                            fsgrid::FsData<std::array<Real, fsgrids::moments::N_MOMENTS>>& moments,
-                           std::span<fsgrids::technical> technical, fsgrid::FsGrid<FS_STENCIL_WIDTH> &fsgrid, bool dt2 /*=false*/) {
+                           fsgrid::FsData<fsgrids::technical>& technical, fsgrid::FsGrid<FS_STENCIL_WIDTH>& fsgrid,
+                           bool dt2 /*=false*/) {
 
    int ii;
    // sorted list of dccrg cells. cells is typicall already sorted, but just to make sure....
@@ -228,7 +230,7 @@ void getFieldsFromFsGrid(const fsgrid::FsData<std::array<Real, fsgrids::volfield
                          const fsgrid::FsData<std::array<Real, fsgrids::bgbfield::N_BGB>>& bgb,
                          const fsgrid::FsData<std::array<Real, fsgrids::egradpe::N_EGRADPE>>& egradpe,
                          const fsgrid::FsData<std::array<Real, fsgrids::dmoments::N_DMOMENTS>>& dmoments,
-                         std::span<fsgrids::technical> technical, fsgrid::FsGrid<FS_STENCIL_WIDTH> &fsgrid,
+                         const fsgrid::FsData<fsgrids::technical>& technical, fsgrid::FsGrid<FS_STENCIL_WIDTH>& fsgrid,
                          dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid,
                          const std::vector<CellID>& cells) {
    // TODO: solver only needs bgb + PERB, we could combine them

@@ -1042,9 +1042,8 @@ void SphericalTriGrid::calculateConductivityTensor(const Real F10_7, const Real 
 // (Re-)create the subcommunicator for ionosphere-internal communication
 // This needs to be rerun after Vlasov grid load balancing to ensure that
 // ionosphere info is still communicated to the right ranks.
-void SphericalTriGrid::updateIonosphereCommunicator(
-    dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid,
-    std::span<fsgrids::technical> technical, fsgrid::FsGrid<FS_STENCIL_WIDTH> &fsgrid) {
+void SphericalTriGrid::updateIonosphereCommunicator(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid,
+                                                    fsgrid::FsGrid<FS_STENCIL_WIDTH>& fsgrid) {
    phiprof::Timer timer{"ionosphere-updateIonosphereCommunicator"};
 
    // Check if the current rank contains ionosphere boundary cells.
@@ -1162,8 +1161,8 @@ void SphericalTriGrid::mapDownBoundaryData(std::span<const std::array<Real, fsgr
 
          // Calc curlB, note division by DX one line down
          const std::array<Real, 3> curlB = interpolateCurlB(
-             perb, dperb, fsgrid, FieldTracing::fieldTracingParameters.reconstructionCoefficientsCache, lfsc[0],
-             lfsc[1], lfsc[2], nodes[n].xMapped);
+             perb, dperb, technical, fsgrid, FieldTracing::fieldTracingParameters.reconstructionCoefficientsCache,
+             lfsc[0], lfsc[1], lfsc[2], nodes[n].xMapped);
 
          // Dot curl(B) with normalized B, scale by ratio of B(ionosphere)/B(upmapped), multiply by geometric area
          // around ionosphere node to obtain current from density
@@ -2515,7 +2514,7 @@ static Real getR(creal x, creal y, creal z, uint geometry, Real center[3]) {
 }
 
 void Ionosphere::assignSysBoundary(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid,
-                                   std::span<fsgrids::technical> technical, fsgrid::FsGrid<FS_STENCIL_WIDTH> &fsgrid) {
+                                   fsgrid::FsGrid<FS_STENCIL_WIDTH>& fsgrid) {
    const vector<CellID>& cells = getLocalCells();
    for (uint i = 0; i < cells.size(); i++) {
       if (mpiGrid[cells[i]]->sysBoundaryFlag == sysboundarytype::DO_NOT_COMPUTE) {
@@ -2537,7 +2536,7 @@ void Ionosphere::assignSysBoundary(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Ge
 }
 
 void Ionosphere::applyInitialState(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid,
-                                   std::span<fsgrids::technical> technical, fsgrid::FsGrid<FS_STENCIL_WIDTH> &fsgrid,
+                                   fsgrid::FsGrid<FS_STENCIL_WIDTH>& fsgrid,
                                    std::span<std::array<Real, fsgrids::bfield::N_BFIELD>> perb,
                                    std::span<std::array<Real, fsgrids::bgbfield::N_BGB>> bgb, Project& project) {
    const vector<CellID>& cells = getLocalCells();
@@ -2552,9 +2551,8 @@ void Ionosphere::applyInitialState(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Ge
    }
 }
 
-std::array<Real, 3>
-Ionosphere::fieldSolverGetNormalDirection(std::span<fsgrids::technical> technical, fsgrid::FsGrid<FS_STENCIL_WIDTH> &fsgrid, cint i,
-                                          cint j, cint k) {
+std::array<Real, 3> Ionosphere::fieldSolverGetNormalDirection(fsgrid::FsGrid<FS_STENCIL_WIDTH>& fsgrid, cint i, cint j,
+                                                              cint k) {
    phiprof::Timer timer{"Ionosphere::fieldSolverGetNormalDirection"};
    std::array<Real, 3> normalDirection{{0.0, 0.0, 0.0}};
 
@@ -3386,7 +3384,7 @@ std::string Ionosphere::getName() const { return "Ionosphere"; }
 void Ionosphere::getFaces(bool* faces) {}
 
 void Ionosphere::updateState(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid,
-                             std::span<fsgrids::technical> technical, fsgrid::FsGrid<FS_STENCIL_WIDTH> &fsgrid,
+                             fsgrid::FsGrid<FS_STENCIL_WIDTH>& fsgrid,
                              std::span<std::array<Real, fsgrids::bfield::N_BFIELD>> perb,
                              std::span<std::array<Real, fsgrids::bgbfield::N_BGB>> bgb, creal t) {}
 
