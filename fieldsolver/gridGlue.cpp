@@ -81,12 +81,12 @@ void filterMoments(fsgrid::FsData<std::array<Real, fsgrids::moments::N_MOMENTS>>
          1 * inverseKernelSum}}};
 
    // Get size of local domain
-   const auto* localSize = &technicalGrid.getLocalSize()[0];
+   const auto* localSize = &fsgrid.getLocalSize()[0];
    // Create a copy of moments data for filtering
    fsgrid::FsData<std::array<Real, fsgrids::moments::N_MOMENTS>> blurred(moments.size());
 
    // Update momentsGrid Ghost Cells
-   technicalGrid.updateGhostCells(moments);
+   fsgrid.updateGhostCells(moments);
 
    // Filtering Loop
    for (auto blurPass = 0; blurPass < Parameters::maxFilteringPasses; blurPass++) {
@@ -95,7 +95,7 @@ void filterMoments(fsgrid::FsData<std::array<Real, fsgrids::moments::N_MOMENTS>>
       for (auto k = 0; k < localSize[2]; k++) {
          for (auto j = 0; j < localSize[1]; j++) {
             for (auto i = 0; i < localSize[0]; i++) {
-               const auto localId = technicalGrid.localIDFromLocalCoordinates(i, j, k);
+               const auto localId = fsgrid.localIDFromLocalCoordinates(i, j, k);
                const auto refLevel = technical[localId].refLevel;
                const auto flag = technical[localId].sysBoundaryFlag;
                auto& blurCell = blurred[localId];
@@ -113,7 +113,7 @@ void filterMoments(fsgrid::FsData<std::array<Real, fsgrids::moments::N_MOMENTS>>
                for (int c = -kernelOffset; c <= kernelOffset; c++) {
                   for (int b = -kernelOffset; b <= kernelOffset; b++) {
                      for (int a = -kernelOffset; a <= kernelOffset; a++) {
-                        const auto localId = technicalGrid.localIDFromLocalCoordinates(i + a, j + b, k + c);
+                        const auto localId = fsgrid.localIDFromLocalCoordinates(i + a, j + b, k + c);
                         const auto& cell = moments[localId];
 #pragma omp simd
                         for (int e = 0; e < fsgrids::moments::N_MOMENTS; ++e) {
@@ -128,7 +128,7 @@ void filterMoments(fsgrid::FsData<std::array<Real, fsgrids::moments::N_MOMENTS>>
 
       using std::swap;
       swap(moments, blurred);
-      technicalGrid.updateGhostCells(moments);
+      fsgrid.updateGhostCells(moments);
    }
 }
 
@@ -220,7 +220,7 @@ void feedMomentsIntoFsGrid(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>&
    // Filter Moments if this is a 3D AMR run.
    if (P::amrMaxSpatialRefLevel > 0) {
       phiprof::Timer filteringTimer{"AMR Filtering-Triangle-3D"};
-      filterMoments(moments, technicalGrid);
+      filterMoments(moments, fsgrid);
    }
 }
 
@@ -232,7 +232,7 @@ void getFieldsFromFsGrid(const fsgrid::FsData<std::array<Real, fsgrids::volfield
                          dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid,
                          const std::vector<CellID>& cells) {
    // TODO: solver only needs bgb + PERB, we could combine them
-   const auto& gridSpacing = technicalGrid.getGridSpacing();
+   const auto& gridSpacing = fsgrid.getGridSpacing();
 
    struct Average {
       Real sums[N_FIELDSTOCOMMUNICATE];

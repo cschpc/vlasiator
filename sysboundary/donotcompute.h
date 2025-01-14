@@ -49,13 +49,13 @@ namespace SBC {
          Project &project
       );
       virtual void assignSysBoundary(dccrg::Dccrg<SpatialCell,dccrg::Cartesian_Geometry>& mpiGrid,
-                                     fsgrid::FsGrid< fsgrids::technical, FS_STENCIL_WIDTH> & technicalGrid);
+                                     fsgrid::FsGrid< FS_STENCIL_WIDTH> & fsgrid);
       virtual void applyInitialState(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid,
-                                     fsgrid::FsGrid<fsgrids::technical, FS_STENCIL_WIDTH>& technicalGrid,
+                                     fsgrid::FsGrid< FS_STENCIL_WIDTH>& fsgrid,
                                      std::span<std::array<Real, fsgrids::bfield::N_BFIELD>> perb,
                                      std::span<std::array<Real, fsgrids::bgbfield::N_BGB>> bgb, Project& project);
       virtual void updateState(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid,
-                               fsgrid::FsGrid<fsgrids::technical, FS_STENCIL_WIDTH>& technicalGrid,
+                               fsgrid::FsGrid< FS_STENCIL_WIDTH>& fsgrid,
                                std::span<std::array<Real, fsgrids::bfield::N_BFIELD>> perb,
                                std::span<std::array<Real, fsgrids::bgbfield::N_BGB>> bgb, creal t);
       void getFaces(bool *faces) override;
