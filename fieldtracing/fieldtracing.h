@@ -578,7 +578,8 @@ void stepFieldLine(std::array<REAL, 3>& x, std::array<REAL, 3>& v, REAL& stepsiz
 inline void resetReconstructionCoefficientsCache() { fieldTracingParameters.reconstructionCoefficientsCache.clear(); }
 
 /*! Link each ionospheric node to fsgrid cells for coupling */
-void calculateIonosphereFsgridCoupling(std::span<fsgrids::technical> technical, fsgrid::FsGrid<FS_STENCIL_WIDTH> &fsgrid,
+void calculateIonosphereFsgridCoupling(fsgrid::FsGrid<FS_STENCIL_WIDTH>& fsgrid,
+                                       std::span<fsgrids::technical> technical,
                                        std::span<const std::array<Real, fsgrids::bfield::N_BFIELD>> perb,
                                        std::span<const std::array<Real, fsgrids::dperb::N_DPERB>> dperb,
                                        std::vector<SBC::SphericalTriGrid::Node>& nodes, creal radius);
@@ -589,7 +590,7 @@ calculateIonosphereVlasovGridCoupling(std::array<Real, 3> x, std::vector<SBC::Sp
                                       creal couplingRadius);
 
 /*! Compute whether a node is connected to the ionosphere or the IMF. */
-void traceOpenClosedConnection(std::span<fsgrids::technical> technical, fsgrid::FsGrid<FS_STENCIL_WIDTH> &fsgrid,
+void traceOpenClosedConnection(fsgrid::FsGrid<FS_STENCIL_WIDTH>& fsgrid, std::span<fsgrids::technical> technical,
                                std::span<const std::array<Real, fsgrids::bfield::N_BFIELD>> perb,
                                std::span<const std::array<Real, fsgrids::dperb::N_DPERB>> dperb,
                                std::vector<SBC::SphericalTriGrid::Node>& nodes);

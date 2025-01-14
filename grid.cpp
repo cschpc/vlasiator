@@ -142,7 +142,7 @@ void initializeGrids(int argn, char** argc, dccrg::Dccrg<SpatialCell, dccrg::Car
       if (P::amrMaxSpatialRefLevel > 0 && project.refineSpatialCells(mpiGrid)) {
          mpiGrid.balance_load();
          recalculateLocalCellsCache();
-         mapRefinement(mpiGrid, fsgrid);
+         mapRefinement(mpiGrid, technical, fsgrid);
       }
    } else {
       if (myRank == MASTER_RANK)
@@ -153,7 +153,7 @@ void initializeGrids(int argn, char** argc, dccrg::Dccrg<SpatialCell, dccrg::Car
       if (restartSuccess) {
          mpiGrid.balance_load();
          recalculateLocalCellsCache();
-         mapRefinement(mpiGrid, fsgrid);
+         mapRefinement(mpiGrid, technical, fsgrid);
       }
    }
    refineTimer.stop();

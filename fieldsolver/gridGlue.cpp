@@ -220,7 +220,7 @@ void feedMomentsIntoFsGrid(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>&
    // Filter Moments if this is a 3D AMR run.
    if (P::amrMaxSpatialRefLevel > 0) {
       phiprof::Timer filteringTimer{"AMR Filtering-Triangle-3D"};
-      filterMoments(moments, fsgrid);
+      filterMoments(moments, technical, fsgrid);
    }
 }
 
@@ -526,8 +526,7 @@ std::vector<CellID> mapDccrgIdToFsGridGlobalID(dccrg::Dccrg<SpatialCell, dccrg::
 }
 
 void feedBoundaryIntoFsGrid(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid,
-                            const std::vector<CellID>& cells,
-                            std::span<fsgrids::technical> technical, fsgrid::FsGrid<FS_STENCIL_WIDTH> &fsgrid) {
+                            const std::vector<CellID>& cells, std::span<fsgrids::technical> technical) {
    int ii;
    // sorted list of dccrg cells. cells is typicall already sorted, but just to make sure....
    std::vector<CellID> dccrgCells = cells;
