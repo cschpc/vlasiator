@@ -95,7 +95,7 @@ void initializeGrids(int argn, char** argc, dccrg::Dccrg<SpatialCell, dccrg::Car
                      fsgrid::FsData<std::array<Real, fsgrids::efield::N_EFIELD>>& e,
                      fsgrid::FsData<std::array<Real, fsgrids::egradpe::N_EGRADPE>>& egradpe,
                      fsgrid::FsData<std::array<Real, fsgrids::volfields::N_VOL>>& vol,
-                     fsgrid::FsGrid<fsgrids::technical, FS_STENCIL_WIDTH>& technicalGrid, SysBoundary& sysBoundaries,
+                     std::span<fsgrids::technical> technical, fsgrid::FsGrid<FS_STENCIL_WIDTH> &fsgrid, SysBoundary& sysBoundaries,
                      Project& project) {
    int myRank;
    MPI_Comm_rank(MPI_COMM_WORLD, &myRank);
@@ -479,7 +479,7 @@ void setFaceNeighborRanks(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& 
 }
 
 void balanceLoad(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid, SysBoundary& sysBoundaries,
-                 fsgrid::FsGrid<fsgrids::technical, FS_STENCIL_WIDTH>& technicalGrid, bool doTranslationLists) {
+                 std::span<fsgrids::technical> technical, fsgrid::FsGrid<FS_STENCIL_WIDTH> &fsgrid, bool doTranslationLists) {
    // Invalidate cached cell lists
    Parameters::meshRepartitioned = true;
 
@@ -1507,7 +1507,7 @@ bool validateMesh(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid,
 }
 
 void mapRefinement(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid,
-                   fsgrid::FsGrid<fsgrids::technical, FS_STENCIL_WIDTH>& technicalGrid) {
+                   std::span<fsgrids::technical> technical, fsgrid::FsGrid<FS_STENCIL_WIDTH> &fsgrid) {
    phiprof::Timer timer{"Map Refinement Level to FsGrid"};
    const auto* localSize = &technicalGrid.getLocalSize()[0];
    std::span<fsgrids::technical> technical = technicalGrid.getData();
@@ -1530,7 +1530,7 @@ void mapRefinement(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid
 }
 
 bool adaptRefinement(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid,
-                     fsgrid::FsGrid<fsgrids::technical, FS_STENCIL_WIDTH>& technicalGrid, SysBoundary& sysBoundaries,
+                     std::span<fsgrids::technical> technical, fsgrid::FsGrid<FS_STENCIL_WIDTH> &fsgrid, SysBoundary& sysBoundaries,
                      Project& project, int useStatic) {
    phiprof::Timer amrTimer{"Re-refine spatial cells"};
    int refines{0};

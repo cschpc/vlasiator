@@ -13,7 +13,7 @@ uint Parameters::ohmHallTerm = 0;
 // Very simplified version of CalculateDerivatives from fieldsolver/derivatives.cpp
 void calculateDerivatives(const fsgrid::FsStencil& stencil, std::span<std::array<Real, fsgrids::bfield::N_BFIELD>> perb,
                           std::span<std::array<Real, fsgrids::dperb::N_DPERB>> dperb,
-                          fsgrid::FsGrid<fsgrids::technical, FS_STENCIL_WIDTH>& technicalGrid) {
+                          std::span<fsgrids::technical> technical, fsgrid::FsGrid<FS_STENCIL_WIDTH> &fsgrid) {
    std::array<Real, fsgrids::dperb::N_DPERB>& dPerB = dperb[stencil.center()];
    std::array<Real, fsgrids::bfield::N_BFIELD>& centPerB = perb[stencil.center()];
 

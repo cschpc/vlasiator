@@ -79,7 +79,7 @@ void Inflow::initSysBoundary(creal& t, Project& project) {
 }
 
 void Inflow::assignSysBoundary(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid,
-                               fsgrid::FsGrid<fsgrids::technical, FS_STENCIL_WIDTH>& technicalGrid) {
+                               std::span<fsgrids::technical> technical, fsgrid::FsGrid<FS_STENCIL_WIDTH> &fsgrid) {
    const auto& gridSpacing = technicalGrid.getGridSpacing();
    std::span<fsgrids::technical> technical = technicalGrid.getData();
    bool doAssign;
@@ -151,7 +151,7 @@ void Inflow::assignSysBoundary(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geomet
 }
 
 void Inflow::applyInitialState(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid,
-                               fsgrid::FsGrid<fsgrids::technical, FS_STENCIL_WIDTH>& technicalGrid,
+                               std::span<fsgrids::technical> technical, fsgrid::FsGrid<FS_STENCIL_WIDTH> &fsgrid,
                                std::span<std::array<Real, fsgrids::bfield::N_BFIELD>> perb,
                                std::span<std::array<Real, fsgrids::bgbfield::N_BGB>> bgb, Project& project) {
    for (uint popID = 0; popID < getObjectWrapper().particleSpecies.size(); ++popID) {
@@ -161,7 +161,7 @@ void Inflow::applyInitialState(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geomet
 }
 
 void Inflow::updateState(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid,
-                         fsgrid::FsGrid<fsgrids::technical, FS_STENCIL_WIDTH>& technicalGrid,
+                         std::span<fsgrids::technical> technical, fsgrid::FsGrid<FS_STENCIL_WIDTH> &fsgrid,
                          std::span<std::array<Real, fsgrids::bfield::N_BFIELD>> perb,
                          std::span<std::array<Real, fsgrids::bgbfield::N_BGB>> bgb, creal t) {
    if (t - tLastApply < tInterval) {
@@ -277,7 +277,7 @@ void Inflow::vlasovBoundaryCondition(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_
 void Inflow::setBFromTemplate(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid,
                               std::span<array<Real, fsgrids::bfield::N_BFIELD>> perb,
                               std::span<array<Real, fsgrids::bgbfield::N_BGB>> bgb,
-                              fsgrid::FsGrid<fsgrids::technical, FS_STENCIL_WIDTH>& technicalGrid) {
+                              std::span<fsgrids::technical> technical, fsgrid::FsGrid<FS_STENCIL_WIDTH> &fsgrid) {
    std::array<bool, 6> isThisCellOnAFace;
    const auto& gridSpacing = technicalGrid.getGridSpacing();
    const auto* localSize = &technicalGrid.getLocalSize()[0];

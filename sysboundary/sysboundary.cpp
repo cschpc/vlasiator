@@ -311,7 +311,7 @@ void SysBoundary::checkRefinement(dccrg::Dccrg<spatial_cell::SpatialCell, dccrg:
 }
 
 bool belongsToLayer(const int layer, const int x, const int y, const int z,
-                    fsgrid::FsGrid<fsgrids::technical, FS_STENCIL_WIDTH>& technicalGrid) {
+                    std::span<fsgrids::technical> technical, fsgrid::FsGrid<FS_STENCIL_WIDTH> &fsgrid) {
 
    bool belongs = false;
    const auto stencil = technicalGrid.makeStencil(x, y, z);
@@ -353,7 +353,7 @@ bool belongsToLayer(const int layer, const int x, const int y, const int z,
  * \param mpiGrid Grid
  */
 void SysBoundary::classifyCells(dccrg::Dccrg<spatial_cell::SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid,
-                                fsgrid::FsGrid<fsgrids::technical, FS_STENCIL_WIDTH>& technicalGrid) {
+                                std::span<fsgrids::technical> technical, fsgrid::FsGrid<FS_STENCIL_WIDTH> &fsgrid) {
    const vector<CellID>& cells = getLocalCells();
    const auto* localSize = &technicalGrid.getLocalSize()[0];
    std::span<fsgrids::technical> technical = technicalGrid.getData();
@@ -619,7 +619,7 @@ void SysBoundary::classifyCells(dccrg::Dccrg<spatial_cell::SpatialCell, dccrg::C
  * \retval success If true, the application of all system boundary states succeeded.
  */
 void SysBoundary::applyInitialState(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid,
-                                    fsgrid::FsGrid<fsgrids::technical, FS_STENCIL_WIDTH>& technicalGrid,
+                                    std::span<fsgrids::technical> technical, fsgrid::FsGrid<FS_STENCIL_WIDTH> &fsgrid,
                                     std::span<array<Real, fsgrids::bfield::N_BFIELD>> perb,
                                     std::span<array<Real, fsgrids::bgbfield::N_BGB>> bgb, Project& project) {
 
@@ -636,7 +636,7 @@ void SysBoundary::applyInitialState(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_G
 }
 
 void SysBoundary::updateState(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid,
-                              fsgrid::FsGrid<fsgrids::technical, FS_STENCIL_WIDTH>& technicalGrid,
+                              std::span<fsgrids::technical> technical, fsgrid::FsGrid<FS_STENCIL_WIDTH> &fsgrid,
                               std::span<std::array<Real, fsgrids::bfield::N_BFIELD>> perb,
                               std::span<std::array<Real, fsgrids::bgbfield::N_BGB>> bgb, creal t) {
    if (isAnyDynamic()) {
