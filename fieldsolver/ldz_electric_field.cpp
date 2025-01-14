@@ -1212,7 +1212,6 @@ void calculateUpwindedElectricFieldSimple(std::span<std::array<Real, fsgrids::bf
                                           std::span<fsgrids::technical> technical, fsgrid::FsGrid<FS_STENCIL_WIDTH> &fsgrid,
                                           SysBoundary& sysBoundaries, int32_t RKCase,
                                           const bool communicateEGradPeOrMomentsDerivatives) {
-   std::span<fsgrids::technical> technical = technicalGrid.getData();
    const auto& gridSpacing = technicalGrid.getGridSpacing();
    const auto* localSize = &technicalGrid.getLocalSize()[0];
    const size_t numCells = technicalGrid.getNumCells();

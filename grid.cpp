@@ -1510,7 +1510,6 @@ void mapRefinement(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid
                    std::span<fsgrids::technical> technical, fsgrid::FsGrid<FS_STENCIL_WIDTH> &fsgrid) {
    phiprof::Timer timer{"Map Refinement Level to FsGrid"};
    const auto* localSize = &technicalGrid.getLocalSize()[0];
-   std::span<fsgrids::technical> technical = technicalGrid.getData();
 
    for (auto k = 0; k < localSize[2]; k++) {
       for (auto j = 0; j < localSize[1]; j++) {
