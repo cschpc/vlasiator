@@ -39,7 +39,7 @@ namespace projects {
          virtual void calcCellParameters(spatial_cell::SpatialCell* cell,creal& t);
          virtual void setProjectBField(std::span<std::array<Real, fsgrids::bfield::N_BFIELD>> perb,
                                        std::span<std::array<Real, fsgrids::bgbfield::N_BGB>> bgb,
-                                       fsgrid::FsGrid<fsgrids::technical, FS_STENCIL_WIDTH>& technicalGrid);
+                                       fsgrid::FsGrid< FS_STENCIL_WIDTH> &fsgrid);
          virtual Real calcPhaseSpaceDensity(
             creal& x, creal& y, creal& z,
             creal& dx, creal& dy, creal& dz,

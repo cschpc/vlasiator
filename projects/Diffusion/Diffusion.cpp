@@ -102,9 +102,9 @@ namespace projects {
 
    void Diffusion::setProjectBField(std::span<std::array<Real, fsgrids::bfield::N_BFIELD>> perb,
                                     std::span<std::array<Real, fsgrids::bgbfield::N_BGB>> bgb,
-                                    fsgrid::FsGrid<fsgrids::technical, FS_STENCIL_WIDTH>& technicalGrid) {
+                                    fsgrid::FsGrid< FS_STENCIL_WIDTH> &fsgrid) {
       ConstantField bgField;
       bgField.initialize(0,0,this->B0); //bg bx, by,bz
-      setBackgroundField(bgField, bgb, technicalGrid);
+      setBackgroundField(bgField, bgb, fsgrid);
    }
 } // namespace projects
