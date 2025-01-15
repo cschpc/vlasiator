@@ -33,7 +33,7 @@
 #include <string>
 
 struct FsGrids {
-   fsgrid::FsGrid<FS_STENCIL_WIDTH>& fsgrid;
+   std::span<fsgrids::technical> technical, fsgrid::FsGrid<FS_STENCIL_WIDTH> &fsgrid;
 
    std::span<const std::array<Real, fsgrids::bfield::N_BFIELD>> perB;
    std::span<const std::array<Real, fsgrids::bfield::N_BFIELD>> perBDt2;
@@ -65,11 +65,11 @@ struct FsGrids {
            const fsgrid::FsData<std::array<Real, fsgrids::dmoments::N_DMOMENTS>>& dmomentsdt2,
            const fsgrid::FsData<std::array<Real, fsgrids::bgbfield::N_BGB>>& bgb,
            const fsgrid::FsData<std::array<Real, fsgrids::volfields::N_VOL>>& vol,
-           const fsgrid::FsData<fsgrids::technical>& technical, fsgrid::FsGrid<FS_STENCIL_WIDTH>& fsgrid)
-       : fsgrid(fsgrid), perB(perb.view()), perBDt2(perbdt2.view()), E(e.view()), EDt2(edt2.view()),
+           std::span<fsgrids::technical> technical, fsgrid::FsGrid<FS_STENCIL_WIDTH> &fsgrid)
+       : technicalGrid(technicalGrid), perB(perb.view()), perBDt2(perbdt2.view()), E(e.view()), EDt2(edt2.view()),
          EHall(ehall.view()), EGradPe(egradpe.view()), EGradPeDt2(egradpedt2.view()), moments(moments.view()),
          momentsDt2(momentsdt2.view()), dPerB(dperb.view()), dMoments(dmoments.view()), dMomentsDt2(dmomentsdt2.view()),
-         BgB(bgb.view()), vol(vol.view()), technical(technical.view()) {}
+         BgB(bgb.view()), vol(vol.view()), technical(technicalGrid.getData()) {}
 };
 
 /*!
@@ -84,17 +84,16 @@ void initializeGrids(int argn, char** argc, dccrg::Dccrg<SpatialCell, dccrg::Car
                      fsgrid::FsData<std::array<Real, fsgrids::efield::N_EFIELD>>& e,
                      fsgrid::FsData<std::array<Real, fsgrids::egradpe::N_EGRADPE>>& egradpe,
                      fsgrid::FsData<std::array<Real, fsgrids::volfields::N_VOL>>& vol,
-                     fsgrid::FsData<fsgrids::technical>& technical, fsgrid::FsGrid<FS_STENCIL_WIDTH>& fsgrid,
-                     SysBoundary& sysBoundaries, Project& project);
+                     std::span<fsgrids::technical> technical, fsgrid::FsGrid<FS_STENCIL_WIDTH> &fsgrid, SysBoundary& sysBoundaries,
+                     Project& project);
 
 /*!
   \brief Balance load
 
     \param[in,out] mpiGrid The DCCRG grid with spatial cells
 */
-void balanceLoad(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid, SysBoundary& sysBoundaries,
-                 fsgrid::FsGrid<FS_STENCIL_WIDTH>& fsgrid, std::span<fsgrids::technical> technical,
-                 bool doTranslationLists = true);
+void balanceLoad(dccrg::Dccrg<SpatialCell,dccrg::Cartesian_Geometry>& mpiGrid, SysBoundary& sysBoundaries, std::span<fsgrids::technical> technical, fsgrid::FsGrid<FS_STENCIL_WIDTH> &fsgrid,
+   bool doTranslationLists = true);
 
 /* helper for calculating AMR flags and cell lists and building pencils
  */
@@ -163,18 +162,15 @@ void setFaceNeighborRanks( dccrg::Dccrg<SpatialCell,dccrg::Cartesian_Geometry>& 
 
 /*! Map grid refinement to FsGrid
  */
-void mapRefinement(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid,
-                   fsgrid::FsGrid<FS_STENCIL_WIDTH>& fsgrid, std::span<fsgrids::technical> technical);
+void mapRefinement(dccrg::Dccrg<SpatialCell,dccrg::Cartesian_Geometry>& mpiGrid, std::span<fsgrids::technical> technical, fsgrid::FsGrid<FS_STENCIL_WIDTH> &fsgrid);
 
 /*! Refine spatial cells and update necessary information
  * \param mpiGrid Spatial grid
- * \param fsgrid Technical grid
+ * \param technicalGrid Technical grid
  * \param sysBoundaries System boundaries
  * \param project Project used
  * \param useStatic Used for forcing static refinement on restart. Negative values use adaptive refinement, non-negative values correspond to static refinement pass in Project::forceRefinement
  */
-bool adaptRefinement(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid,
-                     fsgrid::FsGrid<FS_STENCIL_WIDTH>& fsgrid, std::span<fsgrids::technical> technical,
-                     SysBoundary& sysBoundaries, Project& project, int useStatic = -1);
+bool adaptRefinement(dccrg::Dccrg<SpatialCell,dccrg::Cartesian_Geometry>& mpiGrid, std::span<fsgrids::technical> technical, fsgrid::FsGrid<FS_STENCIL_WIDTH> &fsgrid, SysBoundary& sysBoundaries, Project& project, int useStatic = -1);
 
 #endif

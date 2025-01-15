@@ -54,7 +54,7 @@ namespace projects {
                                         ) const;
       virtual void setProjectBField(std::span<std::array<Real, fsgrids::bfield::N_BFIELD>> perb,
                                     std::span<std::array<Real, fsgrids::bgbfield::N_BGB>> bgb,
-                                    fsgrid::FsGrid< FS_STENCIL_WIDTH> &fsgrid);
+                                    fsgrid::FsGrid<fsgrids::technical, FS_STENCIL_WIDTH>& technicalGrid);
 
    protected:
       Real getDistribValue(

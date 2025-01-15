@@ -114,13 +114,13 @@ namespace projects {
 
    void verificationLarmor::setProjectBField(std::span<std::array<Real, fsgrids::bfield::N_BFIELD>> perb,
                                              std::span<std::array<Real, fsgrids::bgbfield::N_BGB>> bgb,
-                                             fsgrid::FsGrid< FS_STENCIL_WIDTH> &fsgrid) {
+                                             fsgrid::FsGrid<fsgrids::technical, FS_STENCIL_WIDTH>& technicalGrid) {
       ConstantField bgField;
       bgField.initialize(this->BX0,
                          this->BY0,
                          this->BZ0);
 
-      setBackgroundField(bgField, bgb, fsgrid);
+      setBackgroundField(bgField, bgb, technicalGrid);
    }
 
 } //namespace projects

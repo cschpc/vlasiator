@@ -597,13 +597,12 @@ void traceOpenClosedConnection(fsgrid::FsGrid<FS_STENCIL_WIDTH>& fsgrid, std::sp
 
 /*! Trace magnetic field lines forward and backward from each DCCRG cell to record the connectivity and detect flux
  * ropes. */
-void traceFullBoxConnectionAndFluxRopes(fsgrid::FsGrid<FS_STENCIL_WIDTH>& fsgrid,
-                                        std::span<fsgrids::technical> technical,
+void traceFullBoxConnectionAndFluxRopes(std::span<fsgrids::technical> technical, fsgrid::FsGrid<FS_STENCIL_WIDTH> &fsgrid,
                                         std::span<const std::array<Real, fsgrids::bfield::N_BFIELD>> perb,
                                         std::span<const std::array<Real, fsgrids::dperb::N_DPERB>> dperb,
                                         dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid);
 
-void reduceData(fsgrid::FsGrid<FS_STENCIL_WIDTH>& fsgrid, std::span<fsgrids::technical> technical,
+void reduceData(std::span<fsgrids::technical> technical, fsgrid::FsGrid<FS_STENCIL_WIDTH> &fsgrid,
                 std::span<const std::array<Real, fsgrids::bfield::N_BFIELD>> perb,
                 std::span<const std::array<Real, fsgrids::dperb::N_DPERB>> dperb,
                 dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid,
