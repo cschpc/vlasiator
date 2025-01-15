@@ -50,20 +50,20 @@ namespace projects {
       /*! Perform some operation at each time step in the main program loop. */
       virtual void hook(cuint& stage, const dccrg::Dccrg<spatial_cell::SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid,
                         std::span<std::array<Real, fsgrids::bfield::N_BFIELD>> perb,
-                        fsgrid::FsGrid< FS_STENCIL_WIDTH>& fsgrid) const;
+                        fsgrid::FsGrid<fsgrids::technical, FS_STENCIL_WIDTH>& technicalGrid) const;
 
       bool initialized();
       
       /** Set the background and perturbed magnetic fields for this project.
        * \param perBGrid Grid on which values of the perturbed field can be set if needed.
        * \param BgBGrid Grid on which values for the background field can be set if needed, e.g. using the background field functions.
-       * \param fsgrid Technical fsgrid, available if some of its data is necessary.
+       * \param technicalGrid Technical fsgrid, available if some of its data is necessary.
        * 
        * \sa setBackgroundField, setBackgroundFieldToZero
        */
       virtual void setProjectBField(std::span<std::array<Real, fsgrids::bfield::N_BFIELD>> perb,
                                     std::span<std::array<Real, fsgrids::bgbfield::N_BGB>> bgb,
-                                    fsgrid::FsGrid< FS_STENCIL_WIDTH>& fsgrid);
+                                    fsgrid::FsGrid<fsgrids::technical, FS_STENCIL_WIDTH>& technicalGrid);
 
       /*! Setup data structures for subsequent setCell calls.
        * This will most likely be empty for most projects, except for some advanced

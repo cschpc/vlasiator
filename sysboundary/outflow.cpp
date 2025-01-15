@@ -219,7 +219,7 @@ void Outflow::initSysBoundary(creal& t, Project& project) {
 
 void Outflow::assignSysBoundary(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid,
                                 std::span<fsgrids::technical> technical, fsgrid::FsGrid<FS_STENCIL_WIDTH> &fsgrid) {
-   const auto& gridSpacing = fsgrid.getGridSpacing();
+   const auto& gridSpacing = technicalGrid.getGridSpacing();
    bool doAssign;
    array<bool, 6> isThisCellOnAFace;
 
@@ -249,12 +249,12 @@ void Outflow::assignSysBoundary(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geome
    }
 
    // Assign boundary flags to local fsgrid cells
-   const auto* localSize = &fsgrid.getLocalSize()[0];
+   const auto* localSize = &technicalGrid.getLocalSize()[0];
    for (auto k = 0; k < localSize[2]; k++) {
       for (auto j = 0; j < localSize[1]; j++) {
          for (auto i = 0; i < localSize[0]; i++) {
-            const auto stencil = fsgrid.makeStencil(i, j, k);
-            const auto& coords = fsgrid.getPhysicalCoords(i, j, k);
+            const auto stencil = technicalGrid.makeStencil(i, j, k);
+            const auto& coords = technicalGrid.getPhysicalCoords(i, j, k);
 
             // Shift to the center of the fsgrid cell
             auto cellCenterCoords = coords;

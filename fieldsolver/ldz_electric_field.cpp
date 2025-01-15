@@ -438,7 +438,7 @@ struct DataArrays {
  * \param dPerBGrid fsGrid holding the derivatives of perturbed B
  * \param dMomentsGrid fsGrid holding the derviatives of moments
  * \param BgBGrid fsGrid holding the background B quantities
- * \param fsgrid fsGrid holding technical information (such as boundary types)
+ * \param technicalGrid fsGrid holding technical information (such as boundary types)
  * \param i,j,k fsGrid cell coordinates for the current cell
  * \param RKCase Element in the enum defining the Runge-Kutta method steps
  */
@@ -1125,7 +1125,7 @@ void calculateEdgeElectricFieldZ(std::span<const std::array<Real, fsgrids::bfiel
  * \param dPerBGrid fsGrid holding the derivatives of perturbed B
  * \param dMomentsGrid fsGrid holding the derviatives of moments
  * \param BgBGrid fsGrid holding the background B quantities
- * \param fsgrid fsGrid holding technical information (such as boundary types)
+ * \param technicalGrid fsGrid holding technical information (such as boundary types)
  * \param i,j,k fsGrid cell coordinates for the current cell
  * \param sysBoundaries System boundary conditions existing
  * \param RKCase Element in the enum defining the Runge-Kutta method steps
@@ -1190,7 +1190,7 @@ void calculateElectricField(std::span<const std::array<Real, fsgrids::bfield::N_
  * \param dMomentsGrid fsGrid holding the derivatives of moments
  * \param dMomentsDt2Grid fsGrid holding the derivatives of moments at runge-kutta t=0.5
  * \param BgBGrid fsGrid holding the background B quantities
- * \param fsgrid fsGrid holding technical information (such as boundary types)
+ * \param technicalGrid fsGrid holding technical information (such as boundary types)
  * \param sysBoundaries System boundary conditions existing
  * \param RKCase Element in the enum defining the Runge-Kutta method steps
  *
@@ -1212,9 +1212,9 @@ void calculateUpwindedElectricFieldSimple(std::span<std::array<Real, fsgrids::bf
                                           std::span<fsgrids::technical> technical, fsgrid::FsGrid<FS_STENCIL_WIDTH> &fsgrid,
                                           SysBoundary& sysBoundaries, int32_t RKCase,
                                           const bool communicateEGradPeOrMomentsDerivatives) {
-   const auto& gridSpacing = fsgrid.getGridSpacing();
-   const auto* localSize = &fsgrid.getLocalSize()[0];
-   const size_t numCells = fsgrid.getNumCells();
+   const auto& gridSpacing = technicalGrid.getGridSpacing();
+   const auto* localSize = &technicalGrid.getLocalSize()[0];
+   const size_t numCells = technicalGrid.getNumCells();
 
    if (not(RKCase == RK_ORDER1 || RKCase == RK_ORDER2_STEP2)) {
       perb = perbdt2;
@@ -1231,19 +1231,19 @@ void calculateUpwindedElectricFieldSimple(std::span<std::array<Real, fsgrids::bf
 
    // Update ghosts if necessary, unless previous terms have already updated them
    if (P::ohmHallTerm > 0) {
-      fsgrid.updateGhostCells(ehall);
+      technicalGrid.updateGhostCells(ehall);
    }
 
    if (P::ohmGradPeTerm > 0 && communicateEGradPeOrMomentsDerivatives) {
-      fsgrid.updateGhostCells(egradpe);
+      technicalGrid.updateGhostCells(egradpe);
    }
 
    if (P::ohmHallTerm == 0) {
-      fsgrid.updateGhostCells(dperb);
+      technicalGrid.updateGhostCells(dperb);
    }
 
    if (P::ohmHallTerm == 0 && P::ohmGradPeTerm == 0 && communicateEGradPeOrMomentsDerivatives) {
-      fsgrid.updateGhostCells(dmoments);
+      technicalGrid.updateGhostCells(dmoments);
    }
 
    mpiTimer.stop();
@@ -1256,7 +1256,7 @@ void calculateUpwindedElectricFieldSimple(std::span<std::array<Real, fsgrids::bf
       for (auto k = 0; k < localSize[2]; k++) {
          for (auto j = 0; j < localSize[1]; j++) {
             for (auto i = 0; i < localSize[0]; i++) {
-               const auto& stencil = fsgrid.makeStencil(i, j, k);
+               const auto& stencil = technicalGrid.makeStencil(i, j, k);
                calculateElectricField(perb, dperb, e, ehall, egradpe, moments, dmoments, bgb, technical, stencil,
                                       gridSpacing, sysBoundaries, RKCase);
             }
@@ -1267,7 +1267,7 @@ void calculateUpwindedElectricFieldSimple(std::span<std::array<Real, fsgrids::bf
 
    mpiTimer.start();
    // Exchange electric field with neighbouring processes
-   fsgrid.updateGhostCells(e);
+   technicalGrid.updateGhostCells(e);
    mpiTimer.stop();
 
    upwindedETimer.stop(numCells, "Spatial Cells");

@@ -215,7 +215,7 @@ void computePerb(std::span<const std::array<Real, fsgrids::bfield::N_BFIELD>> pe
  * \param momentsGrid fsGrid holding the moment quantities
  * \param dPerBGrid fsGrid holding the derivatives of perturbed B
  * \param dMomentsGrid fsGrid holding the derviatives of moments
- * \param fsgrid fsGrid holding technical information (such as boundary types)
+ * \param technicalGrid fsGrid holding technical information (such as boundary types)
  * \param sysBoundaries System boundary conditions existing
  * \param doMoments Bool telling whether the derivatives for moments need updating too.
  *
@@ -261,7 +261,7 @@ void calculateDerivatives(std::span<const std::array<Real, fsgrids::bfield::N_BF
  * \param momentsGrid fsGrid holding the moment quantities
  * \param dPerBGrid fsGrid holding the derivatives of perturbed B
  * \param dMomentsGrid fsGrid holding the derviatives of moments
- * \param fsgrid fsGrid holding technical information (such as boundary types)
+ * \param technicalGrid fsGrid holding technical information (such as boundary types)
  * \param communicateMoments If true, the derivatives of moments (rho, V, P) are communicated to neighbours.
 
  * \sa calculateDerivatives calculateBVOLDerivativesSimple calculateBVOLDerivatives
@@ -273,17 +273,17 @@ void calculateDerivativesSimple(std::span<std::array<Real, fsgrids::bfield::N_BF
                                 std::span<fsgrids::technical> technical, fsgrid::FsGrid<FS_STENCIL_WIDTH> &fsgrid,
                                 const bool doMoments) {
    phiprof::Timer derivativesTimer{"Calculate face derivatives"};
-   const size_t numCells = fsgrid.getNumCells();
+   const size_t numCells = technicalGrid.getNumCells();
 
    phiprof::Timer mpiTimer{"FS derivatives ghost updates MPI", {"MPI"}};
-   fsgrid.updateGhostCells(perb);
+   technicalGrid.updateGhostCells(perb);
    if (doMoments) {
-      fsgrid.updateGhostCells(moments);
+      technicalGrid.updateGhostCells(moments);
    }
    mpiTimer.stop();
 
    // Calculate derivatives
-   fsgrid.parallel_for([](int timerId) -> phiprof::Timer { return phiprof::Timer{timerId}; },
+   technicalGrid.parallel_for([](int timerId) -> phiprof::Timer { return phiprof::Timer{timerId}; },
                               phiprof::initializeTimer("FS derivatives compute cells"),
                               [=](const fsgrid::FsStencil& stencil, cuint sysBoundaryFlag, cuint sysBoundaryLayer) {
                                  calculateDerivatives(perb, moments, dperb, dmoments, stencil, sysBoundaryFlag,
@@ -302,7 +302,7 @@ void calculateDerivativesSimple(std::span<std::array<Real, fsgrids::bfield::N_BF
  * boundaries, unlike at boundaries and shocks inside the simulation domain.
  *
  * \param volGrid fsGrid holding the volume averaged fields
- * \param fsgrid fsGrid holding technical information (such as boundary types)
+ * \param technicalGrid fsGrid holding technical information (such as boundary types)
  * \param i,j,k fsGrid cell coordinates for the current cell
  * \param sysBoundaries System boundary conditions existing
  *
@@ -370,21 +370,21 @@ void calculateBVOLDerivatives(std::span<std::array<Real, fsgrids::volfields::N_V
  * For the acceleration step one needs the cross-derivatives of BVOL
  *
  * \param volGrid fsGrid holding the volume averaged fields
- * \param fsgrid fsGrid holding technical information (such as boundary types)
+ * \param technicalGrid fsGrid holding technical information (such as boundary types)
  * \param sysBoundaries System boundary conditions existing
  *
  * \sa calculateDerivatives calculateBVOLDerivatives calculateDerivativesSimple
  */
 void calculateBVOLDerivativesSimple(std::span<std::array<Real, fsgrids::volfields::N_VOL>> vol,
                                     std::span<fsgrids::technical> technical, fsgrid::FsGrid<FS_STENCIL_WIDTH> &fsgrid) {
-   const auto* localSize = &fsgrid.getLocalSize()[0];
+   const auto* localSize = &technicalGrid.getLocalSize()[0];
    const size_t N_cells = localSize[0] * localSize[1] * localSize[2];
 
    phiprof::Timer derivsTimer{"Calculate volume derivatives"};
    int computeTimerId{phiprof::initializeTimer("FS derivatives BVOL compute cells")};
 
    phiprof::Timer commTimer{"BVOL derivatives ghost updates MPI", {"MPI"}};
-   fsgrid.updateGhostCells(vol);
+   technicalGrid.updateGhostCells(vol);
    commTimer.stop(N_cells, "Spatial Cells");
 
 // Calculate derivatives
@@ -395,7 +395,7 @@ void calculateBVOLDerivativesSimple(std::span<std::array<Real, fsgrids::volfield
       for (auto k = 0; k < localSize[2]; k++) {
          for (auto j = 0; j < localSize[1]; j++) {
             for (auto i = 0; i < localSize[0]; i++) {
-               const auto stencil = fsgrid.makeStencil(i, j, k);
+               const auto stencil = technicalGrid.makeStencil(i, j, k);
                calculateBVOLDerivatives(vol, technical, stencil);
             }
          }
@@ -411,7 +411,7 @@ void calculateBVOLDerivativesSimple(std::span<std::array<Real, fsgrids::volfield
  *
  * \param volGrid fsGrid holding the volume averaged fields
  * \param bgbGrid fsGrid holding the background fields
- * \param fsgrid fsGrid holding technical information (such as boundary types)
+ * \param technicalGrid fsGrid holding technical information (such as boundary types)
  * \param i,j,k fsGrid cell coordinates for the current cell
  * \param sysBoundaries System boundary conditions existing
  *
@@ -462,7 +462,7 @@ void calculateCurvature(std::span<std::array<Real, fsgrids::volfields::N_VOL>> v
  *
  * \param volGrid fsGrid holding the volume averaged fields
  * \param bgbGrid fsGrid holding the background fields
- * \param fsgrid fsGrid holding technical information (such as boundary types)
+ * \param technicalGrid fsGrid holding technical information (such as boundary types)
  * \param sysBoundaries System boundary conditions existing
  *
  * \sa calculateDerivatives calculateBVOLDerivatives calculateDerivativesSimple
@@ -470,8 +470,8 @@ void calculateCurvature(std::span<std::array<Real, fsgrids::volfields::N_VOL>> v
 void calculateCurvatureSimple(std::span<std::array<Real, fsgrids::volfields::N_VOL>> vol,
                               std::span<const std::array<Real, fsgrids::bgbfield::N_BGB>> bgb,
                               std::span<fsgrids::technical> technical, fsgrid::FsGrid<FS_STENCIL_WIDTH> &fsgrid) {
-   const auto& gridSpacing = fsgrid.getGridSpacing();
-   const auto* localSize = &fsgrid.getLocalSize()[0];
+   const auto& gridSpacing = technicalGrid.getGridSpacing();
+   const auto* localSize = &technicalGrid.getLocalSize()[0];
    const size_t N_cells = localSize[0] * localSize[1] * localSize[2];
 
 
@@ -479,7 +479,7 @@ void calculateCurvatureSimple(std::span<std::array<Real, fsgrids::volfields::N_V
    int computeTimerId{phiprof::initializeTimer("Calculate curvature compute cells")};
 
    phiprof::Timer commTimer{"Calculate curvature ghost updates MPI", {"MPI"}};
-   fsgrid.updateGhostCells(vol);
+   technicalGrid.updateGhostCells(vol);
    commTimer.stop(N_cells, "Spatial Cells");
 
 #pragma omp parallel
@@ -489,7 +489,7 @@ void calculateCurvatureSimple(std::span<std::array<Real, fsgrids::volfields::N_V
       for (auto k = 0; k < localSize[2]; k++) {
          for (auto j = 0; j < localSize[1]; j++) {
             for (auto i = 0; i < localSize[0]; i++) {
-               const auto stencil = fsgrid.makeStencil(i, j, k);
+               const auto stencil = technicalGrid.makeStencil(i, j, k);
                const auto& tech = technical[stencil.center()];
 
                const bool compute = (tech.sysBoundaryFlag == sysboundarytype::NOT_SYSBOUNDARY &&
