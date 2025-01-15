@@ -86,7 +86,7 @@ void filterMoments(fsgrid::FsData<std::array<Real, fsgrids::moments::N_MOMENTS>>
    fsgrid::FsData<std::array<Real, fsgrids::moments::N_MOMENTS>> blurred(moments.size());
 
    // Update momentsGrid Ghost Cells
-   fsgrid.updateGhostCells(moments);
+   fsgrid.updateGhostCells(moments.view());
 
    // Filtering Loop
    for (auto blurPass = 0; blurPass < Parameters::maxFilteringPasses; blurPass++) {
@@ -128,7 +128,7 @@ void filterMoments(fsgrid::FsData<std::array<Real, fsgrids::moments::N_MOMENTS>>
 
       using std::swap;
       swap(moments, blurred);
-      fsgrid.updateGhostCells(moments);
+      fsgrid.updateGhostCells(moments.view());
    }
 }
 

@@ -164,7 +164,7 @@ bool traceFullFieldFunction(std::span<const std::array<Real, fsgrids::bfield::N_
    b[2] = SBC::ionosphereGrid.dipoleField(r[0], r[1], r[2], Z, 0, Z) + SBC::ionosphereGrid.BGB[2];
 
    std::array<fsgrid::FsSize_t, 3> fsgridCellu =
-       getGlobalFsGridCellIndexForCoord(technical, fsgrid, {(TReal)r[0], (TReal)r[1], (TReal)r[2]});
+       getGlobalFsGridCellIndexForCoord(fsgrid, {(TReal)r[0], (TReal)r[1], (TReal)r[2]});
    std::array<fsgrid::FsIndex_t, 3> fsgridCell = {(fsgrid::FsIndex_t)fsgridCellu[0], (fsgrid::FsIndex_t)fsgridCellu[1],
                                                   (fsgrid::FsIndex_t)fsgridCellu[2]};
    const auto& localStart = fsgrid.getLocalStart();

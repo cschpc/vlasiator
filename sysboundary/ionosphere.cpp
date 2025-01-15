@@ -1143,7 +1143,7 @@ void SphericalTriGrid::mapDownBoundaryData(std::span<const std::array<Real, fsgr
          }
 
          // Local cell
-         auto lfsc = getLocalFsGridCellIndexForCoord(technical, fsgrid, nodes[n].xMapped);
+         auto lfsc = getLocalFsGridCellIndexForCoord(fsgrid, nodes[n].xMapped);
          if (lfsc[0] == -1 || lfsc[1] == -1 || lfsc[2] == -1) {
             continue;
          }
@@ -1192,7 +1192,7 @@ void SphericalTriGrid::mapDownBoundaryData(std::span<const std::array<Real, fsgr
             FACinput[n] *= -1;
          }
 
-         std::array<Real, 3> frac = getFractionalFsGridCellForCoord(technical, fsgrid, nodes[n].xMapped);
+         std::array<Real, 3> frac = getFractionalFsGridCellForCoord(fsgrid, nodes[n].xMapped);
          for (int c = 0; c < 3; c++) {
             // Shift by half a cell, as we are sampling volume quantities that are logically located at cell centres.
             if (frac[c] < 0.5) {

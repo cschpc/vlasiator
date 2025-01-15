@@ -142,7 +142,7 @@ void initializeGrids(int argn, char** argc, dccrg::Dccrg<SpatialCell, dccrg::Car
       if (P::amrMaxSpatialRefLevel > 0 && project.refineSpatialCells(mpiGrid)) {
          mpiGrid.balance_load();
          recalculateLocalCellsCache();
-         mapRefinement(mpiGrid, technical, fsgrid);
+         mapRefinement(mpiGrid, technical.view(), fsgrid);
       }
    } else {
       if (myRank == MASTER_RANK)
@@ -153,7 +153,7 @@ void initializeGrids(int argn, char** argc, dccrg::Dccrg<SpatialCell, dccrg::Car
       if (restartSuccess) {
          mpiGrid.balance_load();
          recalculateLocalCellsCache();
-         mapRefinement(mpiGrid, technical, fsgrid);
+         mapRefinement(mpiGrid, technical.view(), fsgrid);
       }
    }
    refineTimer.stop();
@@ -197,17 +197,17 @@ void initializeGrids(int argn, char** argc, dccrg::Dccrg<SpatialCell, dccrg::Car
    SpatialCell::set_mpi_transfer_type(Transfer::CELL_DIMENSIONS);
    mpiGrid.update_copies_of_remote_neighbors(SYSBOUNDARIES_NEIGHBORHOOD_ID);
 
-   computeCoupling(mpiGrid, cells, technical, fsgrid);
+   computeCoupling(mpiGrid, cells, fsgrid);
 
    // We want this before restart refinement
    phiprof::Timer classifyTimer{"Classify cells (sys boundary conditions)"};
-   sysBoundaries.classifyCells(mpiGrid, technical, fsgrid);
+   sysBoundaries.classifyCells(mpiGrid, technical.view(), fsgrid);
    classifyTimer.stop();
 
    if (P::isRestart) {
       logFile << "Restart from " << P::restartFileName << std::endl << writeVerbose;
       phiprof::Timer restartReadTimer{"Read restart"};
-      if (readGrid(mpiGrid, perb.view(), e.view(), technical, fsgrid, P::restartFileName) == false) {
+      if (readGrid(mpiGrid, perb.view(), e.view(), technical.view(), fsgrid, P::restartFileName) == false) {
          logFile << "(MAIN) ERROR: restarting failed" << endl;
          exit(1);
       }
@@ -218,19 +218,19 @@ void initializeGrids(int argn, char** argc, dccrg::Dccrg<SpatialCell, dccrg::Car
          phiprof::Timer timer{"Restart refinement"};
          for (int i = 0; i < P::amrMaxSpatialRefLevel; ++i) {
             // (un)Refinement is done one level at a time so we don't blow up memory
-            if (!adaptRefinement(mpiGrid, technical, fsgrid, sysBoundaries, project, i)) {
+            if (!adaptRefinement(mpiGrid, technical.view(), fsgrid, sysBoundaries, project, i)) {
                cerr << "(MAIN) ERROR: Forcing refinement takes too much memory" << endl;
                exit(1);
             }
-            balanceLoad(mpiGrid, sysBoundaries, technical, fsgrid);
+            balanceLoad(mpiGrid, sysBoundaries, technical.view(), fsgrid);
          }
       } else if (P::refineOnRestart) {
          // Considered deprecated
          phiprof::Timer timer{"Restart refinement"};
          // Get good load balancing for refinement
-         balanceLoad(mpiGrid, sysBoundaries, technical, fsgrid);
-         adaptRefinement(mpiGrid, technical, fsgrid, sysBoundaries, project);
-         balanceLoad(mpiGrid, sysBoundaries, technical, fsgrid);
+         balanceLoad(mpiGrid, sysBoundaries, technical.view(), fsgrid);
+         adaptRefinement(mpiGrid, technical.view(), fsgrid, sysBoundaries, project);
+         balanceLoad(mpiGrid, sysBoundaries, technical.view(), fsgrid);
       }
    }
 
@@ -242,11 +242,11 @@ void initializeGrids(int argn, char** argc, dccrg::Dccrg<SpatialCell, dccrg::Car
    if (P::isRestart) {
       // initial state for sys-boundary cells, will skip those not set to be reapplied at restart
       phiprof::Timer timer{"Apply system boundary conditions state"};
-      sysBoundaries.applyInitialState(mpiGrid, technical, fsgrid, perb.view(), bgb.view(), project);
+      sysBoundaries.applyInitialState(mpiGrid, technical.view(), fsgrid, perb.view(), bgb.view(), project);
    }
 
    // Update fsgrid (e.g. sysboundary flags)
-   fsgrid.updateGhostCells(technical);
+   fsgrid.updateGhostCells(technical.view());
 
    if (!P::isRestart && !P::writeFullBGB) {
       // If we are starting a new regular simulation, we need to prepare all cells with their initial state.
@@ -276,7 +276,7 @@ void initializeGrids(int argn, char** argc, dccrg::Dccrg<SpatialCell, dccrg::Car
       // Initial state for sys-boundary cells
       applyInitialTimer.stop();
       phiprof::Timer applyBCTimer{"Apply system boundary conditions state"};
-      sysBoundaries.applyInitialState(mpiGrid, technical, fsgrid, perb.view(), bgb.view(), project);
+      sysBoundaries.applyInitialState(mpiGrid, technical.view(), fsgrid, perb.view(), bgb.view(), project);
       applyBCTimer.stop();
 
 #pragma omp parallel for schedule(static)
@@ -326,7 +326,7 @@ void initializeGrids(int argn, char** argc, dccrg::Dccrg<SpatialCell, dccrg::Car
    }
 
    // Balance load before we transfer all data below
-   balanceLoad(mpiGrid, sysBoundaries, technical, fsgrid, false);
+   balanceLoad(mpiGrid, sysBoundaries, technical.view(), fsgrid, false);
    // Function includes re-calculation of local cells cache, but
    // setting third parameter to false skips preparation of
    // translation cell lists and building of pencils.
@@ -338,15 +338,15 @@ void initializeGrids(int argn, char** argc, dccrg::Dccrg<SpatialCell, dccrg::Car
    fetchNeighbourTimer.stop();
 
    phiprof::Timer setBTimer{"project.setProjectBField"};
-   project.setProjectBField(perb.view(), bgb.view(), technical, fsgrid);
+   project.setProjectBField(perb.view(), bgb.view(), technical.view(), fsgrid);
    setBTimer.stop();
    phiprof::Timer fsGridGhostTimer{"fsgrid-ghost-updates"};
-   fsgrid.updateGhostCells(perb);
-   fsgrid.updateGhostCells(bgb);
-   fsgrid.updateGhostCells(e);
+   fsgrid.updateGhostCells(perb.view());
+   fsgrid.updateGhostCells(bgb.view());
+   fsgrid.updateGhostCells(e.view());
 
    // This will only have the BGB set up properly at this stage but we need the BGBvol for the Vlasov boundaries below.
-   fsgrid.updateGhostCells(vol);
+   fsgrid.updateGhostCells(vol.view());
    fsGridGhostTimer.stop();
    phiprof::Timer getFieldsTimer{"getFieldsFromFsGrid"};
    getFieldsFromFsGrid(vol.view(), bgb.view(), egradpe.view(), dmoments.view(), technical.view(), fsgrid, mpiGrid,
@@ -653,7 +653,7 @@ void balanceLoad(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid, 
    }
 
    // recompute coupling of grids after load balance
-   computeCoupling(mpiGrid, cells, technical, fsgrid);
+   computeCoupling(mpiGrid, cells, fsgrid);
 
    // Communicate all spatial data for FULL neighborhood, which
    // includes all data with the exception of dist function data
@@ -1695,7 +1695,7 @@ bool adaptRefinement(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& mpiGr
 
    const vector<CellID>& cellsVec = getLocalCells();
 
-   computeCoupling(mpiGrid, cellsVec, technical, fsgrid);
+   computeCoupling(mpiGrid, cellsVec, fsgrid);
 
    // Initialise system boundary conditions (they need the initialised positions!!)
    // This needs to be done before LB

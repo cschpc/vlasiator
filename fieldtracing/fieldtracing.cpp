@@ -93,7 +93,7 @@ void calculateIonosphereFsgridCoupling(std::span<fsgrids::technical> technical, 
    bool anyNodeNeedsTracing;
 
    TracingFieldFunction<Real> tracingFullField =
-       [&perb, &dperb, &fsgrid](std::array<Real, 3>& r, const bool alongB, std::array<Real, 3>& b) -> bool {
+       [&perb, &dperb, &technical, &fsgrid](std::array<Real, 3>& r, const bool alongB, std::array<Real, 3>& b) -> bool {
       return traceFullFieldFunction(perb, dperb, technical, fsgrid, r, alongB, b);
    };
 
@@ -120,7 +120,7 @@ void calculateIonosphereFsgridCoupling(std::span<fsgrids::technical> technical, 
             while (true) {
 
                // Check if the current coordinates (pre-step) are in our own domain.
-               std::array<fsgrid::FsIndex_t, 3> fsgridCell = getLocalFsGridCellIndexForCoord(technical, fsgrid, x);
+               std::array<fsgrid::FsIndex_t, 3> fsgridCell = getLocalFsGridCellIndexForCoord(fsgrid, x);
                // If it is not in our domain, somebody else takes care of it.
                if (fsgridCell[0] == -1) {
                   nodeNeedsContinuedTracing[n] = 0;
@@ -167,7 +167,7 @@ void calculateIonosphereFsgridCoupling(std::span<fsgrids::technical> technical, 
 
                   // Look up the fsgrid cell belonging to these coordinates, including ghost IDs as we might have
                   // stepped back across the domain edge
-                  fsgridCell = getLocalFsGridCellIndexWithGhostsForCoord(technical, fsgrid, x);
+                  fsgridCell = getLocalFsGridCellIndexWithGhostsForCoord(fsgrid, x);
 
                   // Interpolate and record upmapped B at final xMapped ccordinates
                   const std::array<Real, 3> perB = interpolatePerturbedB(
@@ -190,7 +190,7 @@ void calculateIonosphereFsgridCoupling(std::span<fsgrids::technical> technical, 
                }
 
                // Look up the fsgrid cell belonging to these coordinates, again only local (no ghosts)
-               fsgridCell = getLocalFsGridCellIndexForCoord(technical, fsgrid, x);
+               fsgridCell = getLocalFsGridCellIndexForCoord(fsgrid, x);
                // Now, after stepping, if it is no longer in our domain, another MPI rank will pick up later.
                if (fsgridCell[0] == -1) {
                   nodeNeedsContinuedTracing[n] = 1;
@@ -526,8 +526,9 @@ void traceOpenClosedConnection(std::span<fsgrids::technical> technical, fsgrid::
    }
    bool anyNodeNeedsTracing;
 
-   TracingFieldFunction<TReal> tracingFullField =
-       [&perb, &dperb, &fsgrid](std::array<TReal, 3>& r, const bool alongB, std::array<TReal, 3>& b) -> bool {
+   TracingFieldFunction<TReal> tracingFullField = [&perb, &dperb, &technical,
+                                                   &fsgrid](std::array<TReal, 3>& r, const bool alongB,
+                                                            std::array<TReal, 3>& b) -> bool {
       return traceFullFieldFunction(perb, dperb, technical, fsgrid, r, alongB, b);
    };
 
@@ -557,7 +558,7 @@ void traceOpenClosedConnection(std::span<fsgrids::technical> technical, fsgrid::
 
                // Check if the current coordinates (pre-step) are in our own domain.
                std::array<fsgrid::FsIndex_t, 3> fsgridCell =
-                   getLocalFsGridCellIndexForCoord(technical, fsgrid, {(TReal)x[0], (TReal)x[1], (TReal)x[2]});
+                   getLocalFsGridCellIndexForCoord(fsgrid, {(TReal)x[0], (TReal)x[1], (TReal)x[2]});
                // If it is not in our domain, somebody else takes care of it.
                if (fsgridCell[0] == -1) {
                   nodeNeedsContinuedTracing[n] = 0;
@@ -582,7 +583,7 @@ void traceOpenClosedConnection(std::span<fsgrids::technical> technical, fsgrid::
                nodeTracingStepCount[n]++;
 
                // Look up the fsgrid cell belonging to these coordinates
-               fsgridCell = getLocalFsGridCellIndexForCoord(technical, fsgrid, {(TReal)x[0], (TReal)x[1], (TReal)x[2]});
+               fsgridCell = getLocalFsGridCellIndexForCoord(fsgrid, {(TReal)x[0], (TReal)x[1], (TReal)x[2]});
 
                // If we map into the ionosphere, this node is on a closed field line.
                if (x.at(0) * x.at(0) + x.at(1) * x.at(1) + x.at(2) * x.at(2) <
@@ -687,7 +688,7 @@ void stepCellAcrossTaskDomain(cint n, std::span<fsgrids::technical> technical, f
    while (true) {
       // Check if the current coordinates (pre-step) are in our own domain.
       std::array<fsgrid::FsIndex_t, 3> fsgridCell =
-          getLocalFsGridCellIndexForCoord(technical, fsgrid, {(Real)x[0], (Real)x[1], (Real)x[2]});
+          getLocalFsGridCellIndexForCoord(fsgrid, {(Real)x[0], (Real)x[1], (Real)x[2]});
       // If it is not in our domain, somebody else takes care of it.
       if (fsgridCell[0] == -1) {
          cellTracingCoordinates[n] = {0, 0, 0};
@@ -702,7 +703,7 @@ void stepCellAcrossTaskDomain(cint n, std::span<fsgrids::technical> technical, f
       cellRunningDistance[n] += cellTracingStepSize[n];
 
       // Look up the fsgrid cell belonging to these coordinates
-      fsgridCell = getLocalFsGridCellIndexForCoord(technical, fsgrid, {(Real)x[0], (Real)x[1], (Real)x[2]});
+      fsgridCell = getLocalFsGridCellIndexForCoord(fsgrid, {(Real)x[0], (Real)x[1], (Real)x[2]});
 
       // If we map into the ionosphere, discard this field line.
       if (x.at(0) * x.at(0) + x.at(1) * x.at(1) + x.at(2) * x.at(2) <
@@ -976,8 +977,9 @@ void traceFullBoxConnectionAndFluxRopes(std::span<fsgrids::technical> technical,
    cellBWTracingStepSize.swap(reducedCellBWTracingStepSize);
    cellCurvatureRadius.swap(reducedCellCurvatureRadius);
 
-   TracingFieldFunction<TReal> tracingFullField =
-       [&perb, &dperb, &fsgrid](std::array<TReal, 3>& r, const bool alongB, std::array<TReal, 3>& b) -> bool {
+   TracingFieldFunction<TReal> tracingFullField = [&perb, &dperb, &technical,
+                                                   &fsgrid](std::array<TReal, 3>& r, const bool alongB,
+                                                            std::array<TReal, 3>& b) -> bool {
       return traceFullFieldFunction(perb, dperb, technical, fsgrid, r, alongB, b);
    };
    int itCount = 0;

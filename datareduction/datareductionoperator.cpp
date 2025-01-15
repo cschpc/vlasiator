@@ -127,7 +127,7 @@ namespace DRO {
       return true;
    }
 
-   bool DataReductionOperatorFsGrid::writeFsGridData(FsGrids& fsgrids, const std::string& meshName,
+   bool DataReductionOperatorFsGrid::writeFsGridData(const FsGrids& fsgrids, const std::string& meshName,
                                                      vlsv::Writer& vlsvWriter, const bool writeAsFloat) {
       const std::map<std::string, std::string> attribs = {
           {"mesh", meshName},

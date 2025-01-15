@@ -465,9 +465,6 @@ int simulate(int argn,char* args[]) {
    fsgrid::FsData<std::array<Real, fsgrids::bgbfield::N_BGB>> bgb(fsgridNumElements);
    fsgrid::FsData<std::array<Real, fsgrids::volfields::N_VOL>> vol(fsgridNumElements);
 
-   const FsGrids fsgrids(perb, perbdt2, e, edt2, ehall, egradpe, egradpedt2, moments, momentsdt2, dperb, dmoments,
-                         dmomentsdt2, bgb, vol, technical, fsgrid);
-   initFsTimer.stop();
 
    // Initialize grid.  After initializeGrid local cells have dist
    // functions, and B fields set. Cells have also been classified for
@@ -485,6 +482,10 @@ int simulate(int argn,char* args[]) {
    // touched as we are in boundary cells for components that aren't solved. We do a straight full copy instead
    // of looping and detecting boundary types here.
    fsgrid::FsData<std::array<Real, fsgrids::bfield::N_BFIELD>> perbdt2(perb.view());
+
+   const FsGrids fsgrids(perb, perbdt2, e, edt2, ehall, egradpe, egradpedt2, moments, momentsdt2, dperb, dmoments,
+                         dmomentsdt2, bgb, vol, technical, fsgrid);
+   initFsTimer.stop();
 
    const std::vector<CellID>& cells = getLocalCells();
    
@@ -556,7 +557,7 @@ int simulate(int argn,char* args[]) {
    }
 
    phiprof::Timer getFieldsTimer {"getFieldsFromFsGrid"};
-   fsgrid.updateGhostCells(vol);
+   fsgrid.updateGhostCells(vol.view());
    getFieldsFromFsGrid(vol.view(), bgb.view(), egradpe.view(), dmoments.view(), technical.view(), fsgrid, mpiGrid,
                        cells);
    getFieldsTimer.stop();
@@ -568,7 +569,7 @@ int simulate(int argn,char* args[]) {
       calculateDerivativesSimple(perb.view(), moments.view(), dperb.view(), dmoments.view(), technical.view(), fsgrid,
                                  false // Don't communicate moments, they are not needed here.
       );
-      fsgrid.updateGhostCells(dperb);
+      fsgrid.updateGhostCells(dperb.view());
    }
    FieldTracing::calculateIonosphereFsgridCoupling(technical.view(), fsgrid, perb.view(), dperb.view(),
                                                    SBC::ionosphereGrid.nodes, SBC::Ionosphere::radius);
