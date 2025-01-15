@@ -860,7 +860,7 @@ bool writeConfigInfo(std::string config,vlsv::Writer& vlsvWriter,MPI_Comm comm){
  * @param technicalGrid An fsgrid instance used to extract metadata info.
  * @param vlsvWriter file object to write into.
  */
-bool writeFsGridMetadata(fsgrid::FsGrid< fsgrids::technical, FS_STENCIL_WIDTH> & technicalGrid, vlsv::Writer& vlsvWriter,
+bool writeFsGridMetadata(std::span< fsgrids::technical> technical, fsgrid::FsGrid< FS_STENCIL_WIDTH> &fsgrid, vlsv::Writer& vlsvWriter,
    bool writeIDs=false) {
 
   std::map<std::string, std::string> xmlAttributes;

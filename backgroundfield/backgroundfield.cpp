@@ -31,7 +31,7 @@
 
 // FieldFunction should be initialized
 void setBackgroundField(const FieldFunction& bgFunction, std::span<std::array<Real, fsgrids::bgbfield::N_BGB>> bgb,
-                        fsgrid::FsGrid<fsgrids::technical, FS_STENCIL_WIDTH>& technicalGrid, bool append) {
+                        std::span<fsgrids::technical> technical, fsgrid::FsGrid< FS_STENCIL_WIDTH> &fsgrid, bool append) {
    using namespace std::placeholders;
    const auto* localSize = &technicalGrid.getLocalSize()[0];
    const auto& gridSpacing = technicalGrid.getGridSpacing();
