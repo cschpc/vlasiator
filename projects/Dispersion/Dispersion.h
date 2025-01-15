@@ -52,10 +52,12 @@ namespace projects {
       virtual void getParameters(void) override;
       virtual void setProjectBField(std::span<std::array<Real, fsgrids::bfield::N_BFIELD>> perb,
                                     std::span<std::array<Real, fsgrids::bgbfield::N_BGB>> bgb,
-                                    fsgrid::FsGrid<fsgrids::technical, FS_STENCIL_WIDTH>& technicalGrid) override;
+                                    std::span<fsgrids::technical> technical,
+                                    fsgrid::FsGrid<FS_STENCIL_WIDTH>& fsgrid) override;
       virtual void hook(cuint& stage, const dccrg::Dccrg<spatial_cell::SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid,
                         std::span<std::array<Real, fsgrids::bfield::N_BFIELD>> perb,
-                        fsgrid::FsGrid<fsgrids::technical, FS_STENCIL_WIDTH>& technicalGrid) const override;
+                        std::span<fsgrids::technical> technical,
+                        fsgrid::FsGrid<FS_STENCIL_WIDTH>& fsgrid) const override;
       virtual Realf fillPhaseSpace(spatial_cell::SpatialCell *cell,
                                   const uint popID,
                                   const uint nRequested) const override;
