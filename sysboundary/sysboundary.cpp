@@ -352,7 +352,7 @@ bool belongsToLayer(const int layer, const int x, const int y, const int z,
  * \param mpiGrid Grid
  */
 void SysBoundary::classifyCells(dccrg::Dccrg<spatial_cell::SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid,
-                                fsgrid::FsGrid<FS_STENCIL_WIDTH>& fsgrid, std::span<fsgrids::technical> technical) {
+                                std::span<fsgrids::technical> technical, fsgrid::FsGrid<FS_STENCIL_WIDTH> &fsgrid) {
    const vector<CellID>& cells = getLocalCells();
    const auto* localSize = &fsgrid.getLocalSize()[0];
    const auto rank = fsgrid.getRank();
@@ -395,7 +395,7 @@ void SysBoundary::classifyCells(dccrg::Dccrg<spatial_cell::SpatialCell, dccrg::C
    SpatialCell::set_mpi_transfer_type(Transfer::CELL_SYSBOUNDARYFLAG);
    mpiGrid.update_copies_of_remote_neighbors(SYSBOUNDARIES_NEIGHBORHOOD_ID);
 
-   feedBoundaryIntoFsGrid(mpiGrid, cells, technical);
+   feedBoundaryIntoFsGrid(mpiGrid, cells, fsgrid);
 
    // set distance 1 cells to boundary cells, that have neighbors which are normal cells
    for (CellID cell : cells) {
@@ -512,7 +512,7 @@ void SysBoundary::classifyCells(dccrg::Dccrg<spatial_cell::SpatialCell, dccrg::C
                if ((layer == 1 && tech.sysBoundaryFlag != sysboundarytype::NOT_SYSBOUNDARY) ||
                    (layer > 1 && tech.sysBoundaryLayer == 0)) {
 
-                  if (belongsToLayer(layer, x, y, z, technical, fsgrid)) {
+                  if (belongsToLayer(layer, x, y, z, fsgrid)) {
 
                      tech.sysBoundaryLayer = layer;
 
@@ -617,7 +617,7 @@ void SysBoundary::classifyCells(dccrg::Dccrg<spatial_cell::SpatialCell, dccrg::C
  * \retval success If true, the application of all system boundary states succeeded.
  */
 void SysBoundary::applyInitialState(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid,
-                                    fsgrid::FsGrid<FS_STENCIL_WIDTH>& fsgrid,
+                                    std::span<fsgrids::technical> technical, fsgrid::FsGrid<FS_STENCIL_WIDTH> &fsgrid,
                                     std::span<array<Real, fsgrids::bfield::N_BFIELD>> perb,
                                     std::span<array<Real, fsgrids::bgbfield::N_BGB>> bgb, Project& project) {
 
@@ -634,7 +634,7 @@ void SysBoundary::applyInitialState(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_G
 }
 
 void SysBoundary::updateState(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid,
-                              fsgrid::FsGrid<FS_STENCIL_WIDTH>& fsgrid,
+                              std::span<fsgrids::technical> technical, fsgrid::FsGrid<FS_STENCIL_WIDTH> &fsgrid,
                               std::span<std::array<Real, fsgrids::bfield::N_BFIELD>> perb,
                               std::span<std::array<Real, fsgrids::bgbfield::N_BGB>> bgb, creal t) {
    if (isAnyDynamic()) {

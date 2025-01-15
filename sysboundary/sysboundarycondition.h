@@ -224,12 +224,18 @@ namespace SBC {
             creal& quenchingFactor,
             const uint popID
          );
-         std::array<int, 3> getTheClosestNonsysboundaryCell(fsgrid::FsGrid<FS_STENCIL_WIDTH>& fsgrid,
-                                                            std::span<fsgrids::technical> technical, cint i, cint j,
-                                                            cint k);
-         std::vector<std::array<int, 3>> getAllClosestNonsysboundaryCells(fsgrid::FsGrid<FS_STENCIL_WIDTH>& fsgrid,
-                                                                          std::span<fsgrids::technical> technical,
-                                                                          cint i, cint j, cint k);
+         std::array<int, 3> getTheClosestNonsysboundaryCell(
+            fsgrid::FsGrid< FS_STENCIL_WIDTH> & fsgrid,
+            cint i,
+            cint j,
+            cint k
+         );
+         std::vector< std::array<int, 3> > getAllClosestNonsysboundaryCells(
+            fsgrid::FsGrid< FS_STENCIL_WIDTH> & fsgrid,
+            cint i,
+            cint j,
+            cint k
+         );
          CellID & getTheClosestNonsysboundaryCell(
             const CellID& cellID
          );

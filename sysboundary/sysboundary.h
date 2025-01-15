@@ -23,17 +23,16 @@
 #ifndef SYSBOUNDARY_H
 #define SYSBOUNDARY_H
 
+#include <map>
+#include <list>
+#include <vector>
+#include <mpi.h>
+#include <dccrg.hpp>
+#include <dccrg_cartesian_geometry.hpp>
 #include "../definitions.h"
 #include "../parameters.h"
 #include "../readparameters.h"
 #include "../spatial_cell_wrapper.hpp"
-#include <dccrg.hpp>
-#include <dccrg_cartesian_geometry.hpp>
-#include <list>
-#include <map>
-#include <mpi.h>
-#include <span>
-#include <vector>
 
 #include "sysboundarycondition.h"
 
@@ -71,8 +70,8 @@ class SysBoundary {
                          );
    bool existSysBoundary(std::string name);
    void checkRefinement(dccrg::Dccrg<spatial_cell::SpatialCell,dccrg::Cartesian_Geometry>& mpiGrid);
-   void classifyCells(dccrg::Dccrg<spatial_cell::SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid,
-                      fsgrid::FsGrid<FS_STENCIL_WIDTH>& fsgrid, std::span<fsgrids::technical> technical);
+   void classifyCells(dccrg::Dccrg<spatial_cell::SpatialCell,dccrg::Cartesian_Geometry>& mpiGrid,
+                     fsgrid::FsGrid< FS_STENCIL_WIDTH> & fsgrid);
    void applyInitialState(dccrg::Dccrg<spatial_cell::SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid,
                           fsgrid::FsGrid< FS_STENCIL_WIDTH>& fsgrid,
                           std::span<std::array<Real, fsgrids::bfield::N_BFIELD>> perb,

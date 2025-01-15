@@ -228,7 +228,7 @@ namespace SBC {
       void mapDownBoundaryData(std::span<const std::array<Real, fsgrids::bfield::N_BFIELD>> perb,
                                std::span<const std::array<Real, fsgrids::dperb::N_DPERB>> dperb,
                                std::span<std::array<Real, fsgrids::moments::N_MOMENTS>> moments,
-                               std::span<fsgrids::technical> technical, fsgrid::FsGrid<FS_STENCIL_WIDTH>& fsgrid);
+                               fsgrid::FsGrid< FS_STENCIL_WIDTH>& fsgrid);
 
       // Returns the surface area of one element on the sphere
       Real elementArea(uint32_t elementIndex) {

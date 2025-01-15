@@ -35,8 +35,8 @@ void calculateUpwindedElectricFieldSimple(std::span<std::array<Real, fsgrids::bf
                                           std::span<std::array<Real, fsgrids::dmoments::N_DMOMENTS>> dmoments,
                                           std::span<std::array<Real, fsgrids::dmoments::N_DMOMENTS>> dmomentsdt2,
                                           std::span<std::array<Real, fsgrids::bgbfield::N_BGB>> bgb,
-                                          std::span<fsgrids::technical> technical,
-                                          fsgrid::FsGrid<FS_STENCIL_WIDTH>& fsgrid, SysBoundary& sysBoundaries,
-                                          int32_t RKCase, const bool communicateEGradPeOrMomentsDerivatives);
+                                          fsgrid::FsGrid< FS_STENCIL_WIDTH>& fsgrid,
+                                          SysBoundary& sysBoundaries, int32_t RKCase,
+                                          const bool communicateEGradPeOrMomentsDerivatives);
 
 #endif

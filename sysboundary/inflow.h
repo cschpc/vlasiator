@@ -61,7 +61,7 @@ public:
 
    virtual void initSysBoundary(creal& t, Project& project);
    virtual void assignSysBoundary(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid,
-                                  fsgrid::FsGrid<FS_STENCIL_WIDTH>& fsgrid, std::span<fsgrids::technical> technical);
+                               fsgrid::FsGrid< FS_STENCIL_WIDTH>& fsgrid);
    virtual void applyInitialState(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid,
                                   fsgrid::FsGrid< FS_STENCIL_WIDTH>& fsgrid,
                                   std::span<std::array<Real, fsgrids::bfield::N_BFIELD>> perb,

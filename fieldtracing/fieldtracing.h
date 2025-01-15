@@ -149,8 +149,8 @@ using TracingFieldFunction = std::function<bool(std::array<REAL, 3>&, const bool
 template <typename REAL>
 bool traceFullFieldFunction(std::span<const std::array<Real, fsgrids::bfield::N_BFIELD>> perb,
                             std::span<const std::array<Real, fsgrids::dperb::N_DPERB>> dperb,
-                            std::span<fsgrids::technical> technical, fsgrid::FsGrid<FS_STENCIL_WIDTH>& fsgrid,
-                            std::array<REAL, 3>& r, const bool alongB, std::array<REAL, 3>& b) {
+                            std::span<fsgrids::technical> technical, fsgrid::FsGrid< std::array<REAL, 3>& r,
+                            const bool alongB, std::array<REAL, 3>& b) {
 
    if (r[0] > P::xmax - 2 * P::dx_ini || r[0] < P::xmin + 2 * P::dx_ini || r[1] > P::ymax - 2 * P::dy_ini ||
        r[1] < P::ymin + 2 * P::dy_ini || r[2] > P::zmax - 2 * P::dz_ini || r[2] < P::zmin + 2 * P::dz_ini) {
@@ -186,9 +186,9 @@ bool traceFullFieldFunction(std::span<const std::array<Real, fsgrids::bfield::N_
    } else {
       const auto stencil = fsgrid.makeStencil(fsgridCell[0], fsgridCell[1], fsgridCell[2]);
       if (technical[stencil.center()].sysBoundaryFlag == sysboundarytype::NOT_SYSBOUNDARY) {
-         const std::array<Real, 3> perB = interpolatePerturbedB(
-             perb, dperb, technical, fsgrid, fieldTracingParameters.reconstructionCoefficientsCache, fsgridCell[0],
-             fsgridCell[1], fsgridCell[2], {(Real)r[0], (Real)r[1], (Real)r[2]});
+         const std::array<Real, 3> perB =
+             interpolatePerturbedB(perb, dperb, fsgrid, fieldTracingParameters.reconstructionCoefficientsCache,
+                                   fsgridCell[0], fsgridCell[1], fsgridCell[2], {(Real)r[0], (Real)r[1], (Real)r[2]});
          b[0] += perB[0];
          b[1] += perB[1];
          b[2] += perB[2];

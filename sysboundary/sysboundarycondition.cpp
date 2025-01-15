@@ -756,20 +756,27 @@ namespace SBC {
     * \return The cell index of that cell
     * \sa getAllClosestNonsysboundaryCells
     */
-   array<int, 3> SysBoundaryCondition::getTheClosestNonsysboundaryCell(fsgrid::FsGrid<FS_STENCIL_WIDTH>& fsgrid,
-                                                                       std::span<fsgrids::technical> technical, cint i,
-                                                                       cint j, cint k) {
-      const vector<array<int, 3>> closestCells = getAllClosestNonsysboundaryCells(fsgrid, technical, i, j, k);
+   array<int, 3> SysBoundaryCondition::getTheClosestNonsysboundaryCell(
+      std::span< fsgrids::technical> technical, fsgrid::FsGrid<FS_STENCIL_WIDTH> &fsgrid,
+      cint i,
+      cint j,
+      cint k
+   ) {
+      const vector< array<int, 3> > closestCells = getAllClosestNonsysboundaryCells(fsgrid, i, j, k);
       return closestCells.at(0);
    }
-
+   
    /*! Get the cellIDs of all the closest cells of type NOT_SYSBOUNDARY.
     * \param i,j,k Coordinates of the cell to start looking from
     * \return The vector of cell indices of those cells
     * \sa getTheClosestNonsysboundaryCell
     */
-   vector<array<int, 3>> SysBoundaryCondition::getAllClosestNonsysboundaryCells(
-       fsgrid::FsGrid<FS_STENCIL_WIDTH>& fsgrid, std::span<fsgrids::technical> technical, cint i, cint j, cint k) {
+   vector< array<int, 3> > SysBoundaryCondition::getAllClosestNonsysboundaryCells(
+      std::span< fsgrids::technical> technical, fsgrid::FsGrid<FS_STENCIL_WIDTH> &fsgrid,
+      cint i,
+      cint j,
+      cint k
+   ) {
       const auto stencil = fsgrid.makeStencil(i, j, k);
       int distance = numeric_limits<int>::max();
       vector<array<int, 3>> closestCells;
@@ -809,7 +816,7 @@ namespace SBC {
 
       return closestCells;
    }
-
+   
    /*! Get the cellID of the first closest cell of type NOT_SYSBOUNDARY found.
     * \param cellID ID of the cell to start look from.
     * \return The cell index of that cell
@@ -936,8 +943,7 @@ namespace SBC {
    /*! Get a bool telling whether to call again applyInitialState upon restarting the simulation. */
    bool SysBoundaryCondition::doApplyUponRestart() const {return this->applyUponRestart;}
 
-   void OuterBoundaryCondition::assignSysBoundary(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid,
-                                                  fsgrid::FsGrid<FS_STENCIL_WIDTH>& fsgrid) {
+   void OuterBoundaryCondition::assignSysBoundary(dccrg::Dccrg<SpatialCell,dccrg::Cartesian_Geometry>& mpiGrid, std::span< fsgrids::technical> technical, fsgrid::FsGrid<FS_STENCIL_WIDTH> &fsgrid) {
       array<bool,6> isThisCellOnAFace;
       
       // Assign boundary flags to local DCCRG cells
