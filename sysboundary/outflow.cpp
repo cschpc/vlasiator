@@ -218,7 +218,7 @@ void Outflow::initSysBoundary(creal& t, Project& project) {
 }
 
 void Outflow::assignSysBoundary(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid,
-                                std::span<fsgrids::technical> technical, fsgrid::FsGrid< FS_STENCIL_WIDTH> &fsgrid) {
+                                std::span<fsgrids::technical> technical, FieldSolverGrid &fsgrid) {
    const auto& gridSpacing = fsgrid.getGridSpacing();
    bool doAssign;
    array<bool, 6> isThisCellOnAFace;
@@ -289,7 +289,7 @@ void Outflow::assignSysBoundary(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geome
 }
 
 void Outflow::applyInitialState(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid,
-                                std::span<fsgrids::technical> technical, fsgrid::FsGrid< FS_STENCIL_WIDTH> &fsgrid,
+                                std::span<fsgrids::technical> technical, FieldSolverGrid &fsgrid,
                                 std::span<array<Real, fsgrids::bfield::N_BFIELD>> perb,
                                 std::span<std::array<Real, fsgrids::bgbfield::N_BGB>> bgb, Project& project) {
    const vector<CellID>& cells = getLocalCells();
@@ -329,7 +329,7 @@ void Outflow::applyInitialState(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geome
 }
 
 void Outflow::updateState(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid,
-                          std::span<fsgrids::technical> technical, fsgrid::FsGrid< FS_STENCIL_WIDTH> &fsgrid,
+                          std::span<fsgrids::technical> technical, FieldSolverGrid &fsgrid,
                           std::span<array<Real, fsgrids::bfield::N_BFIELD>> perb,
                           std::span<std::array<Real, fsgrids::bgbfield::N_BGB>> bgb, creal t) {}
 

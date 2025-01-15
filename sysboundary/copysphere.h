@@ -65,15 +65,14 @@ namespace SBC {
          Project &project
       ) override;
       virtual void assignSysBoundary(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid,
-                                     std::span<fsgrids::technical> technical,
-                                     fsgrid::FsGrid<FS_STENCIL_WIDTH>& fsgrid) override;
+                                     std::span<fsgrids::technical> technical, FieldSolverGrid& fsgrid) override;
       virtual void applyInitialState(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid,
-                                     std::span<fsgrids::technical> technical, fsgrid::FsGrid< FS_STENCIL_WIDTH> &fsgrid,
+                                     std::span<fsgrids::technical> technical, FieldSolverGrid &fsgrid,
                                      std::span<std::array<Real, fsgrids::bfield::N_BFIELD>> perb,
                                      std::span<std::array<Real, fsgrids::bgbfield::N_BGB>> bgb,
                                      Project& project) override;
       virtual void updateState(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid,
-                               std::span<fsgrids::technical> technical, fsgrid::FsGrid< FS_STENCIL_WIDTH> &fsgrid,
+                               std::span<fsgrids::technical> technical, FieldSolverGrid &fsgrid,
                                std::span<std::array<Real, fsgrids::bfield::N_BFIELD>> perb,
                                std::span<std::array<Real, fsgrids::bgbfield::N_BGB>> bgb, creal t) override;
       virtual Real fieldSolverBoundaryCondMagneticField(std::span<const std::array<Real, fsgrids::bfield::N_BFIELD>> b,
@@ -110,7 +109,7 @@ namespace SBC {
       void setCellFromTemplate(SpatialCell* cell,const uint popID);
       
       std::array<Real, 3> fieldSolverGetNormalDirection(
-         std::span< fsgrids::technical> technical, fsgrid::FsGrid< FS_STENCIL_WIDTH> &fsgrid,
+         std::span< fsgrids::technical> technical, FieldSolverGrid &fsgrid,
          cint i,
          cint j,
          cint k
