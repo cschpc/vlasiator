@@ -222,7 +222,7 @@ reconstructionCoefficients(std::span<const std::array<Real, fsgrids::bfield::N_B
 std::array<Real, 3> interpolatePerturbedB(
     std::span<const std::array<Real, fsgrids::bfield::N_BFIELD>> perb,
     std::span<const std::array<Real, fsgrids::dperb::N_DPERB>> dperb,
-    std::span<fsgrids::technical> technical, fsgrid::FsGrid<FS_STENCIL_WIDTH> &fsgrid,
+    fsgrid::FsGrid<fsgrids::technical, FS_STENCIL_WIDTH>& technicalGrid,
     std::map<std::array<int, 3>, std::array<Real, Rec::N_REC_COEFFICIENTS>>& reconstructionCoefficientsCache, cint i,
     cint j, cint k, const std::array<Real, 3> x) {
    std::span<const fsgrids::technical> technical = technicalGrid.getData();
@@ -299,7 +299,7 @@ std::array<Real, 3> interpolatePerturbedB(
 std::array<Real, 3> interpolateCurlB(
     std::span<const std::array<Real, fsgrids::bfield::N_BFIELD>> perb,
     std::span<const std::array<Real, fsgrids::dperb::N_DPERB>> dperb,
-    std::span<fsgrids::technical> technical, fsgrid::FsGrid<FS_STENCIL_WIDTH> &fsgrid,
+    fsgrid::FsGrid<fsgrids::technical, FS_STENCIL_WIDTH>& technicalGrid,
     std::map<std::array<int, 3>, std::array<Real, Rec::N_REC_COEFFICIENTS>>& reconstructionCoefficientsCache, cint i,
     cint j, cint k, const std::array<Real, 3> x) {
    std::span<const fsgrids::technical> technical = technicalGrid.getData();
