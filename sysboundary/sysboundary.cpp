@@ -314,7 +314,7 @@ bool belongsToLayer(const int layer, const int x, const int y, const int z,
                     std::span<fsgrids::technical> technical, fsgrid::FsGrid< FS_STENCIL_WIDTH> &fsgrid) {
 
    bool belongs = false;
-   const auto stencil = technicalGrid.makeStencil(x, y, z);
+   const auto stencil = fsgrid.makeStencil(x, y, z);
 
    // loop through all neighbors (including diagonals)
    for (int iz = -1; iz <= 1; ++iz) {
@@ -354,8 +354,8 @@ bool belongsToLayer(const int layer, const int x, const int y, const int z,
 void SysBoundary::classifyCells(dccrg::Dccrg<spatial_cell::SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid,
                                 std::span<fsgrids::technical> technical, fsgrid::FsGrid< FS_STENCIL_WIDTH> &fsgrid) {
    const vector<CellID>& cells = getLocalCells();
-   const auto* localSize = &technicalGrid.getLocalSize()[0];
-   const auto rank = technicalGrid.getRank();
+   const auto* localSize = &fsgrid.getLocalSize()[0];
+   const auto rank = fsgrid.getRank();
 
    /*set all cells to default value, not_sysboundary */
 #pragma omp parallel for
@@ -367,7 +367,7 @@ void SysBoundary::classifyCells(dccrg::Dccrg<spatial_cell::SpatialCell, dccrg::C
    for (auto z = 0; z < localSize[2]; ++z) {
       for (auto y = 0; y < localSize[1]; ++y) {
          for (auto x = 0; x < localSize[0]; ++x) {
-            const auto stencil = technicalGrid.makeStencil(x, y, z);
+            const auto stencil = fsgrid.makeStencil(x, y, z);
             auto& tech = technical[stencil.center()];
             //  Here for debugging since boundarytype should be fed from MPIGrid
             tech.sysBoundaryFlag = sysboundarytype::N_SYSBOUNDARY_CONDITIONS;
@@ -389,13 +389,13 @@ void SysBoundary::classifyCells(dccrg::Dccrg<spatial_cell::SpatialCell, dccrg::C
    has to be based individually on each cells location
    */
    for (auto& b : sysBoundaries) {
-      b->assignSysBoundary(mpiGrid, technicalGrid);
+      b->assignSysBoundary(mpiGrid, technical, fsgrid);
    }
 
    SpatialCell::set_mpi_transfer_type(Transfer::CELL_SYSBOUNDARYFLAG);
    mpiGrid.update_copies_of_remote_neighbors(SYSBOUNDARIES_NEIGHBORHOOD_ID);
 
-   feedBoundaryIntoFsGrid(mpiGrid, cells, technicalGrid);
+   feedBoundaryIntoFsGrid(mpiGrid, cells, technical, fsgrid);
 
    // set distance 1 cells to boundary cells, that have neighbors which are normal cells
    for (CellID cell : cells) {
@@ -494,7 +494,7 @@ void SysBoundary::classifyCells(dccrg::Dccrg<spatial_cell::SpatialCell, dccrg::C
    // In dccrg initialization the max number of boundary layers is set to 3.
    const uint MAX_NUMBER_OF_BOUNDARY_LAYERS = 3 * pow(2, mpiGrid.get_maximum_refinement_level());
 
-   technicalGrid.updateGhostCells();
+   fsgrid.updateGhostCells(technical);
 
    // loop through max number of layers
    for (uint layer = 1; layer <= MAX_NUMBER_OF_BOUNDARY_LAYERS; ++layer) {
@@ -504,7 +504,7 @@ void SysBoundary::classifyCells(dccrg::Dccrg<spatial_cell::SpatialCell, dccrg::C
       for (auto z = 0; z < localSize[2]; ++z) {
          for (auto y = 0; y < localSize[1]; ++y) {
             for (auto x = 0; x < localSize[0]; ++x) {
-               const auto stencil = technicalGrid.makeStencil(x, y, z);
+               const auto stencil = fsgrid.makeStencil(x, y, z);
                auto& tech = technical[stencil.center()];
 
                // for the first layer, consider all cells that belong to a boundary, for other layers
@@ -512,7 +512,7 @@ void SysBoundary::classifyCells(dccrg::Dccrg<spatial_cell::SpatialCell, dccrg::C
                if ((layer == 1 && tech.sysBoundaryFlag != sysboundarytype::NOT_SYSBOUNDARY) ||
                    (layer > 1 && tech.sysBoundaryLayer == 0)) {
 
-                  if (belongsToLayer(layer, x, y, z, technicalGrid)) {
+                  if (belongsToLayer(layer, x, y, z, technical, fsgrid)) {
 
                      tech.sysBoundaryLayer = layer;
 
@@ -528,7 +528,7 @@ void SysBoundary::classifyCells(dccrg::Dccrg<spatial_cell::SpatialCell, dccrg::C
          }
       }
       // This needs an update every iteration as belongsToLayer() needs up to date data.
-      technicalGrid.updateGhostCells();
+      fsgrid.updateGhostCells(technical);
    }
 
 // One more pass to make sure, in particular if the ionosphere is wide enough
@@ -538,7 +538,7 @@ void SysBoundary::classifyCells(dccrg::Dccrg<spatial_cell::SpatialCell, dccrg::C
    for (auto z = 0; z < localSize[2]; ++z) {
       for (auto y = 0; y < localSize[1]; ++y) {
          for (auto x = 0; x < localSize[0]; ++x) {
-            const auto stencil = technicalGrid.makeStencil(x, y, z);
+            const auto stencil = fsgrid.makeStencil(x, y, z);
             auto& tech = technical[stencil.center()];
             if (tech.sysBoundaryLayer == 0 && (tech.sysBoundaryFlag == sysboundarytype::IONOSPHERE ||
                                                tech.sysBoundaryFlag == sysboundarytype::COPYSPHERE)) {
@@ -548,20 +548,20 @@ void SysBoundary::classifyCells(dccrg::Dccrg<spatial_cell::SpatialCell, dccrg::C
       }
    }
 
-   technicalGrid.updateGhostCells();
+   fsgrid.updateGhostCells(technical);
 
-   const array<fsgrid::FsSize_t, 3> fsGridDimensions = technicalGrid.getGlobalSize();
+   const array<fsgrid::FsSize_t, 3> fsGridDimensions = fsgrid.getGlobalSize();
 
    // One pass to setup the bit field to know which components the field solver should propagate.
 #pragma omp parallel for collapse(2)
    for (auto z = 0; z < localSize[2]; ++z) {
       for (auto y = 0; y < localSize[1]; ++y) {
          for (auto x = 0; x < localSize[0]; ++x) {
-            const auto stencil = technicalGrid.makeStencil(x, y, z);
+            const auto stencil = fsgrid.makeStencil(x, y, z);
             auto& tech = technical[stencil.center()];
             tech.SOLVE = 0;
 
-            const auto globalIndices = technicalGrid.localToGlobal(x, y, z);
+            const auto globalIndices = fsgrid.localToGlobal(x, y, z);
 
             if (((globalIndices[0] == 0 || globalIndices[0] == fsGridDimensions[0] - 1) && !this->isPeriodic(0)) ||
                 ((globalIndices[1] == 0 || globalIndices[1] == fsGridDimensions[1] - 1) && !this->isPeriodic(1)) ||
@@ -606,7 +606,7 @@ void SysBoundary::classifyCells(dccrg::Dccrg<spatial_cell::SpatialCell, dccrg::C
       }
    }
 
-   technicalGrid.updateGhostCells();
+   fsgrid.updateGhostCells(technical);
 }
 
 /*!\brief Apply the initial state to all system boundary cells.
@@ -629,7 +629,7 @@ void SysBoundary::applyInitialState(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_G
       ) {
          continue;
       }
-      (*it)->applyInitialState(mpiGrid, technicalGrid, perb, bgb, project);
+      (*it)->applyInitialState(mpiGrid, technical, fsgrid, perb, bgb, project);
    }
 }
 
@@ -640,7 +640,7 @@ void SysBoundary::updateState(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometr
    if (isAnyDynamic()) {
       for (auto& b : sysBoundaries) {
          if (b->isDynamic()) {
-            b->updateState(mpiGrid, technicalGrid, perb, bgb, t);
+            b->updateState(mpiGrid, technical, fsgrid, perb, bgb, t);
          }
       }
    }

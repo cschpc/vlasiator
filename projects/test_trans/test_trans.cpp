@@ -133,7 +133,7 @@ namespace projects {
                                      std::span<fsgrids::technical> technical, fsgrid::FsGrid< FS_STENCIL_WIDTH> &fsgrid) {
       ConstantField bgField;
       bgField.initialize(0.0,0.0,1e-9);
-      setBackgroundField(bgField, bgb, technicalGrid);
+      setBackgroundField(bgField, bgb, technical, fsgrid);
    }
 
 }// namespace projects

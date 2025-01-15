@@ -105,6 +105,6 @@ namespace projects {
                                     std::span<fsgrids::technical> technical, fsgrid::FsGrid< FS_STENCIL_WIDTH> &fsgrid) {
       ConstantField bgField;
       bgField.initialize(0,0,this->B0); //bg bx, by,bz
-      setBackgroundField(bgField, bgb, technicalGrid);
+      setBackgroundField(bgField, bgb, technical, fsgrid);
    }
 } // namespace projects

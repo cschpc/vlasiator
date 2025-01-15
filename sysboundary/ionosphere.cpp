@@ -1066,11 +1066,11 @@ void SphericalTriGrid::updateIonosphereCommunicator(
    int writingRankInput = 0;
    if (isCouplingInwards || isCouplingOutwards) {
       int size;
-      MPI_Comm_split(MPI_COMM_WORLD, 1, technicalGrid.getRank(), &communicator);
+      MPI_Comm_split(MPI_COMM_WORLD, 1, fsgrid.getRank(), &communicator);
       MPI_Comm_rank(communicator, &rank);
       MPI_Comm_size(communicator, &size);
       if (rank == 0) {
-         writingRankInput = technicalGrid.getRank();
+         writingRankInput = fsgrid.getRank();
       }
 
    } else {
@@ -1143,7 +1143,7 @@ void SphericalTriGrid::mapDownBoundaryData(std::span<const std::array<Real, fsgr
          }
 
          // Local cell
-         auto lfsc = getLocalFsGridCellIndexForCoord(technicalGrid, nodes[n].xMapped);
+         auto lfsc = getLocalFsGridCellIndexForCoord(technical, fsgrid, nodes[n].xMapped);
          if (lfsc[0] == -1 || lfsc[1] == -1 || lfsc[2] == -1) {
             continue;
          }
@@ -1162,7 +1162,7 @@ void SphericalTriGrid::mapDownBoundaryData(std::span<const std::array<Real, fsgr
 
          // Calc curlB, note division by DX one line down
          const std::array<Real, 3> curlB = interpolateCurlB(
-             perb, dperb, technicalGrid, FieldTracing::fieldTracingParameters.reconstructionCoefficientsCache, lfsc[0],
+             perb, dperb, technical, fsgrid, FieldTracing::fieldTracingParameters.reconstructionCoefficientsCache, lfsc[0],
              lfsc[1], lfsc[2], nodes[n].xMapped);
 
          // Dot curl(B) with normalized B, scale by ratio of B(ionosphere)/B(upmapped), multiply by geometric area
@@ -1183,7 +1183,7 @@ void SphericalTriGrid::mapDownBoundaryData(std::span<const std::array<Real, fsgr
                              nodes[n].parameters[ionosphereParameters::UPMAPPED_BY] +
                          nodes[n].parameters[ionosphereParameters::UPMAPPED_BZ] *
                              nodes[n].parameters[ionosphereParameters::UPMAPPED_BZ]) *
-                        physicalconstants::MU_0 * technicalGrid.getGridSpacing()[0]);
+                        physicalconstants::MU_0 * fsgrid.getGridSpacing()[0]);
 
          // By definition, a downwards current into the ionosphere has a positive FAC value,
          // as it corresponds to positive divergence of horizontal current in the ionospheric plane.
@@ -1192,7 +1192,7 @@ void SphericalTriGrid::mapDownBoundaryData(std::span<const std::array<Real, fsgr
             FACinput[n] *= -1;
          }
 
-         std::array<Real, 3> frac = getFractionalFsGridCellForCoord(technicalGrid, nodes[n].xMapped);
+         std::array<Real, 3> frac = getFractionalFsGridCellForCoord(technical, fsgrid, nodes[n].xMapped);
          for (int c = 0; c < 3; c++) {
             // Shift by half a cell, as we are sampling volume quantities that are logically located at cell centres.
             if (frac[c] < 0.5) {
@@ -1204,7 +1204,7 @@ void SphericalTriGrid::mapDownBoundaryData(std::span<const std::array<Real, fsgr
          }
 
          // Linearly interpolate neighbourhood
-         const auto stencil = technicalGrid.makeStencil(lfsc[0], lfsc[1], lfsc[2]);
+         const auto stencil = fsgrid.makeStencil(lfsc[0], lfsc[1], lfsc[2]);
          Real couplingSum = 0;
          for (int xoffset : {0, 1}) {
             for (int yoffset : {0, 1}) {
@@ -2560,12 +2560,12 @@ Ionosphere::fieldSolverGetNormalDirection(std::span<fsgrids::technical> technica
 
    static creal DIAG2 = 1.0 / sqrt(2.0);
    static creal DIAG3 = 1.0 / sqrt(3.0);
-   const auto& gridSpacing = technicalGrid.getGridSpacing();
+   const auto& gridSpacing = fsgrid.getGridSpacing();
 
    creal dx = gridSpacing[0];
    creal dy = gridSpacing[1];
    creal dz = gridSpacing[2];
-   const std::array<fsgrid::FsSize_t, 3> globalIndices = technicalGrid.localToGlobal(i, j, k);
+   const std::array<fsgrid::FsSize_t, 3> globalIndices = fsgrid.localToGlobal(i, j, k);
    creal x = P::xmin + (convert<Real>(globalIndices[0]) + 0.5) * dx;
    creal y = P::ymin + (convert<Real>(globalIndices[1]) + 0.5) * dy;
    creal z = P::zmin + (convert<Real>(globalIndices[2]) + 0.5) * dz;

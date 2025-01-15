@@ -762,7 +762,7 @@ namespace SBC {
       cint j,
       cint k
    ) {
-      const vector< array<int, 3> > closestCells = getAllClosestNonsysboundaryCells(technicalGrid, i, j, k);
+      const vector< array<int, 3> > closestCells = getAllClosestNonsysboundaryCells(technical, fsgrid, i, j, k);
       return closestCells.at(0);
    }
    
@@ -777,7 +777,7 @@ namespace SBC {
       cint j,
       cint k
    ) {
-      const auto stencil = technicalGrid.makeStencil(i, j, k);
+      const auto stencil = fsgrid.makeStencil(i, j, k);
       int distance = numeric_limits<int>::max();
       vector<array<int, 3>> closestCells;
 

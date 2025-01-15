@@ -66,7 +66,7 @@ struct FsGrids {
            const fsgrid::FsData<std::array<Real, fsgrids::bgbfield::N_BGB>>& bgb,
            const fsgrid::FsData<std::array<Real, fsgrids::volfields::N_VOL>>& vol,
            const fsgrid::FsData<fsgrids::technical>& technical, fsgrid::FsGrid<FS_STENCIL_WIDTH>& fsgrid)
-       : technicalGrid(technicalGrid), perB(perb.view()), perBDt2(perbdt2.view()), E(e.view()), EDt2(edt2.view()),
+       : fsgrid(fsgrid), perB(perb.view()), perBDt2(perbdt2.view()), E(e.view()), EDt2(edt2.view()),
          EHall(ehall.view()), EGradPe(egradpe.view()), EGradPeDt2(egradpedt2.view()), moments(moments.view()),
          momentsDt2(momentsdt2.view()), dPerB(dperb.view()), dMoments(dmoments.view()), dMomentsDt2(dmomentsdt2.view()),
          BgB(bgb.view()), vol(vol.view()), technical(technical.view()) {}
@@ -166,7 +166,7 @@ void mapRefinement(dccrg::Dccrg<SpatialCell,dccrg::Cartesian_Geometry>& mpiGrid,
 
 /*! Refine spatial cells and update necessary information
  * \param mpiGrid Spatial grid
- * \param technicalGrid Technical grid
+ * \param fsgrid Technical grid
  * \param sysBoundaries System boundaries
  * \param project Project used
  * \param useStatic Used for forcing static refinement on restart. Negative values use adaptive refinement, non-negative values correspond to static refinement pass in Project::forceRefinement

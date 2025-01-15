@@ -141,7 +141,7 @@ namespace projects {
                          this->By,
                          this->Bz);
 
-      setBackgroundField(bgField, bgb, technicalGrid);
+      setBackgroundField(bgField, bgb, technical, fsgrid);
    }
 
 } // namespace projects

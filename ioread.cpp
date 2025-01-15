@@ -879,9 +879,9 @@ bool readFsGridVariable(vlsv::ParallelReader& file, const string& variableName, 
    MPI_Comm_size(MPI_COMM_WORLD, &size);
    MPI_Comm_rank(MPI_COMM_WORLD, &myRank);
 
-   const auto* localSize = &technicalGrid.getLocalSize()[0];
-   const auto& localStart = technicalGrid.getLocalStart();
-   const auto& globalSize = technicalGrid.getGlobalSize();
+   const auto* localSize = &fsgrid.getLocalSize()[0];
+   const auto& localStart = fsgrid.getLocalStart();
+   const auto& globalSize = fsgrid.getGlobalSize();
 
    // Determine our tasks storage size
    size_t storageSize = localSize[0] * localSize[1] * localSize[2];
@@ -912,7 +912,7 @@ bool readFsGridVariable(vlsv::ParallelReader& file, const string& variableName, 
       }
    }
 
-   const auto& decomposition = technicalGrid.getDecomposition();
+   const auto& decomposition = fsgrid.getDecomposition();
 
    if (decomposition == fileDecomposition) {
       // Easy case: same decomposition => slurp it in.
@@ -943,7 +943,7 @@ bool readFsGridVariable(vlsv::ParallelReader& file, const string& variableName, 
       for (auto z = 0; z < localSize[2]; z++) {
          for (auto y = 0; y < localSize[1]; y++) {
             for (auto x = 0; x < localSize[0]; x++) {
-               const auto stencil = technicalGrid.makeStencil(x, y, z);
+               const auto stencil = fsgrid.makeStencil(x, y, z);
                memcpy(targetData[stencil.center()].data(), &buffer[index], N * sizeof(Real));
                index += N;
             }
@@ -1040,7 +1040,7 @@ bool readFsGridVariable(vlsv::ParallelReader& file, const string& variableName, 
             for (auto z = overlapStart[2]; z < overlapEnd[2]; z++) {
                for (auto y = overlapStart[1]; y < overlapEnd[1]; y++) {
                   for (auto x = overlapStart[0]; x < overlapEnd[0]; x++) {
-                     const auto stencil = technicalGrid.makeStencil(x, y, z);
+                     const auto stencil = fsgrid.makeStencil(x, y, z);
                      const fsgrid::FsIndex_t index = (z - thatTasksStart[2]) * thatTasksSize[0] * thatTasksSize[1] +
                                                      (y - thatTasksStart[1]) * thatTasksSize[0] +
                                                      (x - thatTasksStart[0]);
@@ -1059,7 +1059,7 @@ bool readFsGridVariable(vlsv::ParallelReader& file, const string& variableName, 
       }
    }
    phiprof::Timer updateGhostsTimer{"updateGhostCells"};
-   technicalGrid.updateGhostCells(targetData);
+   fsgrid.updateGhostCells(targetData);
    updateGhostsTimer.stop();
    return true;
 }
@@ -1406,10 +1406,10 @@ bool exec_readGrid(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid
    tReadScalarParameter.stop();
 
    if (success) {
-      success = readFsGridVariable(file, "fg_PERB", fsgridInputRanks, technicalGrid, perb);
+      success = readFsGridVariable(file, "fg_PERB", fsgridInputRanks, technical, fsgrid, perb);
    }
    if (success) {
-      success = readFsGridVariable(file, "fg_E", fsgridInputRanks, technicalGrid, e);
+      success = readFsGridVariable(file, "fg_E", fsgridInputRanks, technical, fsgrid, e);
    }
    exitOnError(success, "(RESTART) Failure reading fsgrid restart variables", MPI_COMM_WORLD);
    readfsTimer.stop();
@@ -1474,7 +1474,7 @@ bool readGrid(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid,
               std::span<std::array<Real, fsgrids::efield::N_EFIELD>> e,
               std::span<fsgrids::technical> technical, fsgrid::FsGrid< FS_STENCIL_WIDTH> &fsgrid, const std::string& name) {
    // Check the vlsv version from the file:
-   return exec_readGrid(mpiGrid, perb, e, technicalGrid, name);
+   return exec_readGrid(mpiGrid, perb, e, technical, fsgrid, name);
 }
 
 /*!

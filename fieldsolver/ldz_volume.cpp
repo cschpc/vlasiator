@@ -107,8 +107,8 @@ void calculateVolumeAveragedFieldsSimple(std::span<std::array<Real, fsgrids::bfi
                                          std::span<std::array<Real, fsgrids::volfields::N_VOL>> vol,
                                          std::span<fsgrids::technical> technical, fsgrid::FsGrid< FS_STENCIL_WIDTH> &fsgrid) {
    phiprof::Timer timer{"Calculate volume averaged fields"};
-   const size_t numCells = technicalGrid.getNumCells();
-   technicalGrid.parallel_for([](int timerId) -> phiprof::Timer { return phiprof::Timer{timerId}; },
+   const size_t numCells = fsgrid.getNumCells();
+   fsgrid.parallel_for([](int timerId) -> phiprof::Timer { return phiprof::Timer{timerId}; },
                               phiprof::initializeTimer("volume averaged fields compute cells"),
                               [=](const fsgrid::FsStencil stencil, cuint sysBoundaryFlag, cuint sysBoundaryLayer) {
                                  calculateVolumeAveragedFields(perb, e, dperb, vol, stencil, sysBoundaryFlag,

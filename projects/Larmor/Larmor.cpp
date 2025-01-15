@@ -123,7 +123,7 @@ namespace projects {
       ConstantField bgField;
       bgField.initialize(this->BX0, this->BY0, this->BZ0);
 
-      setBackgroundField(bgField, bgb, technicalGrid);
+      setBackgroundField(bgField, bgb, technical, fsgrid);
    }
 } //namespace projects 
   
