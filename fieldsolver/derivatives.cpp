@@ -377,6 +377,7 @@ void calculateBVOLDerivatives(std::span<std::array<Real, fsgrids::volfields::N_V
  */
 void calculateBVOLDerivativesSimple(std::span<std::array<Real, fsgrids::volfields::N_VOL>> vol,
                                     std::span<fsgrids::technical> technical, fsgrid::FsGrid<FS_STENCIL_WIDTH> &fsgrid) {
+   std::span<const fsgrids::technical> technical = technicalGrid.getData();
    const auto* localSize = &technicalGrid.getLocalSize()[0];
    const size_t N_cells = localSize[0] * localSize[1] * localSize[2];
 
@@ -474,6 +475,7 @@ void calculateCurvatureSimple(std::span<std::array<Real, fsgrids::volfields::N_V
    const auto* localSize = &technicalGrid.getLocalSize()[0];
    const size_t N_cells = localSize[0] * localSize[1] * localSize[2];
 
+   std::span<const fsgrids::technical> technical = technicalGrid.getData();
 
    phiprof::Timer curvatureTimer{"Calculate curvature"};
    int computeTimerId{phiprof::initializeTimer("Calculate curvature compute cells")};

@@ -1103,6 +1103,7 @@ void calculateHallTermSimple(std::span<std::array<Real, fsgrids::bfield::N_BFIEL
                              std::span<fsgrids::technical> technical, fsgrid::FsGrid<FS_STENCIL_WIDTH> &fsgrid,
                              SysBoundary& sysBoundaries, int32_t RKCase, const bool communicateMomentsDerivatives) {
 
+   std::span<const fsgrids::technical> technical = technicalGrid.getData();
 
    if (not(RKCase == RK_ORDER1 || RKCase == RK_ORDER2_STEP2)) {
       perb = perbdt2;

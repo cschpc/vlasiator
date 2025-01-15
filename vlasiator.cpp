@@ -134,6 +134,7 @@ void report_cell_and_block_counts(dccrg::Dccrg<spatial_cell::SpatialCell,dccrg::
 
 void computeNewTimeStep(dccrg::Dccrg<SpatialCell,dccrg::Cartesian_Geometry>& mpiGrid,
 			std::span< fsgrids::technical> technical, fsgrid::FsGrid<FS_STENCIL_WIDTH> &fsgrid, Real &newDt, bool &isChanged) {
+   const std::span<fsgrids::technical> technical = technicalGrid.getData();
    phiprof::Timer computeTimestepTimer {"compute-timestep"};
    // Compute maximum time step. This cannot be done at the first step as the solvers compute the limits for each cell.
 
