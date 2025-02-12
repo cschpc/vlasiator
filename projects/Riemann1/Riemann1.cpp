@@ -143,9 +143,9 @@ namespace projects {
    void Riemann1::calcCellParameters(spatial_cell::SpatialCell* cell,creal& t) { }
    
    void Riemann1::setProjectBField(
-      FsGrid< std::array<Real, fsgrids::bfield::N_BFIELD>, FS_STENCIL_WIDTH> & perBGrid,
-      FsGrid< std::array<Real, fsgrids::bgbfield::N_BGB>, FS_STENCIL_WIDTH> & BgBGrid,
-      FsGrid< fsgrids::technical, FS_STENCIL_WIDTH> & technicalGrid
+      fsgrid::FsGrid< std::array<Real, fsgrids::bfield::N_BFIELD>, FS_STENCIL_WIDTH> & perBGrid,
+      fsgrid::FsGrid< std::array<Real, fsgrids::bgbfield::N_BGB>, FS_STENCIL_WIDTH> & BgBGrid,
+      fsgrid::FsGrid< fsgrids::technical, FS_STENCIL_WIDTH> & technicalGrid
    ) {
       setBackgroundFieldToZero(BgBGrid);
       

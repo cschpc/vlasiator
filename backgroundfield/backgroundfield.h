@@ -31,12 +31,12 @@
 
 void setBackgroundField(
    const FieldFunction& bgFunction,
-   FsGrid< std::array<Real, fsgrids::bgbfield::N_BGB>, FS_STENCIL_WIDTH> & BgBGrid,
+   fsgrid::FsGrid< std::array<Real, fsgrids::bgbfield::N_BGB>, FS_STENCIL_WIDTH> & BgBGrid,
    bool append=false
 );
 
 void setBackgroundFieldToZero(
-   FsGrid< std::array<Real, fsgrids::bgbfield::N_BGB>, FS_STENCIL_WIDTH> & BgBGrid
+   fsgrid::FsGrid< std::array<Real, fsgrids::bgbfield::N_BGB>, FS_STENCIL_WIDTH> & BgBGrid
 );
 
 /**
@@ -46,7 +46,7 @@ void setBackgroundFieldToZero(
    object to zero (see setPerturbedField below).
 */
 template<long unsigned int numFields> void setPerturbedFieldToZero(
-   FsGrid< std::array<Real, numFields>, FS_STENCIL_WIDTH> & BGrid,
+   fsgrid::FsGrid< std::array<Real, numFields>, FS_STENCIL_WIDTH> & BGrid,
    int offset=fsgrids::bfield::PERBX
    ) {
    std::array<fsgrid::FsIndex_t,3> localSize = BGrid.getLocalSize();
@@ -74,7 +74,7 @@ template<long unsigned int numFields> void setPerturbedFieldToZero(
 */
 template<long unsigned int numFields> void setPerturbedField(
    const FieldFunction& bfFunction,
-   FsGrid< std::array<Real, numFields>, FS_STENCIL_WIDTH> & BGrid,
+   fsgrid::FsGrid< std::array<Real, numFields>, FS_STENCIL_WIDTH> & BGrid,
    int offset=fsgrids::bfield::PERBX,
    bool append=false) {
 

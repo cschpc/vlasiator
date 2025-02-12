@@ -110,7 +110,7 @@ void addTimedBarrier(string name){
 }
 
 void computeNewTimeStep(dccrg::Dccrg<SpatialCell,dccrg::Cartesian_Geometry>& mpiGrid,
-			FsGrid< fsgrids::technical, FS_STENCIL_WIDTH> & technicalGrid, Real &newDt, bool &isChanged) {
+			fsgrid::FsGrid< fsgrids::technical, FS_STENCIL_WIDTH> & technicalGrid, Real &newDt, bool &isChanged) {
 
    phiprof::Timer computeTimestepTimer {"compute-timestep"};
    // Compute maximum time step. This cannot be done at the first step as the solvers compute the limits for each cell.
@@ -410,35 +410,35 @@ int simulate(int argn,char* args[]) {
       return parentCommSize > fsgridProcs && fsgridProcs > 0 ? fsgridProcs : parentCommSize;
    }();
 
-   FsGrid<std::array<Real, fsgrids::bfield::N_BFIELD>, FS_STENCIL_WIDTH> perBGrid(
+   fsgrid::FsGrid<std::array<Real, fsgrids::bfield::N_BFIELD>, FS_STENCIL_WIDTH> perBGrid(
        fsGridDimensions, parentComm, numFsProcs, periodicity, gridSpacing, physicalGlobalStart, decomposition);
-   FsGrid<std::array<Real, fsgrids::bfield::N_BFIELD>, FS_STENCIL_WIDTH> perBDt2Grid(
+   fsgrid::FsGrid<std::array<Real, fsgrids::bfield::N_BFIELD>, FS_STENCIL_WIDTH> perBDt2Grid(
        fsGridDimensions, parentComm, numFsProcs, periodicity, gridSpacing, physicalGlobalStart, decomposition);
-   FsGrid<std::array<Real, fsgrids::efield::N_EFIELD>, FS_STENCIL_WIDTH> EGrid(
+   fsgrid::FsGrid<std::array<Real, fsgrids::efield::N_EFIELD>, FS_STENCIL_WIDTH> EGrid(
        fsGridDimensions, parentComm, numFsProcs, periodicity, gridSpacing, physicalGlobalStart, decomposition);
-   FsGrid<std::array<Real, fsgrids::efield::N_EFIELD>, FS_STENCIL_WIDTH> EDt2Grid(
+   fsgrid::FsGrid<std::array<Real, fsgrids::efield::N_EFIELD>, FS_STENCIL_WIDTH> EDt2Grid(
        fsGridDimensions, parentComm, numFsProcs, periodicity, gridSpacing, physicalGlobalStart, decomposition);
-   FsGrid<std::array<Real, fsgrids::ehall::N_EHALL>, FS_STENCIL_WIDTH> EHallGrid(
+   fsgrid::FsGrid<std::array<Real, fsgrids::ehall::N_EHALL>, FS_STENCIL_WIDTH> EHallGrid(
        fsGridDimensions, parentComm, numFsProcs, periodicity, gridSpacing, physicalGlobalStart, decomposition);
-   FsGrid<std::array<Real, fsgrids::egradpe::N_EGRADPE>, FS_STENCIL_WIDTH> EGradPeGrid(
+   fsgrid::FsGrid<std::array<Real, fsgrids::egradpe::N_EGRADPE>, FS_STENCIL_WIDTH> EGradPeGrid(
        fsGridDimensions, parentComm, numFsProcs, periodicity, gridSpacing, physicalGlobalStart, decomposition);
-   FsGrid<std::array<Real, fsgrids::egradpe::N_EGRADPE>, FS_STENCIL_WIDTH> EGradPeDt2Grid(
+   fsgrid::FsGrid<std::array<Real, fsgrids::egradpe::N_EGRADPE>, FS_STENCIL_WIDTH> EGradPeDt2Grid(
        fsGridDimensions, parentComm, numFsProcs, periodicity, gridSpacing, physicalGlobalStart, decomposition);
-   FsGrid<std::array<Real, fsgrids::moments::N_MOMENTS>, FS_STENCIL_WIDTH> momentsGrid(
+   fsgrid::FsGrid<std::array<Real, fsgrids::moments::N_MOMENTS>, FS_STENCIL_WIDTH> momentsGrid(
        fsGridDimensions, parentComm, numFsProcs, periodicity, gridSpacing, physicalGlobalStart, decomposition);
-   FsGrid<std::array<Real, fsgrids::moments::N_MOMENTS>, FS_STENCIL_WIDTH> momentsDt2Grid(
+   fsgrid::FsGrid<std::array<Real, fsgrids::moments::N_MOMENTS>, FS_STENCIL_WIDTH> momentsDt2Grid(
        fsGridDimensions, parentComm, numFsProcs, periodicity, gridSpacing, physicalGlobalStart, decomposition);
-   FsGrid<std::array<Real, fsgrids::dperb::N_DPERB>, FS_STENCIL_WIDTH> dPerBGrid(
+   fsgrid::FsGrid<std::array<Real, fsgrids::dperb::N_DPERB>, FS_STENCIL_WIDTH> dPerBGrid(
        fsGridDimensions, parentComm, numFsProcs, periodicity, gridSpacing, physicalGlobalStart, decomposition);
-   FsGrid<std::array<Real, fsgrids::dmoments::N_DMOMENTS>, FS_STENCIL_WIDTH> dMomentsGrid(
+   fsgrid::FsGrid<std::array<Real, fsgrids::dmoments::N_DMOMENTS>, FS_STENCIL_WIDTH> dMomentsGrid(
        fsGridDimensions, parentComm, numFsProcs, periodicity, gridSpacing, physicalGlobalStart, decomposition);
-   FsGrid<std::array<Real, fsgrids::dmoments::N_DMOMENTS>, FS_STENCIL_WIDTH> dMomentsDt2Grid(
+   fsgrid::FsGrid<std::array<Real, fsgrids::dmoments::N_DMOMENTS>, FS_STENCIL_WIDTH> dMomentsDt2Grid(
        fsGridDimensions, parentComm, numFsProcs, periodicity, gridSpacing, physicalGlobalStart, decomposition);
-   FsGrid<std::array<Real, fsgrids::bgbfield::N_BGB>, FS_STENCIL_WIDTH> BgBGrid(
+   fsgrid::FsGrid<std::array<Real, fsgrids::bgbfield::N_BGB>, FS_STENCIL_WIDTH> BgBGrid(
        fsGridDimensions, parentComm, numFsProcs, periodicity, gridSpacing, physicalGlobalStart, decomposition);
-   FsGrid<std::array<Real, fsgrids::volfields::N_VOL>, FS_STENCIL_WIDTH> volGrid(
+   fsgrid::FsGrid<std::array<Real, fsgrids::volfields::N_VOL>, FS_STENCIL_WIDTH> volGrid(
        fsGridDimensions, parentComm, numFsProcs, periodicity, gridSpacing, physicalGlobalStart, decomposition);
-   FsGrid<fsgrids::technical, FS_STENCIL_WIDTH> technicalGrid(fsGridDimensions, parentComm, numFsProcs, periodicity,
+   fsgrid::FsGrid<fsgrids::technical, FS_STENCIL_WIDTH> technicalGrid(fsGridDimensions, parentComm, numFsProcs, periodicity,
                                                               gridSpacing, physicalGlobalStart, decomposition);
 
    // Checking that spatial cells are cubic, otherwise field solver is incorrect (cf. derivatives in E, Hall term)
