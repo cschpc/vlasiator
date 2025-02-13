@@ -60,11 +60,10 @@ std::vector<CellID> mapDccrgIdToFsGridGlobalID(dccrg::Dccrg<SpatialCell,dccrg::C
  *
  * This function assumes that proper grid coupling has been set up.
  */
-void feedMomentsIntoFsGrid(dccrg::Dccrg<SpatialCell,dccrg::Cartesian_Geometry>& mpiGrid,
+void feedMomentsIntoFsGrid(dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid,
                            const std::vector<CellID>& cells,
-                           fsgrid::FsGrid< std::array<Real, fsgrids::moments::N_MOMENTS>, FS_STENCIL_WIDTH> & momentsGrid,
-                           fsgrid::FsGrid< fsgrids::technical, FS_STENCIL_WIDTH> & technicalGrid,
-                           bool dt2=false);
+                           fsgrid::FsData<std::array<Real, fsgrids::moments::N_MOMENTS>>& moments,
+                           fsgrid::FsGrid<fsgrids::technical, FS_STENCIL_WIDTH>& technicalGrid, bool dt2 = false);
 
 /*! Copy field solver result (VOLB, VOLE, VOLPERB derivatives, gradpe) and store them back into DCCRG
  * \param mpiGrid The DCCRG grid carrying fields.
@@ -73,10 +72,10 @@ void feedMomentsIntoFsGrid(dccrg::Dccrg<SpatialCell,dccrg::Cartesian_Geometry>& 
  *
  * This function assumes that proper grid coupling has been set up.
  */
-void getFieldsFromFsGrid(std::span<const std::array<Real, fsgrids::volfields::N_VOL>> volumefields,
-                         std::span<const std::array<Real, fsgrids::bgbfield::N_BGB>> bgb,
-                         std::span<const std::array<Real, fsgrids::egradpe::N_EGRADPE>> egradpe,
-                         std::span<const std::array<Real, fsgrids::dmoments::N_DMOMENTS>> dmoments,
+void getFieldsFromFsGrid(const fsgrid::FsData<std::array<Real, fsgrids::volfields::N_VOL>>& volumefields,
+                         const fsgrid::FsData<std::array<Real, fsgrids::bgbfield::N_BGB>>& bgb,
+                         const fsgrid::FsData<std::array<Real, fsgrids::egradpe::N_EGRADPE>>& egradpe,
+                         const fsgrid::FsData<std::array<Real, fsgrids::dmoments::N_DMOMENTS>>& dmoments,
                          fsgrid::FsGrid<fsgrids::technical, FS_STENCIL_WIDTH>& technicalGrid,
                          dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid,
                          const std::vector<CellID>& cells);
@@ -88,7 +87,7 @@ void getFieldsFromFsGrid(std::span<const std::array<Real, fsgrids::volfields::N_
  *
  * This function assumes that proper grid coupling has been set up.
  */
-void getBgFieldsAndDerivativesFromFsGrid(std::span<std::array<Real, fsgrids::bgbfield::N_BGB>> bgb,
+void getBgFieldsAndDerivativesFromFsGrid(fsgrid::FsData<std::array<Real, fsgrids::bgbfield::N_BGB>>& bgb,
                                          fsgrid::FsGrid<fsgrids::technical, FS_STENCIL_WIDTH>& technicalGrid,
                                          dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid,
                                          const std::vector<CellID>& cells);
@@ -97,8 +96,8 @@ void getBgFieldsAndDerivativesFromFsGrid(std::span<std::array<Real, fsgrids::bgb
  *
  * This should only be neccessary for debugging.
  */
-void getDerivativesFromFsGrid(std::span<std::array<Real, fsgrids::dperb::N_DPERB>> dperb,
-                              std::span<std::array<Real, fsgrids::dmoments::N_DMOMENTS>> dmoments,
+void getDerivativesFromFsGrid(fsgrid::FsData<std::array<Real, fsgrids::dperb::N_DPERB>>& dperb,
+                              fsgrid::FsData<std::array<Real, fsgrids::dmoments::N_DMOMENTS>>& dmoments,
                               fsgrid::FsGrid<fsgrids::technical, FS_STENCIL_WIDTH>& technicalGrid,
                               dccrg::Dccrg<SpatialCell, dccrg::Cartesian_Geometry>& mpiGrid,
                               const std::vector<CellID>& cells);
